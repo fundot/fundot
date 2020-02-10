@@ -65,138 +65,122 @@ int Keywords::search(std::vector<std::string> expression) {
     return -1;
 }
 
-class DigitalNumber {
+class Str {
 public:
-    DigitalNumber() = delete;
-    DigitalNumber(std::string set_digital_number);
-    friend std::ostream& operator<<(std::ostream &out, DigitalNumber digital_number);
-    friend std::istream& operator>>(std::istream &in, DigitalNumber digital_number);
-    void setDigitalNumber(std::string set_digital_number);
-    std::string& getDigitalNumber();
-    int size();
+    Str() = default;
+    Str(std::string set_str);
+    void setStr(std::string set_str);
+    std::string& getStr();
+    void setType(std::string set_type);
+    std::string& getType();
     std::string getReverse();
-    char& operator[](int position);
-    void push_back(char c);
-    std::string absoluteValue();
+    bool isDigitalNumber();
+    std::string getAbsoluteValue();
 private:
-    std::string digital_number_;
+    std::string str_;
+    std::string type_;
 };
 
-std::ostream& operator<<(std::ostream &out, DigitalNumber digital_number) {
-    std::cout << digital_number.digital_number_;
-    return out;
+Str::Str(std::string set_str) {
+    str_ = set_str;
+    if (::isDigitalNumber(set_str)) type_ = "DigitalNumber";
+    else type_ = "Str";
 }
 
-std::istream& operator>>(std::istream &in, DigitalNumber digital_number) {
-    std::cin >> digital_number.digital_number_;
-    return in;
+void Str::setStr(std::string set_str) {
+    str_ = set_str;
 }
 
-DigitalNumber::DigitalNumber(std::string set_digital_number) {
-    if (!isDigitalNumber(set_digital_number)) {
-	std::cerr << "\"" << set_digital_number << "\" is not a digital number..." << std::endl;
-	exit(EXIT_FAILURE);
-    }
-    digital_number_ = set_digital_number;
+std::string& Str::getStr() {
+    return str_;
 }
 
-void DigitalNumber::setDigitalNumber(std::string set_digital_number) {
-    if (!isDigitalNumber(set_digital_number)) {
-	std::cerr << "\"" << set_digital_number << "\" is not a digital number..." << std::endl;
-	exit(EXIT_FAILURE);
-    }
-    digital_number_ = set_digital_number;
+void Str::setType(std::string set_type) {
+    type_ = set_type;
 }
 
-std::string& DigitalNumber::getDigitalNumber() {
-    return digital_number_;
+std::string& Str::getType() {
+    return type_;
 }
 
-int DigitalNumber::size() {
-    return digital_number_.size();
-}
-
-std::string DigitalNumber::getReverse() {
+std::string Str::getReverse() {
     std::string reverse;
-    for (int i = digital_number_.size() - 1; i >= 0; --i)
-	reverse.push_back(digital_number_[i]);
+    for (int i = str_.size() - 1; i >= 0; --i)
+	reverse.push_back(str_[i]);
     return reverse;
 }
 
-char& DigitalNumber::operator[](int i) {
-    return digital_number_[i];
+bool Str::isDigitalNumber() {
+    return type_ == "DigitalNumber";
 }
 
-void DigitalNumber::push_back(char c) {
-    digital_number_.push_back(c);
-}
-
-std::string DigitalNumber::absoluteValue() {
-    if (digital_number_[0] == '-') {
-	return digital_number_.substr(1);
+std::string Str::getAbsoluteValue() {
+    if (this->isDigitalNumber() == false) {
+	std::cerr << "This is not a digital number..." << std::endl;
+	exit(EXIT_FAILURE);
     }
-    return digital_number_;
+    if (str_[0] == '-') {
+	return str_.substr(1);
+    }
+    return str_;
 }
 
-DigitalNumber operator+(DigitalNumber first, DigitalNumber second) {
-    DigitalNumber first_reverse(first.getReverse()), second_reverse(second.getReverse());
-    if (first_reverse.getDigitalNumber().size() > second_reverse.getDigitalNumber().size())
+Str operator+(Str first, Str second) {
+    if (first.isDigitalNumber() == false || second.isDigitalNumber() == false) {
+	std::cerr << "Either the first or the second argument is not a digital number..." << std::endl;
+	exit(EXIT_FAILURE);
+    }
+    Str first_reverse(first.getReverse()), second_reverse(second.getReverse());
+    if (first_reverse.getStr().size() > second_reverse.getStr().size())
 	std::swap(first_reverse, second_reverse);
-    DigitalNumber sum("0");
-    for (int i = 0; i < second_reverse.getDigitalNumber().size(); ++i) {
-	int a = first_reverse[i] - '0', b = second_reverse[i] - '0';
-	if (i >= first_reverse.getDigitalNumber().size()) a = 0;
-	if (a + b + sum[i] - '0' < 10) {
-	    sum[i] = a + b + sum[i];
-	    sum.push_back('0');
+    Str sum("0");
+    for (int i = 0; i < second_reverse.getStr().size(); ++i) {
+	int a = first_reverse.getStr()[i] - '0', b = second_reverse.getStr()[i] - '0';
+	if (i >= first_reverse.getStr().size()) a = 0;
+	if (a + b + sum.getStr()[i] - '0' < 10) {
+	    sum.getStr()[i] = a + b + sum.getStr()[i];
+	    sum.getStr().push_back('0');
 	} else {
-	    sum[i] = a + b + sum[i] - 10;
-	    sum.push_back('1');
+	    sum.getStr()[i] = a + b + sum.getStr()[i] - 10;
+	    sum.getStr().push_back('1');
 	}
     }
-    if (sum[sum.size() - 1] == '0') sum.getDigitalNumber().erase(sum.size() - 1);
+    if (sum.getStr()[sum.getStr().size() - 1] == '0') sum.getStr().erase(sum.getStr().size() - 1);
     return sum.getReverse();
 }
 
-DigitalNumber operator-(DigitalNumber first, DigitalNumber second) {
-    DigitalNumber first_reverse(first.getReverse()), second_reverse(second.getReverse());
+Str operator-(Str first, Str second) {
+    Str first_reverse(first.getReverse()), second_reverse(second.getReverse());
     bool is_negative = false;
-    if (first_reverse.absoluteValue().size() < second_reverse.absoluteValue().size() || (first_reverse.absoluteValue().size() == second_reverse.absoluteValue().size() && first_reverse.absoluteValue() < second_reverse.absoluteValue())) {
+    if (first_reverse.getAbsoluteValue().size() < second_reverse.getAbsoluteValue().size() || (first_reverse.getAbsoluteValue().size() == second_reverse.getAbsoluteValue().size() && first_reverse.getAbsoluteValue() < second_reverse.getAbsoluteValue())) {
 	std::swap(first_reverse, second_reverse);
 	is_negative = true;
     }
-    DigitalNumber sum("0");
-    for (int i = 0; i < first_reverse.absoluteValue().size(); ++i) {
-	int a = first_reverse[i] - '0', b = second_reverse[i] - '0';
-	if (i >= second_reverse.absoluteValue().size()) b = 0;
-	if (a - b - (sum[i] - '0') >= 0) {
-	    sum[i] = a - b - sum[i] + 2 * '0';
-	    sum.push_back('0');
+    Str sum("0");
+    for (int i = 0; i < first_reverse.getAbsoluteValue().size(); ++i) {
+	int a = first_reverse.getStr()[i] - '0', b = second_reverse.getStr()[i] - '0';
+	if (i >= second_reverse.getAbsoluteValue().size()) b = 0;
+	if (a - b - (sum.getStr()[i] - '0') >= 0) {
+	    sum.getStr()[i] = a - b - sum.getStr()[i] + 2 * '0';
+	    sum.getStr().push_back('0');
 	} else {
-	    sum[i] = 10 + a - b - sum[i] + 2 * '0';
-	    sum.push_back('1');
+	    sum.getStr()[i] = 10 + a - b - sum.getStr()[i] + 2 * '0';
+	    sum.getStr().push_back('1');
 	}
     }
-    for (int i = sum.size() - 1; i >= 0; --i) {
-	if (sum[i] == '0') sum.getDigitalNumber().erase(i);
+    for (int i = sum.getStr().size() - 1; i >= 0; --i) {
+	if (sum.getStr()[i] == '0') sum.getStr().erase(i);
 	else break;
     }
-    if (is_negative) sum.push_back('-');
+    if (is_negative) sum.getStr().push_back('-');
     return sum.getReverse();
 }
-
-class Expression {
-    Expression() = default;
-    Expression(std::string set_expression);
-private:
-    std::string expression_;
-};
 
 class Jia {
 public:
     Jia();
     std::vector<std::string> translateExpression(std::vector<std::string> expression);
-    int execute(std::vector<std::string> arguments);
+    std::string execute(std::vector<std::string> arguments);
     void recurse(std::vector<std::string> expression);
     void loop();
 private:
@@ -217,33 +201,32 @@ std::vector<std::string> Jia::translateExpression(std::vector<std::string> expre
     return arguments;
 }
 
-int Jia::execute(std::vector<std::string> arguments) {
+std::string Jia::execute(std::vector<std::string> arguments) {
     if (arguments[0] == "+") {
 	if (arguments.size() != 3){
 	    std::cerr << "Number of arguments does not match Jia's \"+\"..." << std::endl;
-	    return -1;
+	    exit(EXIT_FAILURE);
 	} else {
-	    DigitalNumber first(arguments[1]), second(arguments[2]);
-	    std::cout << first + second << std::endl;
+	    Str first(arguments[1]), second(arguments[2]);
+	    return (first + second).getStr();
 	}
     } else if (arguments[0] == "-") {
 	if (arguments.size() != 3){
 	    std::cerr << "Number of arguments does not match Jia's \"-\"..." << std::endl;
-	    return -1;
+	    exit(EXIT_FAILURE);
 	} else {
-	    DigitalNumber first(arguments[1]), second(arguments[2]);
-	    std::cout << first - second << std::endl;
+	    Str first(arguments[1]), second(arguments[2]);
+	    return (first - second).getStr();
 	}
     } else if (arguments[0] == "exit") {
 	exit(0);
     }
-    return 0;
+    return "0";
 }
 
 void Jia::recurse(std::vector<std::string> expression) {
     if ((std::find(expression.begin(), expression.end(), ")") == expression.end() - 1))
-	execute(translateExpression(expression));
-    
+	std::cout << execute(translateExpression(expression)) << std::endl;
 }
 
 void Jia::loop() {
@@ -256,6 +239,7 @@ void Jia::loop() {
 	    if (input == ")") back_parenthesis_count++;
 	    expression.push_back(input);
 	    if (front_parenthesis_count == back_parenthesis_count) {
+		//execute(translateExpression(expression));
 		recurse(expression);
 		break;
 	    }
