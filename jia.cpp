@@ -49,10 +49,6 @@ void Jia::loop() {
 
 std::vector<std::string> Jia::movingSplit(int &i) {
     std::vector<std::string> splited;
-    if (expression_[i] != "(") {
-	splited.push_back(expression_[i++]);
-	return splited;
-    }
     int front_parenthesis_count = 0, back_parenthesis_count = 0;
     while (i < expression_.size() - 1) {
 	if (expression_[i] == "(") ++front_parenthesis_count;
@@ -72,9 +68,13 @@ std::vector<std::string> Jia::execute() {
 	expression.push_back(expression_[0]);
 	expression.push_back(expression_[1]);
 	for (int i = 2; i < expression_.size() - 1; ++i) {
-	    Jia jia_recursion(movingSplit(i));
-	    std::vector<std::string> after_recursion = jia_recursion.execute();
-	    expression.insert(expression.end(), after_recursion.begin(), after_recursion.end());
+	    std::vector<std::string> before_recursion;
+	    if (expression_[i] != "(") expression.insert(expression.end(), expression_[i]);
+	    else {
+		Jia jia_recursion(movingSplit(i));
+		std::vector<std::string> after_recursion = jia_recursion.execute();
+		expression.insert(expression.end(), after_recursion.begin(), after_recursion.end());
+	    }
 	}
 	expression.push_back(")");
     } else expression = expression_;
@@ -83,7 +83,11 @@ std::vector<std::string> Jia::execute() {
 	double first = std::stod(expression[2]), second = std::stod(expression[3]);
 	std::string str = std::to_string(first + second);
 	return {str};
-    } else return expression;
+    } else if (expression.size() == 3) {
+	return {expression[1]};
+    } else if (expression.size() == 1) {
+	return expression;
+    }
     return {"Nothing happens..."};
 }
 
