@@ -185,11 +185,19 @@ DigitalNumber operator-(DigitalNumber first, DigitalNumber second) {
     return sum.getReverse();
 }
 
+class Expression {
+    Expression() = default;
+    Expression(std::string set_expression);
+private:
+    std::string expression_;
+};
+
 class Jia {
 public:
     Jia();
     std::vector<std::string> translateExpression(std::vector<std::string> expression);
     int execute(std::vector<std::string> arguments);
+    void recurse(std::vector<std::string> expression);
     void loop();
 private:
     Keywords jia_keywords_;
@@ -201,17 +209,11 @@ Jia::Jia() {
 
 std::vector<std::string> Jia::translateExpression(std::vector<std::string> expression) {
     std::vector<std::string> arguments;
-    // for (auto i : expression) std::cout << i << std::endl;
-    if (std::find(expression.begin(), expression.end(), ")") == expression.end() - 1) {
-	arguments.push_back(expression[jia_keywords_.search(expression)]);
-	//for (auto i : arguments) std::cout << i << std::endl;
-	for (int i = 0; i < expression.size(); ++i) {
-	    if (expression[i] == arguments[0] || expression[i] == "(" || expression[i] == ")") continue;
-	    arguments.push_back(expression[i]);
-	    //for (auto i : arguments) std::cout << i << std::endl;
-	}
-    } else;
-    //for (auto i : arguments) std::cout << i << std::endl;
+    arguments.push_back(expression[jia_keywords_.search(expression)]);
+    for (int i = 0; i < expression.size(); ++i) {
+	if (expression[i] == arguments[0] || expression[i] == "(" || expression[i] == ")") continue;
+	arguments.push_back(expression[i]);
+    }
     return arguments;
 }
 
@@ -238,6 +240,12 @@ int Jia::execute(std::vector<std::string> arguments) {
     return 0;
 }
 
+void Jia::recurse(std::vector<std::string> expression) {
+    if ((std::find(expression.begin(), expression.end(), ")") == expression.end() - 1))
+	execute(translateExpression(expression));
+    
+}
+
 void Jia::loop() {
     for (;;) {
 	std::string input;
@@ -248,7 +256,7 @@ void Jia::loop() {
 	    if (input == ")") back_parenthesis_count++;
 	    expression.push_back(input);
 	    if (front_parenthesis_count == back_parenthesis_count) {
-		execute(translateExpression(expression));
+		recurse(expression);
 		break;
 	    }
 	}
