@@ -145,7 +145,10 @@ Str operator+(Str first, Str second) {
 	    sum.getStr().push_back('1');
 	}
     }
-    if (sum.getStr()[sum.getStr().size() - 1] == '0') sum.getStr().erase(sum.getStr().size() - 1);
+    for (int i = sum.getStr().size() - 1; i > 0; --i) {
+	if (sum.getStr()[i] == '0') sum.getStr().erase(i);
+	else break;
+    }
     return sum.getReverse();
 }
 
@@ -168,7 +171,7 @@ Str operator-(Str first, Str second) {
 	    sum.getStr().push_back('1');
 	}
     }
-    for (int i = sum.getStr().size() - 1; i >= 0; --i) {
+    for (int i = sum.getStr().size() - 1; i > 0; --i) {
 	if (sum.getStr()[i] == '0') sum.getStr().erase(i);
 	else break;
     }
@@ -179,9 +182,10 @@ Str operator-(Str first, Str second) {
 class Jia {
 public:
     Jia();
+    std::vector<std::string> split(std::string str);
     std::vector<std::string> translateExpression(std::vector<std::string> expression);
     std::string execute(std::vector<std::string> arguments);
-    void recurse(std::vector<std::string> expression);
+    std::string recurse(std::vector<std::string> expression);
     void loop();
 private:
     Keywords jia_keywords_;
@@ -189,6 +193,18 @@ private:
 
 Jia::Jia() {
     jia_keywords_.setKeywords({"+", "-", "exit"});
+}
+
+std::vector<std::string> Jia::split(std::string str) {
+    std::vector<std::string> str_vector;
+    for (int i = 0; i < str.size(); ++i)
+	if (str[i] != ' ') {
+	    std::string s;
+	    while (str[i] != ' ')
+		s.push_back(str[i++]);
+	    str_vector.push_back(s);
+	}
+    return str_vector;
 }
 
 std::vector<std::string> Jia::translateExpression(std::vector<std::string> expression) {
@@ -208,6 +224,10 @@ std::string Jia::execute(std::vector<std::string> arguments) {
 	    exit(EXIT_FAILURE);
 	} else {
 	    Str first(arguments[1]), second(arguments[2]);
+	    if (arguments[1][1] == '(')
+		first = recurse(split(arguments[1]));
+	    if (arguments[2][1] == '(')
+		second = recurse(split(arguments[2]));
 	    return (first + second).getStr();
 	}
     } else if (arguments[0] == "-") {
@@ -216,6 +236,10 @@ std::string Jia::execute(std::vector<std::string> arguments) {
 	    exit(EXIT_FAILURE);
 	} else {
 	    Str first(arguments[1]), second(arguments[2]);
+	    if (arguments[1][1] == '(')
+		first = recurse(split(arguments[1]));
+	    if (arguments[2][1] == '(')
+		second = recurse(split(arguments[2]));
 	    return (first - second).getStr();
 	}
     } else if (arguments[0] == "exit") {
@@ -224,9 +248,26 @@ std::string Jia::execute(std::vector<std::string> arguments) {
     return "0";
 }
 
-void Jia::recurse(std::vector<std::string> expression) {
+std::string Jia::recurse(std::vector<std::string> expression) {
     if ((std::find(expression.begin(), expression.end(), ")") == expression.end() - 1))
-	std::cout << execute(translateExpression(expression)) << std::endl;
+	return execute(translateExpression(expression));
+    int i = 1;
+    std::vector<std::string> arguments;
+    while (i < expression.size() - 1) {
+	std::string argument;
+	int front_parenthesis_count = 0, back_parenthesis_count = 0;
+	while (front_parenthesis_count == 0 || front_parenthesis_count != back_parenthesis_count) {
+	    if (front_parenthesis_count == 0 && expression[i] != "(") {
+		argument = expression[i++];
+		break;
+	    }
+	    if (expression[i] == "(") front_parenthesis_count++;
+	    if (expression[i] == ")") back_parenthesis_count++;
+	    argument = argument + " " + expression[i++];
+	}
+	arguments.push_back(argument);
+    }
+    return execute(translateExpression(arguments));
 }
 
 void Jia::loop() {
@@ -239,8 +280,7 @@ void Jia::loop() {
 	    if (input == ")") back_parenthesis_count++;
 	    expression.push_back(input);
 	    if (front_parenthesis_count == back_parenthesis_count) {
-		//execute(translateExpression(expression));
-		recurse(expression);
+		std::cout << recurse(expression) << std::endl;
 		break;
 	    }
 	}
