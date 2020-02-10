@@ -3,6 +3,9 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <map>
+
+std::map<std::string, std::vector<std::string>> definitions;
 
 std::string readFile(std::string file_name) {
     std::ifstream file_stream(file_name);
@@ -21,6 +24,8 @@ public:
     Jia(std::vector<std::string> set_expression);
     void loop();
     std::vector<std::string> movingSplit(int &i);
+    std::vector<std::string> split(int i);
+    void extendDefinitions();
     std::vector<std::string> execute();
 private:
     std::vector<std::string> expression_;
@@ -62,7 +67,28 @@ std::vector<std::string> Jia::movingSplit(int &i) {
     return splited;
 }
 
+std::vector<std::string> Jia::split(int i) {
+    return movingSplit(i);
+}
+
+void Jia::extendDefinitions() {
+    for (int i = 0; i < expression_.size(); ++i)
+	if (definitions.find(expression_[i]) != definitions.end()) {
+	    std::string replaced = expression_[i];
+	    expression_[i] = definitions[replaced][0];
+	    for (int j = 1; j < definitions[replaced].size(); ++j)
+		expression_.insert(expression_.begin() + i + j, definitions[replaced][j]);
+	}
+}
+
 std::vector<std::string> Jia::execute() {
+    extendDefinitions();
+    if (expression_[1] == "def") {
+	std::vector<std::string> definition;
+	for (int i = 3; i < expression_.size() - 1; ++i) definition.push_back(expression_[i]);
+	definitions.insert(std::pair<std::string, std::vector<std::string>>(expression_[2], definition));
+	return {expression_[2]};
+    }
     std::vector<std::string> expression;
     if (std::find(expression_.begin(), expression_.end(), ")") != expression_.end() - 1) {
 	expression.push_back(expression_[0]);
@@ -87,6 +113,9 @@ std::vector<std::string> Jia::execute() {
 	return {expression[1]};
     } else if (expression.size() == 1) {
 	return expression;
+    } else if (expression.size() > 2 && expression[0] == "(" && expression[expression.size() - 1] == ")") {
+	Jia jia_recursion(split(1));
+	return jia_recursion.execute();
     }
     return {"Nothing happens..."};
 }
