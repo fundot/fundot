@@ -28,8 +28,11 @@ public:
     Jia() = default;
     Jia(std::vector<std::string> set_expression);
     void loop();
+    void rewriteArguments();
+    std::vector<std::string> rewriteExpression(std::vector<std::string> expression);
     std::vector<std::string> movingSplit(int &i);
     std::vector<std::string> split(int i);
+    std::vector<std::string> recurse();
     std::vector<std::string> execute();
 private:
     std::vector<std::string> expression_;
@@ -56,6 +59,36 @@ void Jia::loop() {
     }
 }
 
+void Jia::rewriteArguments() {
+    for (int i = 0; i < expression_.size(); ++i)
+	if (definitions.find(expression_[i]) != definitions.end() && definitions[expression_[i]].parameters.size() == 0)
+	    if (i - 1 < 0 || i + 1 > expression_.size() || expression_[i - 1] != "(" || expression_[i + 1] != ")") {
+		expression_.insert(expression_.begin() + i + 1, ")");
+	        expression_.insert(expression_.begin() + i, "(");
+	        i += 2;
+	    }
+}
+
+std::vector<std::string> Jia::rewriteExpression(std::vector<std::string> expression) {
+    std::string replaced = expression[1];
+    std::map<std::string, std::string> arguments;
+    for (int i = 0; i < definitions[replaced].parameters.size(); ++i) {
+	arguments.insert(std::pair<std::string, std::string>(definitions[replaced].parameters[i], expression[2]));
+        expression.erase(expression.begin() + 2);
+    }
+    for (int j = 0; j < definitions[replaced].body.size(); ++j) {
+	std::string to_insert = definitions[replaced].body[j];
+        if (std::find(definitions[replaced].parameters.begin(), definitions[replaced].parameters.end(), to_insert) != definitions[replaced].parameters.end())
+	    to_insert = arguments[to_insert];
+	if (j == 0) {
+	    expression[1] = to_insert;
+	    continue;
+	}
+	expression.insert(expression.begin() + 1 + j, to_insert);
+    }
+    return expression;
+}
+
 std::vector<std::string> Jia::movingSplit(int &i) {
     std::vector<std::string> splited;
     int front_parenthesis_count = 0, back_parenthesis_count = 0;
@@ -75,19 +108,7 @@ std::vector<std::string> Jia::split(int i) {
     return movingSplit(i);
 }
 
-std::vector<std::string> Jia::execute() {
-    if (expression_[1] == "def") {
-	int p = 4;
-	Definition definition;
-	std::vector<std::string> parameters;
-        while (expression_[p] != ")") parameters.push_back(expression_[p++]);
-	definition.parameters = parameters;
-	std::vector<std::string> body;
-	for (int i = p + 1; i < expression_.size() - 1; ++i) body.push_back(expression_[i]);
-	definition.body = body;
-	definitions.insert(std::pair<std::string, Definition>(expression_[2], definition));
-	return {expression_[2]};
-    }
+std::vector<std::string> Jia::recurse() {
     std::vector<std::string> expression;
     if (std::find(expression_.begin(), expression_.end(), ")") != expression_.end() - 1) {
 	expression.push_back(expression_[0]);
@@ -103,25 +124,27 @@ std::vector<std::string> Jia::execute() {
 	}
 	expression.push_back(")");
     } else expression = expression_;
+    return expression;
+}
+
+std::vector<std::string> Jia::execute() {
+    rewriteArguments();
+    if (expression_[1] == "def") {
+	int p = 4;
+	Definition definition;
+	std::vector<std::string> parameters;
+        while (expression_[p] != ")") parameters.push_back(expression_[p++]);
+	definition.parameters = parameters;
+	std::vector<std::string> body;
+	for (int i = p + 1; i < expression_.size() - 1; ++i) body.push_back(expression_[i]);
+	definition.body = body;
+	definitions.insert(std::pair<std::string, Definition>(expression_[2], definition));
+	return {expression_[2]};
+    }
+    std::vector<std::string> expression = recurse();
     if (expression[1] == "exit") exit(0);
     if (definitions.find(expression[1]) != definitions.end()) {
-	std::string replaced = expression[1];
-	std::map<std::string, std::string> arguments;
-	for (int i = 0; i < definitions[replaced].parameters.size(); ++i) {
-	    arguments.insert(std::pair<std::string, std::string>(definitions[replaced].parameters[i], expression[2]));
-	    expression.erase(expression.begin() + 2);
-	}
-        for (int j = 0; j < definitions[replaced].body.size(); ++j) {
-	    std::string to_insert = definitions[replaced].body[j];
-	    if (std::find(definitions[replaced].parameters.begin(), definitions[replaced].parameters.end(), to_insert) != definitions[replaced].parameters.end())
-		to_insert = arguments[to_insert];
-	    if (j == 0) {
-		expression[1] = to_insert;
-		continue;
-	    }
-	    expression.insert(expression.begin() + 1 + j, to_insert);
-	}
-	Jia jia_recursion(expression);
+	Jia jia_recursion(rewriteExpression(expression));
 	return jia_recursion.execute();
     }
     if (expression[1] == "+") {
