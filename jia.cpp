@@ -5,7 +5,12 @@
 #include <vector>
 #include <map>
 
-std::map<std::string, std::vector<std::string>> definitions;
+typedef struct Definition {
+    std::vector<std::string> parameters;
+    std::vector<std::string> body;
+} Definition;
+
+std::map<std::string, Definition> definitions;
 
 std::string readFile(std::string file_name) {
     std::ifstream file_stream(file_name);
@@ -25,7 +30,6 @@ public:
     void loop();
     std::vector<std::string> movingSplit(int &i);
     std::vector<std::string> split(int i);
-    void extendDefinitions();
     std::vector<std::string> execute();
 private:
     std::vector<std::string> expression_;
@@ -71,22 +75,17 @@ std::vector<std::string> Jia::split(int i) {
     return movingSplit(i);
 }
 
-void Jia::extendDefinitions() {
-    for (int i = 0; i < expression_.size(); ++i)
-	if (definitions.find(expression_[i]) != definitions.end()) {
-	    std::string replaced = expression_[i];
-	    expression_[i] = definitions[replaced][0];
-	    for (int j = 1; j < definitions[replaced].size(); ++j)
-		expression_.insert(expression_.begin() + i + j, definitions[replaced][j]);
-	}
-}
-
 std::vector<std::string> Jia::execute() {
-    extendDefinitions();
     if (expression_[1] == "def") {
-	std::vector<std::string> definition;
-	for (int i = 3; i < expression_.size() - 1; ++i) definition.push_back(expression_[i]);
-	definitions.insert(std::pair<std::string, std::vector<std::string>>(expression_[2], definition));
+	int p = 4;
+	Definition definition;
+	std::vector<std::string> parameters;
+        while (expression_[p] != ")") parameters.push_back(expression_[p++]);
+	definition.parameters = parameters;
+	std::vector<std::string> body;
+	for (int i = p + 1; i < expression_.size() - 1; ++i) body.push_back(expression_[i]);
+	definition.body = body;
+	definitions.insert(std::pair<std::string, Definition>(expression_[2], definition));
 	return {expression_[2]};
     }
     std::vector<std::string> expression;
@@ -105,6 +104,26 @@ std::vector<std::string> Jia::execute() {
 	expression.push_back(")");
     } else expression = expression_;
     if (expression[1] == "exit") exit(0);
+    if (definitions.find(expression[1]) != definitions.end()) {
+	std::string replaced = expression[1];
+	std::map<std::string, std::string> arguments;
+	for (int i = 0; i < definitions[replaced].parameters.size(); ++i) {
+	    arguments.insert(std::pair<std::string, std::string>(definitions[replaced].parameters[i], expression[2]));
+	    expression.erase(expression.begin() + 2);
+	}
+        for (int j = 0; j < definitions[replaced].body.size(); ++j) {
+	    std::string to_insert = definitions[replaced].body[j];
+	    if (std::find(definitions[replaced].parameters.begin(), definitions[replaced].parameters.end(), to_insert) != definitions[replaced].parameters.end())
+		to_insert = arguments[to_insert];
+	    if (j == 0) {
+		expression[1] = to_insert;
+		continue;
+	    }
+	    expression.insert(expression.begin() + 1 + j, to_insert);
+	}
+	Jia jia_recursion(expression);
+	return jia_recursion.execute();
+    }
     if (expression[1] == "+") {
 	double first = std::stod(expression[2]), second = std::stod(expression[3]);
 	std::string str = std::to_string(first + second);
