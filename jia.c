@@ -64,71 +64,36 @@ void destroy_strv(char **strv);
 void strv_insert(char **strv, char *str, int i);
 void strv_delete(char **strv, int i);
 char **eval(char **strv);
+char **read_file(char *file_name);
+char **read_buf();
 
 fun_map *global_fun_map;
 
 int main(int argc, char **argv)
 {
 	global_fun_map = construct_fun_map(FUN_MAP_SIZE);
-	printf("Jia is here to help..\n");
-	for (;;)
+	printf("Jia is here to help.\n");
+	if (argc == 2)
 	{
-		int start_word_count = 0, end_word_count = 0, i = 0;
-		char **strv = construct_strv();
-		while (start_word_count != end_word_count || start_word_count == 0)
+		for (;;)
 		{
-			char *s = malloc(STR_SIZE * sizeof(char));
-			scanf("%s", s);
-			strcpy(strv[i++], s);
-			if (str_info(s) == 0)
-			{
-				++start_word_count;
-				if (*get_last_char(s) == '.')
-				{
-					++end_word_count;
-				}
-			}
-			else if (str_info(s) == 1)
-			{
-				int j;
-				for (j = 0; j < end_dot_count(s); ++j)
-				{
-					++end_word_count;
-					*get_last_char(strv[i - 1]) = '\0';
-					strv[i + j][0] = '.';
-					strv[i + j][1] = '\0';
-				}
-				i += j;
-			}
-			else if (str_info(s) == 2)
-			{
-				*get_last_char(strv[i - 1]) = '\0';
-				if (str_info(strv[i - 1]) == 1)
-				{
-					int j;
-					for (j = 0; j < end_dot_count(strv[i - 1]); ++j)
-					{
-						++end_word_count;
-						*get_last_char(strv[i - 1]) = '\0';
-						strv[i + j][0] = '.';
-						strv[i + j][1] = '\0';
-					}
-					i += j;
-				}
-				strv[i][0] = ':';
-				strv[i][1] = '\0';
-				++i;
-			}
-			else if (i == 1)
-			{
-				break;
-			}
-			free(s);
+			char **strv = read_file(argv[1]);
+			char **new_strv = eval(strv);
+			printf("%s\n", new_strv[0]);
+			destroy_strv(strv);
+			destroy_strv(new_strv);
 		}
-		char **new_strv = eval(strv);
-		printf("%s\n", new_strv[0]);
-		destroy_strv(strv);
-		destroy_strv(new_strv);
+	}
+	else
+	{
+		for (;;)
+		{
+			char **strv = read_buf();
+			char **new_strv = eval(strv);
+			printf("%s\n", new_strv[0]);
+			destroy_strv(strv);
+			destroy_strv(new_strv);
+		}
 	}
 	destroy_fun_map(global_fun_map);
 	return 0;
@@ -536,4 +501,119 @@ char **eval(char **strv)
 		return strv;
 	}
 	return NULL;
+}
+
+char **read_file(char *file_name)
+{
+	FILE *file = fopen(file_name, "r");
+	int start_word_count = 0, end_word_count = 0, i = 0;
+	char **strv = construct_strv();
+	while (start_word_count != end_word_count || start_word_count == 0)
+	{
+		char *s = malloc(STR_SIZE * sizeof(char));
+		fscanf(file, "%s", s);
+		strcpy(strv[i++], s);
+		if (str_info(s) == 0)
+		{
+			++start_word_count;
+			if (*get_last_char(s) == '.')
+			{
+				++end_word_count;
+			}
+		}
+		else if (str_info(s) == 1)
+		{
+			int j;
+			for (j = 0; j < end_dot_count(s); ++j)
+			{
+				++end_word_count;
+				*get_last_char(strv[i - 1]) = '\0';
+				strv[i + j][0] = '.';
+				strv[i + j][1] = '\0';
+			}
+			i += j;
+		}
+		else if (str_info(s) == 2)
+		{
+			*get_last_char(strv[i - 1]) = '\0';
+			if (str_info(strv[i - 1]) == 1)
+			{
+				int j;
+				for (j = 0; j < end_dot_count(strv[i - 1]); ++j)
+				{
+					++end_word_count;
+					*get_last_char(strv[i - 1]) = '\0';
+					strv[i + j][0] = '.';
+					strv[i + j][1] = '\0';
+				}
+				i += j;
+			}
+			strv[i][0] = ':';
+			strv[i][1] = '\0';
+			++i;
+		}
+		else if (i == 1)
+		{
+			break;
+		}
+		free(s);
+	}
+	return strv;
+}
+
+char **read_buf()
+{
+	int start_word_count = 0, end_word_count = 0, i = 0;
+	char **strv = construct_strv();
+	while (start_word_count != end_word_count || start_word_count == 0)
+	{
+		char *s = malloc(STR_SIZE * sizeof(char));
+		scanf("%s", s);
+		strcpy(strv[i++], s);
+		if (str_info(s) == 0)
+		{
+			++start_word_count;
+			if (*get_last_char(s) == '.')
+			{
+				++end_word_count;
+			}
+		}
+		else if (str_info(s) == 1)
+		{
+			int j;
+			for (j = 0; j < end_dot_count(s); ++j)
+			{
+				++end_word_count;
+				*get_last_char(strv[i - 1]) = '\0';
+				strv[i + j][0] = '.';
+				strv[i + j][1] = '\0';
+			}
+			i += j;
+		}
+		else if (str_info(s) == 2)
+		{
+			*get_last_char(strv[i - 1]) = '\0';
+			if (str_info(strv[i - 1]) == 1)
+			{
+				int j;
+				for (j = 0; j < end_dot_count(strv[i - 1]); ++j)
+				{
+					++end_word_count;
+					*get_last_char(strv[i - 1]) = '\0';
+					strv[i + j][0] = '.';
+					strv[i + j][1] = '\0';
+				}
+				i += j;
+			}
+			strv[i][0] = ':';
+			strv[i][1] = '\0';
+			++i;
+		}
+		else if (i == 1)
+		{
+			break;
+		}
+		free(s);
+	}
+	return strv;
 }

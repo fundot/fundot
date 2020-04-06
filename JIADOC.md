@@ -10,13 +10,13 @@ which is a big difference between them.
 
 ## Basic Syntax
 
-* Each function call starts from a name with capital letter as its initial, and reads arguments until a word with dot as ist last letter appears.
+* Each function call starts from a name with capital letter as its initial and reads arguments until a word with dot as its last letter appears.
 
-A code that returns the sum of 1 and 2, which is 3, is shwon below:
+A code that returns the sum of 1 and 2, which is 3, is shown below:
 
     Add 1 2.
 
-* Recursion is allown in Jia.
+* Recursion is allowed in Jia.
 
 Therefore, the following code returns the sum of the sum of 1 and 2 and the sum of 1 and 2, which is 6.
 
@@ -30,9 +30,9 @@ Therefore, we can also write the above code in the following way:
         Add 1 2.
         Add 1 2..
 This is a more preferring way of writing Jia code,
-because it seems to be more clear on what arguments we passed to a function.
+because it seems to be clearer on what arguments we passed to a function.
 
-Another example that demonstrates the above style is shwon below:
+Another example that demonstrates the above style is shown below:
 
     Add 1
         Add 1
