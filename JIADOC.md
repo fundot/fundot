@@ -45,7 +45,7 @@ In a word, each time we want to call a function in another function, we enter a 
 
 For example, we can define an alias of Add in the following way:
 
-    Def Sum a b: Add a b.
+    Def Sum a b.: Add a b..
 Becuase variables and functions are similar in Jia, a variable is defined in the same way:
 
     Def a: 1.

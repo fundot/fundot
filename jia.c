@@ -18,6 +18,15 @@ char *get_last_char(char *s);
 int str_info(char *s);
 int end_dot_count(char *s);
 
+typedef struct str_pair
+{
+	char *first;
+	char *second;
+} str_pair;
+
+str_pair *construct_str_pair(char *first, char *second);
+void destroy_str_pair(str_pair *sp);
+
 typedef struct str_map
 {
 	char **strs;
@@ -26,6 +35,7 @@ typedef struct str_map
 
 str_map *construct_str_map(int sz);
 void destroy_str_map(str_map *sm);
+int str_map_insert(str_map *sm, str_pair *sp);
 
 typedef struct fun
 {
@@ -51,6 +61,8 @@ int fun_map_insert(fun_map *fm, fun *f);
 int first_upper_index(char **strv);
 char **construct_strv();
 void destroy_strv(char **strv);
+void strv_insert(char **strv, char *str, int i);
+void strv_delete(char **strv, int i);
 char **eval(char **strv);
 
 fun_map *global_fun_map;
@@ -78,10 +90,10 @@ int main(int argc, char **argv)
 			}
 			else if (str_info(s) == 1)
 			{
-				end_word_count += end_dot_count(s);
 				int j;
 				for (j = 0; j < end_dot_count(s); ++j)
 				{
+					++end_word_count;
 					*get_last_char(strv[i - 1]) = '\0';
 					strv[i + j][0] = '.';
 					strv[i + j][1] = '\0';
@@ -91,6 +103,18 @@ int main(int argc, char **argv)
 			else if (str_info(s) == 2)
 			{
 				*get_last_char(strv[i - 1]) = '\0';
+				if (str_info(strv[i - 1]) == 1)
+				{
+					int j;
+					for (j = 0; j < end_dot_count(strv[i - 1]); ++j)
+					{
+						++end_word_count;
+						*get_last_char(strv[i - 1]) = '\0';
+						strv[i + j][0] = '.';
+						strv[i + j][1] = '\0';
+					}
+					i += j;
+				}
 				strv[i][0] = ':';
 				strv[i][1] = '\0';
 				++i;
@@ -170,6 +194,22 @@ int end_dot_count(char *s)
 	return count;
 }
 
+str_pair *construct_str_pair(char *first, char *second)
+{
+	str_pair *sp = malloc(sizeof(str_pair));
+	sp->first = malloc(STR_SIZE * sizeof(char));
+	strcpy(sp->first, first);
+	sp->second = malloc(STR_SIZE * sizeof(char));
+	strcpy(sp->second, second);
+	return sp;
+}
+void destroy_str_pair(str_pair *sp)
+{
+	free(sp->first);
+	free(sp->second);
+	free(sp);
+}
+
 str_map *construct_str_map(int sz)
 {
 	str_map *sm = malloc(sizeof(str_map));
@@ -178,6 +218,7 @@ str_map *construct_str_map(int sz)
 	for (int i = 0; i < sm->size; ++i)
 	{
 		sm->strs[i] = malloc(STR_SIZE * sizeof(char));
+		sm->strs[i][0] = '\0';
 	}
 	return sm;
 }
@@ -189,6 +230,13 @@ void destroy_str_map(str_map *sm)
 		free(sm->strs[i]);
 	}
 	free(sm);
+}
+
+int str_map_insert(str_map *sm, str_pair *sp)
+{
+	int i = str_hash(sm->size, sp->first);
+	strcpy(sm->strs[i], sp->second);
+	return i;
 }
 
 fun *construct_fun(char **strv)
@@ -210,15 +258,23 @@ fun *construct_fun(char **strv)
 	}
 	f->argc = i++;
 	f->body = malloc(MAX_FUN_BODY_SIZE * sizeof(char *));
-	int j = 0;
+	int start_word_count = 0, end_word_count = 0, j = 0;
 	while (j < MAX_FUN_BODY_SIZE)
 	{
+		if (str_info(strv[i]) == 0)
+		{
+			++start_word_count;
+		}
+		else if (str_info(strv[i]) == 1)
+		{
+			++end_word_count;
+			if (start_word_count == end_word_count - 1)
+			{
+				break;
+			}
+		}
 		f->body[j] = malloc(STR_SIZE * sizeof(char));
 		strcpy(f->body[j], strv[i]);
-		if (str_info(strv[i]) == 1)
-		{
-			break;
-		}
 		++i;
 		++j;
 	}
@@ -260,7 +316,7 @@ int fun_map_insert(fun_map *fm, fun *f)
 {
 	int i = str_hash(fm->size, f->name);
 	fm->funs[i] = *f;
-	return 0;
+	return i;
 }
 
 int first_upper_index(char **strv)
@@ -296,9 +352,32 @@ void destroy_strv(char **strv)
 	free(strv);
 }
 
+void strv_insert(char **strv, char *str, int i)
+{
+	for (int j = STRV_SIZE - 1; j > i; --j)
+	{
+		strcpy(strv[j], strv[j - 1]);
+	}
+	strcpy(strv[i], str);
+}
+
+void strv_delete(char **strv, int i)
+{
+	for (int j = i; j < STRV_SIZE - 1; ++j)
+	{
+		strcpy(strv[j], strv[j + 1]);
+	}
+}
+
 char **eval(char **strv)
 {
 	char **new_strv = construct_strv();
+	if (strcmp(strv[0], "Def") == 0)
+	{
+		fun_map_insert(global_fun_map, construct_fun(strv + 1));
+		strcpy(new_strv[0], strv[1]);
+		return new_strv;
+	}
 	if (strcmp(strv[0], "Exit.") == 0)
 	{
 		exit(0);
@@ -328,6 +407,50 @@ char **eval(char **strv)
 				{
 					strcpy(strv[i], f->body[j]);
 				}
+			}
+		}
+		++i;
+	}
+	start_word_count = 0, end_word_count = 0, i = 0;
+	while (start_word_count > end_word_count || start_word_count == 0)
+	{
+		int stri = str_info(strv[i]);
+		if (stri == 0)
+		{
+			++start_word_count;
+		}
+		else if (stri == 1)
+		{
+			++end_word_count;
+		}
+		else if (i == 0)
+		{
+			break;
+		}
+		if (global_fun_map->funs[str_hash(global_fun_map->size, strv[i])].name != NULL)
+		{
+			fun *f = &global_fun_map->funs[str_hash(global_fun_map->size, strv[i])];
+			if (f->argc > 1)
+			{
+				str_map *sm = construct_str_map(STR_MAP_SIZE);
+				for (int j = 0; j < f->argc - 1; ++j)
+				{
+					str_pair *sp = construct_str_pair(f->argv[j], strv[i + 1]);
+					strv_delete(strv, i + 1);
+					str_map_insert(sm, sp);
+					destroy_str_pair(sp);
+				}
+				strv_delete(strv, i);
+				for (int j = f->bodyc - 1; j >= 0; --j)
+				{
+					if (sm->strs[str_hash(sm->size, f->body[j])][0] != '\0')
+					{
+						strv_insert(strv, sm->strs[str_hash(sm->size, f->body[j])], i);
+						continue;
+					}
+					strv_insert(strv, f->body[j], i);
+				}
+				destroy_str_map(sm);
 			}
 		}
 		++i;
@@ -390,12 +513,6 @@ char **eval(char **strv)
 			new_strv[strc][1] = '\0';
 		}
 		return eval(new_strv);
-	}
-	else if (strcmp(strv[0], "Def") == 0)
-	{
-		fun_map_insert(global_fun_map, construct_fun(strv + 1));
-		strcpy(new_strv[0], strv[1]);
-		return new_strv;
 	}
 	else if (strcmp(strv[0], "Add") == 0)
 	{
