@@ -4,7 +4,7 @@ This is the official documentation for Jia programming language.
 
 ## Introduction
 
-Jia is a functional programming language inspired by LISP. However, Jia uses capital letters, "A" to "Z", and dot, ".", as we normally do in English,
+Jia is a functional programming language inspired by Lisp. However, Jia uses capital letters, "A" to "Z", and dot, ".", as we normally do in English,
 to indicate the start and end of a function, instead of using parenthesis, "(" and ")",
 which is a big difference between them.
 
@@ -45,17 +45,17 @@ In a word, each time we want to call a function in another function, we enter a 
 
 For example, we can define an alias of Add in the following way:
 
-    Def "Sum a b." "Add a b.".
+    Def Sum a b. Add a b..
 Becuase variables and functions are similar in Jia, a variable is defined in the same way:
 
-    Def "a" "1".
+    Def a 1.
 The above code actually defines a function named "a" with a body "1", but since all names of Jia functions should have capital letters as their initials, such definition defines a variable.
 
 Therefore, we can rewrite the last example of recursion as below:
 
-    Def "a" "1".
-    Add a
-        Add a
-            Add
-                Add a 2.
-                Add a 2....
+    Def a 1.
+    Sum a
+        Sum a
+            Sum
+                Sum a 2.
+                Sum a 2....

@@ -19,14 +19,11 @@ int main(int argc, char **argv)
 	printf("Jia is here to help.\n");
 	if (argc == 2)
 	{
-		for (;;)
-		{
-			char **strv = read_file(argv[1]);
-			char **new_strv = eval(strv);
-			printf("%s\n", new_strv[0]);
-			destroy_strv(strv);
-			destroy_strv(new_strv);
-		}
+		char **strv = read_file(argv[1]);
+		char **new_strv = eval(strv);
+		printf("%s\n", new_strv[0]);
+		destroy_strv(strv);
+		destroy_strv(new_strv);
 	}
 	else
 	{
