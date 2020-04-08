@@ -10,13 +10,14 @@
 #include "fun.h"
 #include "fun_map.h"
 #include "macro.h"
+#include "debug.h"
 
 fun_map *global_fun_map;
 
 int main(int argc, char **argv)
 {
 	global_fun_map = construct_fun_map(FUN_MAP_SIZE);
-	printf("Jia is here to help.\n");
+	printf("Jia is here.\n");
 	if (argc == 2)
 	{
 		char **strv = read_file(argv[1]);
