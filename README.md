@@ -69,4 +69,4 @@ Contributions are welcome.
 
 ## License
 
-GNU-3.0 © Jiacheng Huang
+G-3.0 © Jiacheng Huang
