@@ -69,4 +69,4 @@ Contributions are welcome.
 
 ## License
 
-G-3.0 © Jiacheng Huang
+GPL-3.0 © Jiacheng Huang
