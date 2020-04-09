@@ -2,61 +2,55 @@
 
 This is the official documentation for Jia programming language.
 
-## Introduction
+## READ ME FIRST
 
-Jia is a functional programming language inspired by Lisp. However, Jia uses capital letters, "A" to "Z", and dot, ".", as we normally do in English,
-to indicate the start and end of a function, instead of using parenthesis, "(" and ")",
-which is a big difference between Jia and Lisp.
+For convenience, we invent some notations, so a list of explanations is provided below:
 
-## Basic Syntax
+    Notation     | Explanation
+    [values]     | value_1 value_2 value_3 ... value_n
+    <expression> | Function [arguments].
 
-* Each function call starts from a name with uppercase initial and reads arguments until a word that ends with dot appears.
+## Built-in Functions
 
-A code that returns the sum of 1 and 2, which is 3, is shown below:
+    Def Function [arguments]. <body>.
+Define a function named *Function* with a list of *arguments* as its arguments, and *body* as its body and return *defined*.
 
-    Add 1 2.
+    Def variable value.
+Define a variable named *variable* with *value* as its value and return *defined* and return *set*.
 
-* Recursion is allowed in Jia.
+    Set variable value.
+Set the value of an existing variable named *variable* to be *value*.
 
-Therefore, the following code returns the sum of the sum of 1 and 2 and the sum of 1 and 2, which is 6.
+    Cond <predicate_1> <expression_1>
+        <predicate_2> <expression_2>
+        ... ...
+        <predicate_n> <expression_n>
+        else <expression_else>.
+Return the value of the first expression whose predicate is *true*. The last line with *else* is not necessary.
 
-    Add Add 1 2. Add 1 2..
+    Equal value_1 value_2.
+Return *true* if *value_1* and *value_2* are equal and return *false* otherwise.
 
-* Whitespace, tab, and newline have no effect on Jia code.
+    Add value_1 value_2.
+Return the sum of *value_1* and *value_2*.
 
-Therefore, we can also write the above code in the following way:
+    Sub value_1 value_2.
+Return the difference of *value_1* and *value_2*.
 
-    Add
-        Add 1 2.
-        Add 1 2..
-This is a more preferring way of writing Jia code,
-because it seems to be clearer on what arguments we pass to a function.
+    Mul value_1 value_2.
+Return the product of *value_1* and *value_2*.
 
-Another example that demonstrates the above style is shown below:
+    Div value_1 value_2.
+Return the quotient of *value_1* divided by *value_2*.
 
-    Add 1
-        Add 1
-            Add
-                Add 1 2.
-                Add 1 2....
-In a word, each time we want to call a function in another function, we enter a newline and indent.
+    Mod value_1 value_2.
+Return the remainder of *value_1* divided by *value_2*.
 
-* To define a variable or function, we use Def function. The first argument we pass to Def is treated as the name of the function, the arguments before and including the first one that ends with dot, if any, are treated as the function's arguments, and the arguments after that are treated as the function's body.
+    Block [<expression>s].
+Execute all the *expression*s in the list and return the value returned by the last *expression*.
 
-For example, we can define an alias of Add in the following way:
+    Print value.
+Print *value* on the terminal and return " ".
 
-    Def Sum-of-two-numbers a b. Add a b..
-Because variables and functions are similar in Jia, a variable is defined in the same way:
-
-    Def x 1.
-The above code actually defines a function named "a" with a body "1", but since all names of Jia functions should have capital letters as their initials, such definition defines a variable.
-
-Therefore, we can rewrite the last example of the above style as below:
-
-    Def Sum-of-two-numbers a b. Add a b..
-    Def x 1.
-    Sum-of-two-numbers x
-        Sum-of-two-numbers x
-            Sum-of-two-numbers
-                Sum-of-two-numbers x 2.
-                Sum-of-two-numbers x 2....
+    Exit.
+Quit the program.

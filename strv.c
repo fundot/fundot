@@ -24,6 +24,14 @@ void destroy_strv(char **strv)
 	free(strv);
 }
 
+void clear_strv(char **strv)
+{
+	for (int i = 0; i < STRV_SIZE; ++i)
+	{
+		free(strv[i]);
+	}
+}
+
 void strv_insert(char **strv, char *str, int i)
 {
 	for (int j = STRV_SIZE - 1; j > i; --j)

@@ -22,7 +22,10 @@ int main(int argc, char **argv)
 	{
 		char **strv = read_file(argv[1]);
 		char **new_strv = eval(strv);
-		printf("%s\n", new_strv[0]);
+		if (strcmp(new_strv[0], " ") != 0)
+			{
+				printf("%s\n", new_strv[0]);
+			}
 		destroy_strv(strv);
 		destroy_strv(new_strv);
 	}
@@ -32,7 +35,10 @@ int main(int argc, char **argv)
 		{
 			char **strv = read_buf();
 			char **new_strv = eval(strv);
-			printf("%s\n", new_strv[0]);
+			if (strcmp(new_strv[0], " ") != 0)
+			{
+				printf("%s\n", new_strv[0]);
+			}
 			destroy_strv(strv);
 			destroy_strv(new_strv);
 		}

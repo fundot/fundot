@@ -21,7 +21,7 @@ You can use the following command in terminals of Unix, macOS, Linux, and any ot
 
 ## Usage
 
-This program is an underdeveloped parser of Jia programming language that contains the REPL (Read, Evaluate, and Print Loop) mode and the file execution mode.
+This program is an underdeveloped parser of Jia programming language that contains the REPL (read-eval-print Loop) mode and the file execution mode.
 
 For REPL mode, simply access Jia in the terminal under this repository.
 
@@ -61,7 +61,7 @@ Then if you enter the following code in terminal under this repository, an outpu
     $ ./jia test.jia
     Jia is here.
     8
-**Note: So far, this parser has not become stable, and huge changes may occur for each new commit.**
+**Note: So far, this parser has not been stable, and huge changes may occur in each new commit.**
 
 ## Contributing
 
