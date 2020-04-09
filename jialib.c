@@ -18,12 +18,14 @@ int int_hash(int sz, int i)
 
 int str_hash(int sz, char *s)
 {
-	int sum = 0;
+	unsigned long hash = 5381;
+	int c = 0;
 	for (int i = 0; s[i] != '\0'; ++i)
 	{
-		sum += s[i];
+		c = s[i];
+		hash = ((hash << 5) + hash) + c;
 	}
-	return int_hash(sz, sum);
+	return hash % sz;
 }
 
 char **get_first_expr(char **strv)
