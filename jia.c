@@ -33,6 +33,7 @@ int main(int argc, char **argv)
 	{
 		for (;;)
 		{
+			printf(">>> ");
 			char **strv = read_buf();
 			char **new_strv = eval(strv);
 			if (strcmp(new_strv[0], " ") != 0)
