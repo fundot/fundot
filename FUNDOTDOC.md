@@ -28,6 +28,11 @@ Set the value of an existing variable named *variable* to be *value*.
         else <expression_else>.
 Return the value of the first expression whose predicate is *true*. The last line with *else* is not necessary.
 
+    If <predicate> <expression_1>
+        else <expression_2>.
+Return the value of *expression_1* if the *predicate* is *true*, otherwise return the value of *expression_2*.
+
+
     Equal value_1 value_2.
 Return *true* if *value_1* and *value_2* are equal and return *false* otherwise.
 

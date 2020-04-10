@@ -87,6 +87,10 @@ char **number_to_string(double num)
 char **eval(char **strv)
 {
 	char **new_strv = construct_strv();
+	if (strcmp(strv[0], "If") == 0)
+	{
+		strcpy(strv[0], "Cond");
+	}
 	if (strcmp(strv[0], "Exit") == 0)
 	{
 		exit(0);
