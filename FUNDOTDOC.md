@@ -1,6 +1,6 @@
-# Jia Documentation
+# Fundot Documentation
 
-This is the official documentation for Jia programming language.
+This is the official documentation for Fundot programming language.
 
 ## READ ME FIRST
 

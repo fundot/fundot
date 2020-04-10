@@ -1,5 +1,5 @@
-#ifndef __JIALIB_H__
-#define __JIALIB_H__
+#ifndef __FUNDOTLIB_H__
+#define __FUNDOTLIB_H__
 
 #include "fun_map.h"
 

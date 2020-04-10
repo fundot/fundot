@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "jialib.h"
+#include "fundotlib.h"
 #include "fun_map.h"
 
 fun_map *construct_fun_map(int sz)

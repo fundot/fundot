@@ -1,5 +1,5 @@
-#ifndef __JIAIO_H__
-#define __JIAIO_H__
+#ifndef __FUNDOTIO_H__
+#define __FUNDOTIO_H__
 
 char **read_file(char *file_name);
 char **read_buf();

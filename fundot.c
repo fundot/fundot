@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "jiaio.h"
-#include "jialib.h"
+#include "fundotio.h"
+#include "fundotlib.h"
 #include "str.h"
 #include "strv.h"
 #include "str_pair.h"
@@ -17,7 +17,7 @@ fun_map *global_fun_map;
 int main(int argc, char **argv)
 {
 	global_fun_map = construct_fun_map(FUN_MAP_SIZE);
-	printf("Jia is here.\n");
+	printf("Fundot is here.\n");
 	if (argc == 2)
 	{
 		char **strv = read_file(argv[1]);
