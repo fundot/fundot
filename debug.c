@@ -6,7 +6,7 @@ void print_running()
     printf("RUNNING\n");
 }
 
-void print_strv(char **strv)
+void print_half_strv(char **strv)
 {
     for (int i = 0; i < STRV_SIZE / 2; ++i)
     {

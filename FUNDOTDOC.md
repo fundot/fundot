@@ -21,6 +21,9 @@ Define a variable named *variable* with *value* as its value and return *defined
     Set variable value.
 Set the value of an existing variable named *variable* to be *value*.
 
+    Equal value_1 value_2.
+Return *true* if *value_1* and *value_2* are equal and return *false* otherwise.
+
     Cond <predicate_1> <expression_1>
         <predicate_2> <expression_2>
         ... ...
@@ -32,9 +35,22 @@ Return the value of the first expression whose predicate is *true*. The last lin
         else <expression_2>.
 Return the value of *expression_1* if the *predicate* is *true*, otherwise return the value of *expression_2*.
 
+    Quote [arguments].
+Return the list of *arguments* without evaluating.
 
-    Equal value_1 value_2.
-Return *true* if *value_1* and *value_2* are equal and return *false* otherwise.
+    CAR [arguments].
+    First [arguments].
+Both return the first argument of the list of *arguments*.
+
+    CDR [arguments].
+    Rest [arguments].
+Both return the rest of *arguments* except the first one.
+
+    Eval <expression>.
+Evaluate the evaluated *expression*.
+
+    Import file_name.
+Evaluate the file called file_name and return the evaluated value.
 
     Add value_1 value_2.
 Return the sum of *value_1* and *value_2*.
@@ -57,5 +73,6 @@ Execute all the *expression*s in the list and return the value returned by the l
     Print value.
 Print *value* on the terminal and return " ".
 
+    Quit.
     Exit.
-Quit the program.
+Exit the program.

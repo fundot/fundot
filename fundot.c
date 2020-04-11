@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 		char **new_strv = eval(strv);
 		if (strcmp(new_strv[0], " ") != 0)
 			{
-				printf("%s\n", new_strv[0]);
+				print_strv(new_strv);
 			}
 		destroy_strv(strv);
 		destroy_strv(new_strv);
@@ -36,9 +36,9 @@ int main(int argc, char **argv)
 			printf(">>> ");
 			char **strv = read_buf();
 			char **new_strv = eval(strv);
-			if (strcmp(new_strv[0], " ") != 0)
+			if (strcmp(new_strv[0], "null") != 0)
 			{
-				printf("%s\n", new_strv[0]);
+				print_strv(new_strv);
 			}
 			destroy_strv(strv);
 			destroy_strv(new_strv);

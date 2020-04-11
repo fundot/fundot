@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "str.h"
+#include "strv.h"
 #include "fun.h"
 #include "macro.h"
 #include "debug.h"
@@ -16,10 +17,15 @@ fun *construct_fun(char **strv)
 	if (isupper(f->name[0]) == 0)
 	{
 		f->argc = 0;
-		f->bodyc = 1;
 		f->body = malloc(MAX_FUN_BODY_SIZE * sizeof(char *));
-		f->body[0] = malloc(STR_SIZE * sizeof(char));
-		strcpy(f->body[0], strv[i]);
+		while (strcmp(strv[i], "null") != 0)
+		{
+			f->body[i - 1] = malloc(STR_SIZE * sizeof(char));
+			strcpy(f->body[i - 1], strv[i]);
+			++i;
+		}
+		f->bodyc = i - 2;
+		strcpy(f->body[i - 2], "null");
 		return f;
 	}
 	f->argv = malloc(MAX_ARGC * sizeof(char *));
@@ -36,26 +42,16 @@ fun *construct_fun(char **strv)
 	f->argc = i - 1;
 	++i;
 	f->body = malloc(MAX_FUN_BODY_SIZE * sizeof(char *));
-	int start_word_count = 0, end_word_count = 0, j = 0;
-	while (j < MAX_FUN_BODY_SIZE)
+	int j = 0;
+	while (strcmp(strv[i], "null") != 0)
 	{
-		if (str_info(strv[i]) == 0)
-		{
-			++start_word_count;
-		}
-		else if (str_info(strv[i]) == 1)
-		{
-			++end_word_count;
-			if (start_word_count == end_word_count - 1)
-			{
-				break;
-			}
-		}
 		f->body[j] = malloc(STR_SIZE * sizeof(char));
 		strcpy(f->body[j], strv[i]);
 		++i;
 		++j;
 	}
+	f->body[j] = malloc(STR_SIZE * sizeof(char));
+	strcpy(f->body[j], "null");
 	f->bodyc = j;
 	return f;
 }

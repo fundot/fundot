@@ -2,6 +2,6 @@
 #define __DEBUG_H__
 
 void print_running();
-void print_strv(char **strv);
+void print_half_strv(char **strv);
 
 #endif
