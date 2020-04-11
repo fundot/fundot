@@ -38,6 +38,9 @@ Return the value of *expression_1* if the *predicate* is *true*, otherwise retur
     Quote [arguments].
 Return the list of *arguments* without evaluating.
 
+    Atom [arguments].
+Return true if *arguments* is an atom.
+
     CAR [arguments].
     First [arguments].
 Both return the first argument of the list of *arguments*.

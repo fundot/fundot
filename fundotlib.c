@@ -117,6 +117,47 @@ char **eval(char **strv)
 		}
 		return new_strv;
 	}
+	else if (strcmp(strv[0], "Atom") == 0)
+	{
+		int start_word_count = 0, end_word_count = 0, i = 1, j = 0;
+		while (start_word_count != end_word_count - 1)
+		{
+			if (str_info(strv[i]) == 0)
+			{
+				++start_word_count;
+			}
+			else if (strcmp(strv[i], ".") == 0)
+			{
+				++end_word_count;
+			}
+			if (start_word_count == end_word_count - 1)
+			{
+				break;
+			}
+			strcpy(new_strv[j++], strv[i++]);
+		}
+		if (strcmp(new_strv[0], "Quote") == 0)
+		{
+			char **nsv = eval(new_strv);
+			strv_cpy(new_strv, nsv);
+			destroy_strv(nsv);
+		}
+		int k = 0;
+		while (strcmp(new_strv[k++], "null") != 0)
+		{
+		}
+		if (k < 3)
+		{
+			strcpy(new_strv[0], "true");
+			strcpy(new_strv[1], "null");
+		}
+		else
+		{
+			strcpy(new_strv[0], "false");
+			strcpy(new_strv[1], "null");
+		}
+		return new_strv;
+	}
 	else if (strcmp(strv[0], "Def") == 0)
 	{
 		fun_map_insert(global_fun_map, construct_fun(strv + 1));
