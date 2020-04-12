@@ -403,7 +403,6 @@ char **eval(char **strv)
 		int i = strv_count(strv) - 2;
 		if (strcmp(strv[i], ".") != 0)
 		{
-			printf("%s\n", strv[i]);
 			strcpy(new_strv[0], strv[i]);
 			return new_strv;
 		}

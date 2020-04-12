@@ -3,8 +3,8 @@
 
 #define STR_SIZE 64
 #define STRV_SIZE 256
-#define STR_MAP_SIZE 257
-#define FUN_MAP_SIZE 257
+#define STR_MAP_SIZE 32749
+#define FUN_MAP_SIZE 32749
 #define MAX_ARGC 16
 #define MAX_FUN_BODY_SIZE 65536
 #define EPSILON 0.0001
