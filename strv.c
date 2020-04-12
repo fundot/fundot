@@ -55,6 +55,16 @@ void strv_delete(char **strv, int i)
 	}
 }
 
+int strv_count(char **strv)
+{
+	int i = 0;
+	while (strcmp(strv[i], "null") != 0)
+	{
+		++i;
+	}
+	return i;
+}
+
 int is_strv_complete(char **strv, int p)
 {
 	int start_word_count = 0, end_word_count = 0;
@@ -105,4 +115,14 @@ int strv_insert_strv(char **strv1, char **strv2, int i)
 		strv_insert(strv1, strv2[j++], i++);
 	}
 	return j;
+}
+
+int last_str_index(char **strv)
+{
+	int i = 0;
+	while (strcmp(strv[i], "null") != 0)
+	{
+		++i;
+	}
+	return i - 1;
 }

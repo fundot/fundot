@@ -1,6 +1,8 @@
+#include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 #include "fundotlib.h"
+#include "strv.h"
 #include "str.h"
 #include "debug.h"
 
@@ -82,6 +84,28 @@ int second_upper_index_outside_quote(char **strv)
         else if (str_info(strv[i]) == 0)
         {
             if (i != 0)
+            {
+                return i;
+            }
+            ++start_word_count;
+        }
+        else if (*get_last_char(strv[i]) == '.')
+        {
+            ++end_word_count;
+        }
+        ++i;
+    }
+    return -1;
+}
+
+int second_upper_index_outside_list(char **strv)
+{
+    int i = 0, start_word_count = 0, end_word_count = 0;
+    while (start_word_count != end_word_count || start_word_count == 0)
+    {
+        if (str_info(strv[i]) == 0)
+        { 
+            if (i != 0 && strcmp(strv[i], "List") != 0)
             {
                 return i;
             }

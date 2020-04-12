@@ -17,7 +17,7 @@ fun_map *global_fun_map;
 int main(int argc, char **argv)
 {
 	global_fun_map = construct_fun_map(FUN_MAP_SIZE);
-	printf("Fundot is here.\n");
+	printf("Fun.\n");
 	if (argc == 2)
 	{
 		char **strv = read_file(argv[1]);

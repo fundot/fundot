@@ -38,6 +38,9 @@ Return the value of *expression_1* if the *predicate* is *true*, otherwise retur
     Quote [arguments].
 Return the list of *arguments* without evaluating.
 
+    List [<expression>s].
+Return the list of evaluated *expression*s.
+
     Atom [arguments].
 Return true if *arguments* is an atom.
 
@@ -47,7 +50,7 @@ Both return the first argument of the list of *arguments*.
 
     CDR [arguments].
     Rest [arguments].
-Both return the rest of *arguments* except the first one.
+Both return the list of the rest of *arguments* except the first one.
 
     Eval <expression>.
 Evaluate the evaluated *expression*.
@@ -74,7 +77,7 @@ Return the remainder of *value_1* divided by *value_2*.
 Execute all the *expression*s in the list and return the value returned by the last *expression*.
 
     Print value.
-Print *value* on the terminal and return " ".
+Print *value* on the terminal and return *null*.
 
     Quit.
     Exit.

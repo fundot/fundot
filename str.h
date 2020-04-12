@@ -6,5 +6,6 @@ int str_info(char *s);
 int end_dot_count(char *s);
 int first_upper_index(char **strv);
 int second_upper_index_outside_quote(char **strv);
+int second_upper_index_outside_list(char **strv);
 
 #endif
