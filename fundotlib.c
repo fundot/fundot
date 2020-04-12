@@ -12,11 +12,13 @@
 #include "macro.h"
 #include "debug.h"
 
+/* Return the hash value of int i under the size s. */
 int int_hash(int sz, int i)
 {
 	return i % sz;
 }
 
+/* Return the hash value of str s under the size s. */
 int str_hash(int sz, char *s)
 {
 	unsigned long hash = 5381;
@@ -29,6 +31,7 @@ int str_hash(int sz, char *s)
 	return hash % sz;
 }
 
+/* Return the pointer to the first expression of strv. */
 char **get_first_expr(char **strv)
 {
 	char **new_strv = construct_strv();
@@ -54,6 +57,7 @@ char **get_first_expr(char **strv)
 	return new_strv;
 }
 
+/* Delete all quotation marks of strv. */
 void delete_all_quotation_marks(char **strv)
 {
 	int start_word_count = 0, end_word_count = 0, i = 0;
@@ -76,6 +80,7 @@ void delete_all_quotation_marks(char **strv)
 	}
 }
 
+/* Change the number to string. */
 char **number_to_string(double num)
 {
 	char **strv = construct_strv();
@@ -90,6 +95,7 @@ char **number_to_string(double num)
 	return strv;
 }
 
+/* Evaluate the strv. */
 char **eval(char **strv)
 {
 	char **new_strv = construct_strv();

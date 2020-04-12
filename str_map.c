@@ -5,6 +5,7 @@
 #include "str_map.h"
 #include "macro.h"
 
+/* Constructor of str_map. */
 str_map *construct_str_map(int sz)
 {
 	str_map *sm = malloc(sizeof(str_map));
@@ -18,6 +19,7 @@ str_map *construct_str_map(int sz)
 	return sm;
 }
 
+/* Destroyer of str_map. */
 void destroy_str_map(str_map *sm)
 {
 	for (int i = 0; i < sm->size; ++i)
@@ -27,6 +29,7 @@ void destroy_str_map(str_map *sm)
 	free(sm);
 }
 
+/* Insert a str_pair sp to the str_map sm. */
 int str_map_insert(str_map *sm, str_pair *sp)
 {
 	int i = str_hash(sm->size, sp->first);

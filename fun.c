@@ -8,6 +8,7 @@
 #include "macro.h"
 #include "debug.h"
 
+/* Constructor for fun. */
 fun *construct_fun(char **strv)
 {
 	fun *f = malloc(sizeof(fun));
@@ -56,6 +57,7 @@ fun *construct_fun(char **strv)
 	return f;
 }
 
+/* Destroyer for fun */
 void destroy_fun(fun *f)
 {
 	free(f->name);

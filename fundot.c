@@ -16,8 +16,10 @@ fun_map *global_fun_map;
 
 int main(int argc, char **argv)
 {
+	/* Construct a global fun map for use later. */
 	global_fun_map = construct_fun_map(FUN_MAP_SIZE);
 	printf("Fun.\n");
+	/* If we want to eval a file directly */
 	if (argc == 2)
 	{
 		char **strv = read_file(argv[1]);
@@ -29,7 +31,7 @@ int main(int argc, char **argv)
 		destroy_strv(strv);
 		destroy_strv(new_strv);
 	}
-	else
+	else /* If we want to open the parser. */
 	{
 		for (;;)
 		{

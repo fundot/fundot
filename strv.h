@@ -14,5 +14,8 @@ void print_strv(char **strv);
 void strv_cpy(char **strv1, char **strv2);
 int strv_insert_strv(char **strv1, char **strv2, int i);
 int last_str_index(char **strv);
+int first_upper_index(char **strv);
+int second_upper_index_outside_quote(char **strv);
+int second_upper_index_outside_list(char **strv);
 
 #endif

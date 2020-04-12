@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "str.h"
 #include "strv.h"
 #include "fundotio.h"
 #include "macro.h"
 #include "debug.h"
 
+/* Read the contents from a file and convert them to a parser-friendly strv. */
 char **read_file(char *file_name)
 {
 	FILE *file = fopen(file_name, "r");
@@ -18,6 +20,19 @@ char **read_file(char *file_name)
 		fscanf(file, "%s", s);
 		strcpy(strv[i], s);
 		free(s);
+		if (strv[i][0] == '"' && *get_last_char(strv[i]) != '"')
+		{
+			char c = ' ';
+			while (c != '\0')
+			{
+				c = getchar();
+				*(get_last_char(strv[i]) + 1) = c;
+				if (c == '"')
+				{
+					break;
+				}
+			}
+		}
 		i += symbol_split(strv, i);
 		if (is_strv_complete(strv, i + 1))
 		{
@@ -29,6 +44,7 @@ char **read_file(char *file_name)
 	return strv;
 }
 
+/* Read the contents from the buffer and convert them to a parser-friendly strv. */
 char **read_buf()
 {
 	char **strv = construct_strv();
@@ -39,6 +55,19 @@ char **read_buf()
 		scanf("%s", s);
 		strcpy(strv[i], s);
 		free(s);
+		if (strv[i][0] == '"' && *get_last_char(strv[i]) != '"')
+		{
+			char c = ' ';
+			while (c != '\0')
+			{
+				c = getchar();
+				*(get_last_char(strv[i]) + 1) = c;
+				if (c == '"')
+				{
+					break;
+				}
+			}
+		}
 		i += symbol_split(strv, i);
 		if (is_strv_complete(strv, i + 1))
 		{
@@ -49,19 +78,17 @@ char **read_buf()
 	return strv;
 }
 
+/* Split the strv into parser-friendly strv. */
 int symbol_split(char **strv, int i)
 {
 	int count = 0;
 	char c = strv[i][0];
-	if (c == '"')
-	{
-		strcpy(strv[i + 1], strv[i] + 1);
-		strv[i][1] = '\0';
-		++count;
-		++i;
-	}
 	c = *get_last_char(strv[i]);
-	while (c == '.' || c == ':' || c == '"')
+	if (strcmp(strv[i], ".") == 0)
+	{
+		return count;
+	}
+	while (c == '.')
 	{
 		++count;
 		*get_last_char(strv[i]) = '\0';

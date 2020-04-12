@@ -6,6 +6,7 @@
 #include "macro.h"
 #include "debug.h"
 
+/* Constructor of strv. */
 char **construct_strv()
 {
 	char **strv = malloc(STRV_SIZE * sizeof(char *));
@@ -17,6 +18,7 @@ char **construct_strv()
 	return strv;
 }
 
+/* Deestroyer of strv. */
 void destroy_strv(char **strv)
 {
 	for (int i = 0; i < STRV_SIZE; ++i)
@@ -26,6 +28,7 @@ void destroy_strv(char **strv)
 	free(strv);
 }
 
+/* Clear all inner parts of strv. */
 void clear_strv(char **strv)
 {
 	for (int i = 0; i < STRV_SIZE; ++i)
@@ -34,6 +37,7 @@ void clear_strv(char **strv)
 	}
 }
 
+/* Insert a str to a strv at the position i. */
 void strv_insert(char **strv, char *str, int i)
 {
 	for (int j = STRV_SIZE - 1; j > i; --j)
@@ -43,6 +47,7 @@ void strv_insert(char **strv, char *str, int i)
 	strcpy(strv[i], str);
 }
 
+/* Delete the str at the position i of strv. */
 void strv_delete(char **strv, int i)
 {
 	for (int j = i; j < STRV_SIZE - 1; ++j)
@@ -55,6 +60,7 @@ void strv_delete(char **strv, int i)
 	}
 }
 
+/* Count how many strs strv have. */
 int strv_count(char **strv)
 {
 	int i = 0;
@@ -65,11 +71,19 @@ int strv_count(char **strv)
 	return i;
 }
 
+/* Check whether the strv is a complete expression. */
 int is_strv_complete(char **strv, int p)
 {
 	int start_word_count = 0, end_word_count = 0;
 	for (int i = 0; i < p; ++i)
 	{
+		if (strv[i][0] == '"')
+		{
+			while (*get_last_char(strv[i]) != '"' && i < p)
+			{
+				++i;
+			}
+		}
 		if (isupper(strv[i][0]))
 		{
 			++start_word_count;
@@ -86,6 +100,7 @@ int is_strv_complete(char **strv, int p)
 	return 0;
 }
 
+/* Print the strv. */
 void print_strv(char **strv)
 {
 	int i = 0;
@@ -96,6 +111,7 @@ void print_strv(char **strv)
 	printf("\n");
 }
 
+/* Copy strv2 to strv1. */
 void strv_cpy(char **strv1, char **strv2)
 {
 	int i = 0;
@@ -107,6 +123,7 @@ void strv_cpy(char **strv1, char **strv2)
 	strcpy(strv1[i], "null");
 }
 
+/* Insert strv2 to strv1 at the position i. */
 int strv_insert_strv(char **strv1, char **strv2, int i)
 {
 	int j = 0;
@@ -117,6 +134,7 @@ int strv_insert_strv(char **strv1, char **strv2, int i)
 	return j;
 }
 
+/* Return the index of the last str of strv. */
 int last_str_index(char **strv)
 {
 	int i = 0;
@@ -125,4 +143,76 @@ int last_str_index(char **strv)
 		++i;
 	}
 	return i - 1;
+}
+
+/* Return the index of the first str with uppercase capital. */
+int first_upper_index(char **strv)
+{
+	int i = 0;
+	while (*get_last_char(strv[i]) != '.')
+	{
+		if (str_info(strv[i]) == 0)
+		{
+			return i;
+		}
+		++i;
+	}
+	return -1;
+}
+
+/* Return the index of the second str with uppercase capital outside quote. */
+int second_upper_index_outside_quote(char **strv)
+{
+	int i = 0, start_word_count = 0, end_word_count = 0, in_quote = 0;
+	while (start_word_count != end_word_count || start_word_count == 0)
+	{
+		if (in_quote == 1)
+		{
+			if (strcmp(strv[i], "\"") == 0)
+			{
+				in_quote = 0;
+			}
+		}
+		else if (strcmp(strv[i], "\"") == 0)
+		{
+			in_quote = 1;
+		}
+		else if (str_info(strv[i]) == 0)
+		{
+			if (i != 0)
+			{
+				return i;
+			}
+			++start_word_count;
+		}
+		else if (*get_last_char(strv[i]) == '.')
+		{
+			++end_word_count;
+		}
+		++i;
+	}
+	return -1;
+}
+
+/* Return the index of the second str with uppercase capital outside list. */
+int second_upper_index_outside_list(char **strv)
+{
+	int i = 0, start_word_count = 0, end_word_count = 0;
+	while (start_word_count != end_word_count || start_word_count == 0)
+	{
+		if (str_info(strv[i]) == 0)
+		{
+			if (i != 0 && strcmp(strv[i], "List") != 0)
+			{
+				return i;
+			}
+			++start_word_count;
+		}
+		else if (*get_last_char(strv[i]) == '.')
+		{
+			++end_word_count;
+		}
+		++i;
+	}
+	return -1;
 }
