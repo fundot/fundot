@@ -17,6 +17,7 @@ Clone or download this repository and compile the src files.
 You can use the following command in terminals of Unix, macOS, Linux, and any other Unix-like systems under this repository.
 
     make
+    make clean
 **Note: Any following code in this README so far is for Unix-like systems, but we will definitely support Windows in the future.**
 
 ## Usage
@@ -31,21 +32,23 @@ After displaying the information from Fundot, you can call one function a time, 
 
     $ ./fundot
     Fun.
-    Add 1 2.
+    >>> Add 1 2.
     3
-    Add
-        Add 1 2.
-        Add 1 2..
+    >>> Add
+            Add 1 2.
+            Add 1 2..
     6
-    Def Sum-of-two-numbers a b. Add a b..
-    Def x 1.
-    Sum-of-two-numbers x
-        Sum-of-two-numbers x
-            Sum-of-two-numbers
-                Sum-of-two-numbers x 2.
-                Sum-of-two-numbers x 2....
+    >>> Def Sum-of-two-numbers a b. Add a b..
+    defined
+    >>> Def x 1.
+    defined
+    >>> Sum-of-two-numbers x
+            Sum-of-two-numbers x
+                Sum-of-two-numbers
+                    Sum-of-two-numbers x 2.
+                    Sum-of-two-numbers x 2....
     8
-    Exit.
+    >>> Quit.
 For file execution mode, access Fundot from terminal following with an argument, the name of a .Fundot file. For example, assume you have a file named test.Fundot that contains the following content:
 
     Block

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "debug.h"
 #include "macro.h"
 
 /* Show in terminal that a breakpoint is running. */

@@ -5,3 +5,13 @@ fundot.dSYM/Contents/Info.plist
 fundot.dSYM/Contents/Resources/DWARF/fundot
 test.fundot
 fundot
+obj/debug.o
+obj/fun_map.o
+obj/fun.o
+obj/fundot.o
+obj/fundotio.o
+obj/fundotlib.o
+obj/str_map.o
+obj/str_pair.o
+obj/str.o
+obj/strv.o
