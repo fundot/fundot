@@ -1,6 +1,6 @@
-# Fundot Documentation
+# The Fundot Programming Language Specification
 
-This is the official documentation for Fundot programming language.
+This is the official specification for Fundot programming language.
 
 ## READ ME FIRST
 

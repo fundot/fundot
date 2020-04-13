@@ -9,7 +9,7 @@ I started this project, Fundot, to make my idea come true.
 Inspired by Lisp, Fundot is a functional programming language,
 but it does not need parenthesis, "(" and ")", which is the biggest difference between Fundot and Lisp.
 Instead, Fundot uses capital letters, "A" to "Z", and dot, ".", as we normally do in English,
-to indicate the start and end of a function. A FundotDOC.md file is also included in this repository, which describes the language features of Fundot in details.
+to indicate the start and end of a function. More information can be found at [Fundot Documenation](https://fundot.readthedocs.io/en/latest/).
 
 ## Install
 
@@ -28,7 +28,7 @@ For REPL mode, simply access Fundot in the terminal under this repository.
 
     $ ./fundot
     Fun.
-After displaying the information from Fundot, you can call one function a time, but you may call any functions inside that function, until you call the Exit function.
+After displaying the information from Fundot, you can call one function a time, but you may call any functions inside that function, until you call the Exit or Quit function.
 
     $ ./fundot
     Fun.

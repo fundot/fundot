@@ -1,12 +1,12 @@
-# Fundot Tutorial
+# Fundot Beginner's Guide
 
-This is an official tutorial for Fundot beginners.
+This is a tutorial for Fundot beginners.
 
 ## Introduction
 
 Fundot is a functional programming language inspired by Lisp. However, Fundot uses capital letters, "A" to "Z", and dot, ".", as we normally do in English,
 to indicate the start and end of a function, instead of using parenthesis, "(" and ")",
-which is a big difference between Fundot and Lisp.
+which is a big difference between Fundot and Lisp. This feature also makes Fundot more readable.
 
 ## Basic Syntax
 
