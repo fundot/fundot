@@ -1,5 +1,3 @@
-site_name: Fundot
-
 nav:
     - Home: "index.md"
     - Beginner's Guide: "guide.md"
