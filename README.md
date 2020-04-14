@@ -2,6 +2,11 @@
 
 Fundot Programming Language
 
+## Language
+
+* [中文](README.zh.md)
+* English (shown below)
+
 ## Background
 
 As someone who has always been interested in inventing a new programming language,
@@ -14,56 +19,72 @@ to indicate the start and end of a function. More information can be found at [F
 ## Install
 
 Clone or download this repository and compile the src files.
-You can use the following command in terminals of Unix, macOS, Linux, and any other Unix-like systems under this repository.
+You can use the following command in terminals of Unix, macOS, Linux, and any other Unix-like systems under the repository.
 
     make
+Fundot will be installed to /usr/local/bin by the above command. However, if you want to simply install it under the repository, then enter the following command.
+
+    make build
+After build, if you want to remove the object files generated, enter the following command.
+
     make clean
+
 **Note: Any following code in this README so far is for Unix-like systems, but we will definitely support Windows in the future.**
 
 ## Usage
 
-This program is an underdeveloped parser of Fundot programming language that contains the REPL (read-eval-print Loop) mode and the file execution mode.
+This program is a parser of Fundot programming language that contains the REPL (read-eval-print loop) mode and the file execution mode.
 
-For REPL mode, simply access Fundot in the terminal under this repository.
+For REPL mode, simply enter fundot in the terminal.
 
     $ fundot
     Fun.
-After displaying the information from Fundot, you can call one function a time, but you may call any functions inside that function, until you call the Exit or Quit function.
+After displaying the information from Fundot, you can call functions and enjoy Fundot until you call Quit or Exit function.
 
     $ fundot
     Fun.
     >>> Add 1 2.
     3
-    >>> Add
-            Add 1 2.
-            Add 1 2..
+    >>> Add Add 1 2. Add 1 2..
     6
-    >>> Def Sum-of-two-numbers a b. Add a b..
+    >>> Def Sum l.
+            If Atom l. 0
+            else Add First l. Sum Rest l.....
     defined
-    >>> Def x 1.
+    >>> Def ls List 1 2 3 4 5..
     defined
-    >>> Sum-of-two-numbers x
-            Sum-of-two-numbers x
-                Sum-of-two-numbers
-                    Sum-of-two-numbers x 2.
-                    Sum-of-two-numbers x 2....
-    8
+    >>> Sum ls.
+    15
     >>> Quit.
-For file execution mode, access Fundot from terminal following with an argument, the name of a .Fundot file. For example, assume you have a file named test.Fundot that contains the following content:
+For file execution mode, access Fundot from terminal following an argument, the name of a .fundot file. For example, assume you have a file named test.fundot that contains the following content:
 
     Block
-        Def Sum-of-two-numbers a b. Add a b..
-        Def x 1.
-        Sum-of-two-numbers x
-            Sum-of-two-numbers x
-                Sum-of-two-numbers
-                    Sum-of-two-numbers x 2.
-                    Sum-of-two-numbers x 2.....
-Then if you enter the following code in terminal under this repository, an output 8 will be displayed after the information of Fundot.
+        Def ls List 1 2 3 4 5 6..
+        Def Factorial n.
+            If Equal n 1. 1
+            else Mul n Factorial Sub n 1.....
+        Print Factorial 5..
+        Def Sum l.
+            If Atom l. 0
+            else Add First l. Sum Rest l.....
+        Print Sum List 1 2 3 4 5...
+        Def Product l.
+            If Atom l. 1
+            else Mul First l. Product Rest l.....
+        Print Product ls..
+        Def Square x.
+            Mul x x..
+        Print Square First Rest ls....
+    test.fundot.
+Then if you enter the following code in terminal under this repository, Fundot will output as below.
 
     $ fundot test.fundot
     Fun.
-    8
+    120 
+    15 
+    720 
+    4 
+    test.fundot
 **Note: So far, this parser has not been stable, and huge changes may occur in each new commit.**
 
 ## Contributing
