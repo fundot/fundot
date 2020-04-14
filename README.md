@@ -26,11 +26,11 @@ This program is an underdeveloped parser of Fundot programming language that con
 
 For REPL mode, simply access Fundot in the terminal under this repository.
 
-    $ ./fundot
+    $ fundot
     Fun.
 After displaying the information from Fundot, you can call one function a time, but you may call any functions inside that function, until you call the Exit or Quit function.
 
-    $ ./fundot
+    $ fundot
     Fun.
     >>> Add 1 2.
     3
@@ -61,7 +61,7 @@ For file execution mode, access Fundot from terminal following with an argument,
                     Sum-of-two-numbers x 2.....
 Then if you enter the following code in terminal under this repository, an output 8 will be displayed after the information of Fundot.
 
-    $ ./fundot test.fundot
+    $ fundot test.fundot
     Fun.
     8
 **Note: So far, this parser has not been stable, and huge changes may occur in each new commit.**

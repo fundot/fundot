@@ -1,6 +1,6 @@
 site_name: Fundot
 
 nav:
-    - Home: "index.md"
-    - Beginner's Guide: "guide.md"
-    - Specification: "specification.md"
+    - Home: 'index.md'
+    - Beginner's Guide: 'guide.md'
+    - Specification: 'specification.md'

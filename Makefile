@@ -1,18 +1,27 @@
 TARGETS := fundot
 
+MV := mv
+
 CC := gcc
 CFLAGS := -g -Wall -Werror
 CPPFLAGS := -Iinclude
 
 SRC_DIR := src
 OBJ_DIR := obj
+BIN_DIR := /usr/local/bin
 
 SRC := $(wildcard $(SRC_DIR)/*.c)
 OBJ := $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
+BIN := $(BIN_DIR)/$(TARGETS)
 
-.PHONY: all clean
+.PHONY: build move clean
 
-all: $(TARGETS)
+move: $(BIN)
+
+$(BIN): $(TARGETS) | $(BIN_DIR)
+	sudo $(MV) $< $@
+
+build: $(TARGETS)
 
 $(TARGETS): $(OBJ)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
