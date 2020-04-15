@@ -7,7 +7,7 @@
 #include "debug.h"
 
 /* Get the pointer to the last char of a str. */
-char *get_last_char(char *s)
+char *last_char(char *s)
 {
     int i = 0;
     while (s[i] != '\0')
@@ -28,11 +28,11 @@ int str_info(char *s)
     {
         return 0;
     }
-    else if (*get_last_char(s) == '.')
+    else if (*last_char(s) == '.')
     {
         return 1;
     }
-    else if (*get_last_char(s) == ':')
+    else if (*last_char(s) == ':')
     {
         return 2;
     }

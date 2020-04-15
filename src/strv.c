@@ -79,9 +79,9 @@ int is_strv_complete(char **strv, int p)
 	{
 		if (strv[i][0] == '"')
 		{
-			while (*get_last_char(strv[i]) != '"' && i < p)
+			while (*last_char(strv[i]) != '"' && i < p)
 			{
-				if (get_last_char(strv[i]) != &strv[i][0])
+				if (last_char(strv[i]) != &strv[i][0])
 				{
 					continue;
 				}
@@ -153,7 +153,7 @@ int last_str_index(char **strv)
 int first_upper_index(char **strv)
 {
 	int i = 0;
-	while (*get_last_char(strv[i]) != '.')
+	while (*last_char(strv[i]) != '.')
 	{
 		if (isupper(strv[i][0]))
 		{
@@ -189,7 +189,7 @@ int second_upper_index_outside_quote(char **strv)
 			}
 			++start_count;
 		}
-		else if (*get_last_char(strv[i]) == '.')
+		else if (*last_char(strv[i]) == '.')
 		{
 			++end_count;
 		}
@@ -212,7 +212,7 @@ int second_upper_index_outside_list(char **strv)
 			}
 			++start_count;
 		}
-		else if (*get_last_char(strv[i]) == '.')
+		else if (*last_char(strv[i]) == '.')
 		{
 			++end_count;
 		}

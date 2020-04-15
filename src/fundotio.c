@@ -20,13 +20,17 @@ char **read_file(char *file_name)
 		fscanf(file, "%s", s);
 		strcpy(strv[i], s);
 		free(s);
-		if (strv[i][0] == '"' && *get_last_char(strv[i]) != '"')
+		if (strv[i][0] == '"' && !(*last_char(strv[i]) == '"' && last_char(strv[i]) != &strv[i][0]))
 		{
 			char c = ' ';
 			while (c != '\0')
 			{
 				c = getchar();
-				*(get_last_char(strv[i]) + 1) = c;
+				char *s = malloc(STR_SIZE * sizeof(char));
+				s[0] = c;
+				s[1] = '\0';
+				strcat(strv[i], s);
+				free(s);
 				if (c == '"')
 				{
 					break;
@@ -55,7 +59,7 @@ char **read_buf()
 		scanf("%s", s);
 		strcpy(strv[i], s);
 		free(s);
-		if (strv[i][0] == '"' && *get_last_char(strv[i]) != '"')
+		if (strv[i][0] == '"' && !(*last_char(strv[i]) == '"' && last_char(strv[i]) != &strv[i][0]))
 		{
 			char c = ' ';
 			while (c != '\0')
@@ -71,12 +75,10 @@ char **read_buf()
 					break;
 				}
 			}
-			printf("\n");
 		}
 		i += symbol_split(strv, i);
 		if (is_strv_complete(strv, i + 1))
 		{
-			print_strv(strv);
 			break;
 		}
 		++i;
@@ -89,7 +91,7 @@ int symbol_split(char **strv, int i)
 {
 	int count = 0;
 	char c = strv[i][0];
-	c = *get_last_char(strv[i]);
+	c = *last_char(strv[i]);
 	if (strcmp(strv[i], ".") == 0)
 	{
 		return count;
@@ -97,13 +99,13 @@ int symbol_split(char **strv, int i)
 	while (c == '.')
 	{
 		++count;
-		*get_last_char(strv[i]) = '\0';
+		*last_char(strv[i]) = '\0';
 		char *str = malloc(STR_SIZE * sizeof(char));
 		str[0] = c;
 		str[1] = '\0';
 		strv_insert(strv, str, i + 1);
 		free(str);
-		c = *get_last_char(strv[i]);
+		c = *last_char(strv[i]);
 	}
 	return count;
 }
