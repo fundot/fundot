@@ -61,16 +61,22 @@ char **read_buf()
 			while (c != '\0')
 			{
 				c = getchar();
-				*(get_last_char(strv[i]) + 1) = c;
+				char *s = malloc(STR_SIZE * sizeof(char));
+				s[0] = c;
+				s[1] = '\0';
+				strcat(strv[i], s);
+				free(s);
 				if (c == '"')
 				{
 					break;
 				}
 			}
+			printf("\n");
 		}
 		i += symbol_split(strv, i);
 		if (is_strv_complete(strv, i + 1))
 		{
+			print_strv(strv);
 			break;
 		}
 		++i;

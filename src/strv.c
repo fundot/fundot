@@ -81,6 +81,10 @@ int is_strv_complete(char **strv, int p)
 		{
 			while (*get_last_char(strv[i]) != '"' && i < p)
 			{
+				if (get_last_char(strv[i]) != &strv[i][0])
+				{
+					continue;
+				}
 				++i;
 			}
 		}

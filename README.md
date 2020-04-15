@@ -33,7 +33,7 @@ After build, if you want to remove the object files generated, enter the followi
 
 ## Usage
 
-This program is a parser of Fundot programming language that contains the REPL (read-eval-print loop) mode and the file execution mode.
+This program is a interpreter of Fundot programming language that contains the REPL (read-eval-print loop) mode and the file execution mode.
 
 For REPL mode, simply enter fundot in the terminal.
 
@@ -85,7 +85,7 @@ Then if you enter the following code in terminal under this repository, Fundot w
     720 
     4 
     test.fundot
-**Note: So far, this parser has not been stable, and huge changes may occur in each new commit.**
+**Note: So far, this interpreter has not been stable, and huge changes may occur in each new commit.**
 
 ## Contributing
 

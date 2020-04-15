@@ -9,12 +9,7 @@ Fundot 编程语言
 
 ## 背景
 
-作为一个一直对发明新的编程语言感兴趣的人，
-我开始了这个项目，Fundot，来让我的想法成真。
-Fundot 受 Lisp 的启发，是一种函数式编程语言，
-但它不需要括号，"("和")"，这是Fundot和Lisp之间最大的区别。
-相反，Fundot 使用大写字母"A"到"Z"，以及点，"."，就像我们平时用英语一样，
-来指示函数的开始和结束。更多信息可在 [Fundot Documentaion](https://fundot.readthedocs.io/en/latest/)找到。
+作为一个一直对发明新的编程语言感兴趣的人，我开始了这个项目，Fundot，来让我的想法成真。Fundot 受 Lisp 的启发，是一种函数式编程语言，但它不需要括号，"("和")"，这是Fundot和Lisp之间最大的区别。相反，Fundot 使用大写字母"A"到"Z"，以及点，"."，就像我们平时用英语一样，来指示函数的开始和结束。更多信息可在 [Fundot Documentaion](https://fundot.readthedocs.io/en/latest/)找到。
 
 ## 安装
 
