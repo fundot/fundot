@@ -74,7 +74,7 @@ int strv_count(char **strv)
 /* Check whether the strv is a complete expression. */
 int is_strv_complete(char **strv, int p)
 {
-	int start_word_count = 0, end_word_count = 0;
+	int start_count = 0, end_count = 0;
 	for (int i = 0; i < p; ++i)
 	{
 		if (strv[i][0] == '"')
@@ -86,13 +86,13 @@ int is_strv_complete(char **strv, int p)
 		}
 		if (isupper(strv[i][0]))
 		{
-			++start_word_count;
+			++start_count;
 		}
 		if (strcmp(strv[i], ".") == 0)
 		{
-			++end_word_count;
+			++end_count;
 		}
-		if (start_word_count == end_word_count)
+		if (start_count == end_count)
 		{
 			return 1;
 		}
@@ -151,7 +151,7 @@ int first_upper_index(char **strv)
 	int i = 0;
 	while (*get_last_char(strv[i]) != '.')
 	{
-		if (str_info(strv[i]) == 0)
+		if (isupper(strv[i][0]))
 		{
 			return i;
 		}
@@ -163,8 +163,8 @@ int first_upper_index(char **strv)
 /* Return the index of the second str with uppercase capital outside quote. */
 int second_upper_index_outside_quote(char **strv)
 {
-	int i = 0, start_word_count = 0, end_word_count = 0, in_quote = 0;
-	while (start_word_count != end_word_count || start_word_count == 0)
+	int i = 0, start_count = 0, end_count = 0, in_quote = 0;
+	while (start_count != end_count || start_count == 0)
 	{
 		if (in_quote == 1)
 		{
@@ -177,17 +177,17 @@ int second_upper_index_outside_quote(char **strv)
 		{
 			in_quote = 1;
 		}
-		else if (str_info(strv[i]) == 0)
+		else if (isupper(strv[i][0]))
 		{
 			if (i != 0)
 			{
 				return i;
 			}
-			++start_word_count;
+			++start_count;
 		}
 		else if (*get_last_char(strv[i]) == '.')
 		{
-			++end_word_count;
+			++end_count;
 		}
 		++i;
 	}
@@ -197,20 +197,20 @@ int second_upper_index_outside_quote(char **strv)
 /* Return the index of the second str with uppercase capital outside list. */
 int second_upper_index_outside_list(char **strv)
 {
-	int i = 0, start_word_count = 0, end_word_count = 0;
-	while (start_word_count != end_word_count || start_word_count == 0)
+	int i = 0, start_count = 0, end_count = 0;
+	while (start_count != end_count || start_count == 0)
 	{
-		if (str_info(strv[i]) == 0)
+		if (isupper(strv[i][0]))
 		{
 			if (i != 0 && strcmp(strv[i], "List") != 0)
 			{
 				return i;
 			}
-			++start_word_count;
+			++start_count;
 		}
 		else if (*get_last_char(strv[i]) == '.')
 		{
-			++end_word_count;
+			++end_count;
 		}
 		++i;
 	}

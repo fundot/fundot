@@ -32,7 +32,7 @@ int str_hash(int sz, char *s)
 }
 
 /* Return the pointer to the first expression of strv. */
-char **get_first_expr(char **strv)
+char **first_expr(char **strv)
 {
 	char **new_strv = construct_strv();
 	if (isupper(strv[0][0]) == 0)
@@ -40,16 +40,16 @@ char **get_first_expr(char **strv)
 		strcpy(new_strv[0], strv[0]);
 		return new_strv;
 	}
-	int start_word_count = 0, end_word_count = 0, i = 0;
-	while (start_word_count != end_word_count || start_word_count == 0)
+	int start_count = 0, end_count = 0, i = 0;
+	while (start_count != end_count || start_count == 0)
 	{
-		if (str_info(strv[i]) == 0)
+		if (isupper(strv[i][0]))
 		{
-			++start_word_count;
+			++start_count;
 		}
 		else if (strcmp(strv[i], ".") == 0)
 		{
-			++end_word_count;
+			++end_count;
 		}
 		strcpy(new_strv[i], strv[i]);
 		++i;
@@ -60,16 +60,16 @@ char **get_first_expr(char **strv)
 /* Delete all quotation marks of strv. */
 void delete_all_quotation_marks(char **strv)
 {
-	int start_word_count = 0, end_word_count = 0, i = 0;
-	while (start_word_count != end_word_count || start_word_count == 0)
+	int start_count = 0, end_count = 0, i = 0;
+	while (start_count != end_count || start_count == 0)
 	{
-		if (str_info(strv[i]) == 0)
+		if (isupper(strv[i][0]))
 		{
-			++start_word_count;
+			++start_count;
 		}
 		else if (strcmp(strv[i], ".") == 0)
 		{
-			++end_word_count;
+			++end_count;
 		}
 		if (strcmp(strv[i], "\"") == 0)
 		{
@@ -109,18 +109,18 @@ char **eval(char **strv)
 	}
 	if (strcmp(strv[0], "Quote") == 0)
 	{
-		int start_word_count = 0, end_word_count = 0, i = 1, j = 0;
-		while (start_word_count != end_word_count - 1)
+		int start_count = 0, end_count = 0, i = 1, j = 0;
+		while (start_count != end_count - 1)
 		{
-			if (str_info(strv[i]) == 0)
+			if (isupper(strv[i][0]))
 			{
-				++start_word_count;
+				++start_count;
 			}
 			else if (strcmp(strv[i], ".") == 0)
 			{
-				++end_word_count;
+				++end_count;
 			}
-			if (start_word_count == end_word_count - 1)
+			if (start_count == end_count - 1)
 			{
 				break;
 			}
@@ -138,8 +138,9 @@ char **eval(char **strv)
 	}
 	else if (strcmp(strv[0], "Set") == 0)
 	{
-		char **nsv = eval(get_first_expr(strv + 2));
-		strv_insert_strv(nsv, strv, 0);
+		char **nsv = eval(first_expr(strv + 2));
+		strv_insert(nsv, strv[1], 0);
+		strv_insert(nsv, ".", last_str_index(nsv) + 1);
 		fun_map_insert(global_fun_map, construct_fun(nsv));
 		destroy_strv(nsv);
 		strcpy(new_strv[0], "set");
@@ -147,28 +148,28 @@ char **eval(char **strv)
 	}
 	else if (strcmp(strv[0], "Cond") == 0)
 	{
-		int start_word_count = 0, end_word_count = 0, i = 1, j = 0;
-		while (start_word_count != end_word_count - 1)
+		int start_count = 0, end_count = 0, i = 1, j = 0;
+		while (start_count != end_count - 1)
 		{
 			strcpy(new_strv[j++], strv[i]);
 			if (strcmp(new_strv[j - 1], "else") == 0)
 			{
 				strcpy(new_strv[j - 1], "true");
 			}
-			if (str_info(strv[i]) == 0)
+			if (isupper(strv[i][0]))
 			{
-				++start_word_count;
+				++start_count;
 			}
 			else if (strcmp(strv[i], ".") == 0)
 			{
-				++end_word_count;
+				++end_count;
 			}
-			if (start_word_count == end_word_count)
+			if (start_count == end_count)
 			{
 				char **nsv = eval(new_strv);
 				if (strcmp(nsv[0], "true") == 0)
 				{
-					new_strv = eval(get_first_expr(strv + i + 1));
+					new_strv = eval(first_expr(strv + i + 1));
 					return new_strv;
 				}
 				destroy_strv(nsv);
@@ -177,159 +178,102 @@ char **eval(char **strv)
 			++i;
 		}
 	}
-	if (str_info(strv[0]) == 0 && second_upper_index_outside_quote(strv) != -1 && second_upper_index_outside_list(strv) != -1)
+	int start_count = 0, end_count = 0, i = 0;
+	while (start_count > end_count || start_count == 0)
 	{
-		int start_word_count = 0, end_word_count = 0, i = 0, strc = 0;
-		while (start_word_count > end_word_count || start_word_count == 0)
-		{
-			int stri = str_info(strv[i]);
-			if (stri == 0)
-			{
-				++start_word_count;
-				if (start_word_count != 1)
-				{
-					int swc = 0, ewc = 0, j = 0;
-					char **sv = construct_strv();
-					while (swc > ewc || swc == 0)
-					{
-						int si = str_info(strv[i]);
-						if (si == 0)
-						{
-							++swc;
-						}
-						else if (si == 1)
-						{
-							ewc += end_dot_count(strv[i]);
-							if (swc <= ewc)
-							{
-								++end_word_count;
-							}
-						}
-						strcpy(sv[j++], strv[i++]);
-					}
-					--i;
-					char **nsv = eval(sv);
-					strv_delete(new_strv, strc);
-					strc += strv_insert_strv(new_strv, nsv, strc);
-					destroy_strv(nsv);
-					destroy_strv(sv);
-				}
-				else
-				{
-					strcpy(new_strv[strc++], strv[i]);
-					++i;
-					continue;
-				}
-			}
-			else if (stri == 1)
-			{
-				strcpy(new_strv[strc++], strv[i]);
-				++end_word_count;
-			}
-			else
-			{
-				strcpy(new_strv[strc++], strv[i]);
-			}
-			++i;
-		}
-		if (str_info(new_strv[strc - 1]) != 1)
-		{
-			new_strv[strc] = malloc(sizeof(char *));
-			new_strv[strc][0] = '.';
-			new_strv[strc][1] = '\0';
-		}
-		return eval(new_strv);
-	}
-	int start_word_count = 0, end_word_count = 0, i = 0;
-	while (start_word_count > end_word_count || start_word_count == 0)
-	{
-		int stri = str_info(strv[i]);
-		if (stri == 0)
-		{
-			++start_word_count;
-		}
-		else if (stri == 1)
-		{
-			++end_word_count;
-		}
-		else if (i == 0)
-		{
-			break;
-		}
-		if (global_fun_map->funs[str_hash(global_fun_map->size, strv[i])].name != NULL)
-		{
-			fun *f = &global_fun_map->funs[str_hash(global_fun_map->size, strv[i])];
-			if (f->argc == 0)
-			{
-				char **nsv = eval(f->body);
-				strv_delete(strv, i);
-				i += strv_insert_strv(strv, nsv, i) - 1;
-				destroy_strv(nsv);
-			}
-		}
-		++i;
-	}
-	start_word_count = 0, end_word_count = 0, i = 0;
-	while (start_word_count > end_word_count || start_word_count == 0)
-	{
-		int stri = str_info(strv[i]);
-		if (stri == 0)
-		{
-			++start_word_count;
-		}
-		else if (stri == 1)
-		{
-			++end_word_count;
-		}
-		else if (i == 0)
-		{
-			break;
-		}
 		if (global_fun_map->funs[str_hash(global_fun_map->size, strv[i])].name != NULL)
 		{
 			fun_map *local_fun_map = construct_fun_map(FUN_MAP_SIZE);
 			fun *f = &global_fun_map->funs[str_hash(global_fun_map->size, strv[i])];
-			if (f->argc > 0)
+			for (int j = 0; j < f->argc; ++j)
 			{
-				str_map *sm = construct_str_map(STR_MAP_SIZE);
-				for (int j = 0; j < f->argc; ++j)
+				char **nsv = first_expr(strv + i + 1);
+				for (int k = 0; k < strv_count(nsv); ++k)
 				{
-					
-					char **nsv = get_first_expr(strv + i + 1);
-					for (int k = i; k < i + strv_count(nsv); ++k)
+					strv_delete(strv, i + 1);
+				}
+				strv_insert(nsv, f->argv[j], 0);
+				strv_insert(nsv, ".", last_str_index(nsv) + 1);
+				fun_map_insert(local_fun_map, construct_fun(nsv));
+				destroy_strv(nsv);
+			}
+			if (isupper(strv[i][0]))
+			{
+				++end_count;
+				strv_delete(strv, i + 1);
+			}
+			strv_delete(strv, i);
+			char **nsv = construct_strv();
+			for (int j = f->bodyc - 1; j >= 0; --j)
+			{
+				if (local_fun_map->funs[str_hash(local_fun_map->size, f->body[j])].name != NULL)
+				{
+					strv_insert_strv(nsv, local_fun_map->funs[str_hash(local_fun_map->size, f->body[j])].body, 0);
+					continue;
+				}
+				strv_insert(nsv, f->body[j], 0);
+			}
+			strv_insert_strv(strv, eval(nsv), i);
+			// i += strv_count(nsv) - 1;
+			destroy_strv(nsv);
+			destroy_fun_map(local_fun_map);
+		}
+		if (isupper(strv[i][0]))
+		{
+			++start_count;
+		}
+		else if (strcmp(strv[i], ".") == 0)
+		{
+			++end_count;
+		}
+		else if (i == 0)
+		{
+			break;
+		}
+		++i;
+	}
+	if (isupper(strv[0][0]) && second_upper_index_outside_list(strv) != -1 && second_upper_index_outside_quote(strv) != -1)
+	{
+		int start_count = 0, end_count = 0, i = 0;
+		while (start_count > end_count || start_count == 0)
+		{
+			if (isupper(strv[i][0]))
+			{
+				++start_count;
+				if (i != 0)
+				{
+					char **sv = first_expr(strv + i);
+					for (int j = 0; j < strv_count(sv); ++j)
 					{
 						strv_delete(strv, i);
 					}
-					strv_insert(nsv, f->argv[j], 0);
-					strv_insert(nsv, ".", last_str_index(nsv) + 1);
-					fun_map_insert(local_fun_map, construct_fun(nsv));
+					char **nsv = eval(sv);
+					strv_insert_strv(strv, nsv, i);
+					i += strv_count(nsv) - 1;
 					destroy_strv(nsv);
+					destroy_strv(sv);
+					++end_count;
 				}
-				strv_delete(strv, i);
-				strv_delete(strv, i);
-				char **nsv = construct_strv();
-				for (int j = f->bodyc - 1; j >= 0; --j)
-				{
-					
-					if (local_fun_map->funs[str_hash(local_fun_map->size, f->body[j])].name != NULL)
-					{
-						strv_insert_strv(nsv, local_fun_map->funs[str_hash(local_fun_map->size, f->body[j])].body, i);
-						continue;
-					}
-					strv_insert(nsv, f->body[j], i);
-				}
-				strv_insert_strv(strv, eval(nsv), i);
-				if (i == 0)
-				{
-					strcpy(new_strv[0], strv[0]);
-					return new_strv;
-				}
-				destroy_strv(nsv);
-				destroy_str_map(sm);
 			}
-			destroy_fun_map(local_fun_map);
+			else if (strcmp(strv[i], ".") == 0)
+			{
+				++end_count;
+			}
+			else
+			{
+				char **sv = construct_strv();
+				strcpy(sv[0], strv[i]);
+				strv_delete(strv, i);
+				char **nsv = eval(sv);
+				strv_insert_strv(strv, nsv, i);
+				i += strv_count(nsv) - 1;
+				destroy_strv(nsv);
+				destroy_strv(sv);
+			}
+			++i;
 		}
-		++i;
+		strv_cpy(new_strv, strv);
+		return eval(new_strv);
 	}
 	if (strcmp(strv[0], "Import") == 0)
 	{
@@ -343,18 +287,18 @@ char **eval(char **strv)
 	if (strcmp(strv[0], "Eval") == 0)
 	{
 		char **nsv = construct_strv();
-		int start_word_count = 0, end_word_count = 0, i = 1, j = 0;
-		while (start_word_count != end_word_count - 1)
+		int start_count = 0, end_count = 0, i = 1, j = 0;
+		while (start_count != end_count - 1)
 		{
-			if (str_info(strv[i]) == 0)
+			if (isupper(strv[i][0]))
 			{
-				++start_word_count;
+				++start_count;
 			}
 			else if (strcmp(strv[i], ".") == 0)
 			{
-				++end_word_count;
+				++end_count;
 			}
-			if (start_word_count == end_word_count - 1)
+			if (start_count == end_count - 1)
 			{
 				break;
 			}
@@ -366,18 +310,18 @@ char **eval(char **strv)
 	}
 	else if (strcmp(strv[0], "Atom") == 0)
 	{
-		int start_word_count = 0, end_word_count = 0, i = 1, j = 0;
-		while (start_word_count != end_word_count - 1)
+		int start_count = 0, end_count = 0, i = 1, j = 0;
+		while (start_count != end_count - 1)
 		{
-			if (str_info(strv[i]) == 0)
+			if (isupper(strv[i][0]))
 			{
-				++start_word_count;
+				++start_count;
 			}
 			else if (strcmp(strv[i], ".") == 0)
 			{
-				++end_word_count;
+				++end_count;
 			}
-			if (start_word_count == end_word_count - 1)
+			if (start_count == end_count - 1)
 			{
 				break;
 			}
@@ -412,17 +356,17 @@ char **eval(char **strv)
 			strcpy(new_strv[0], strv[i]);
 			return new_strv;
 		}
-		int swc = 0, ewc = 0;
-		while (swc != ewc || ewc == 0)
+		int sc = 0, ec = 0;
+		while (sc != ec || ec == 0)
 		{
 			strv_insert(new_strv, strv[i], 0);
 			if (strcmp(strv[i], ".") == 0)
 			{
-				++ewc;
+				++ec;
 			}
 			else if (isupper(strv[i][0]))
 			{
-				++swc;
+				++sc;
 			}
 			--i;
 		}
@@ -444,7 +388,7 @@ char **eval(char **strv)
 	{
 		if (isupper(strv[2][0]))
 		{
-			char **nsv = get_first_expr(strv + 2);
+			char **nsv = first_expr(strv + 2);
 			strv_cpy(new_strv, nsv);
 			destroy_strv(nsv);
 		}
@@ -459,16 +403,16 @@ char **eval(char **strv)
 		int i = 2;
 		if (isupper(strv[2][0]))
 		{
-			int swc = 0, ewc = 0;
-			while (swc != ewc || swc == 0)
+			int sc = 0, ec = 0;
+			while (sc != ec || sc == 0)
 			{
 				if (isupper(strv[i][0]))
 				{
-					++swc;
+					++sc;
 				}
 				else if (strcmp(strv[i], ".") == 0)
 				{
-					++ewc;
+					++ec;
 				}
 				++i;
 			}
@@ -481,7 +425,7 @@ char **eval(char **strv)
 	}
 	else if (strcmp(strv[0], "Print") == 0)
 	{
-		char **nsv = get_first_expr(strv + 1);
+		char **nsv = first_expr(strv + 1);
 		print_strv(nsv);
 		destroy_strv(nsv);
 		strcpy(new_strv[0], "null");

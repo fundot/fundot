@@ -25,9 +25,9 @@ int main(int argc, char **argv)
 		char **strv = read_file(argv[1]);
 		char **new_strv = eval(strv);
 		if (strcmp(new_strv[0], " ") != 0)
-			{
-				print_strv(new_strv);
-			}
+		{
+			print_strv(new_strv);
+		}
 		destroy_strv(strv);
 		destroy_strv(new_strv);
 	}

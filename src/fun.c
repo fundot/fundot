@@ -51,9 +51,8 @@ fun *construct_fun(char **strv)
 		++i;
 		++j;
 	}
-	f->body[j] = malloc(STR_SIZE * sizeof(char));
-	strcpy(f->body[j], "null");
-	f->bodyc = j;
+	strcpy(f->body[j - 1], "null");
+	f->bodyc = j - 1;
 	return f;
 }
 
