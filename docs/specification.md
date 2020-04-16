@@ -52,11 +52,20 @@ Both return the first argument of the list of *arguments*.
     Rest [arguments].
 Both return the list of the rest of *arguments* except the first one.
 
+    Cons element [arguments].
+Return a list of *arguments* with *element* inserted at the first place.
+
     Eval <expression>.
 Evaluate the evaluated *expression*.
 
     Import file_name.
 Evaluate the file called file_name and return the evaluated value.
+
+    Less value_1 value_2
+Return *true* if *value_1* is less than *value_2* and return *false* otherwise.
+
+    Greater value_1 value_2
+Return *true* if *value_1* is greater than *value_2* and return *false* otherwise.
 
     Add value_1 value_2.
 Return the sum of *value_1* and *value_2*.

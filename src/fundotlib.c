@@ -449,6 +449,36 @@ char **eval(char **strv)
 		strcpy(new_strv[0], "null");
 		return new_strv;
 	}
+	else if (strcmp(strv[0], "Less") == 0)
+	{
+		double first = 0.0, second = 0.0;
+		sscanf(strv[1], "%lf", &first);
+		sscanf(strv[2], "%lf", &second);
+		if (first < second)
+		{
+			strcpy(new_strv[0], "true");
+		}
+		else
+		{
+			strcpy(new_strv[0], "false");
+		}
+		return new_strv;
+	}
+	else if (strcmp(strv[0], "Greater") == 0)
+	{
+		double first = 0.0, second = 0.0;
+		sscanf(strv[1], "%lf", &first);
+		sscanf(strv[2], "%lf", &second);
+		if (first > second)
+		{
+			strcpy(new_strv[0], "true");
+		}
+		else
+		{
+			strcpy(new_strv[0], "false");
+		}
+		return new_strv;
+	}
 	else if (strcmp(strv[0], "Add") == 0)
 	{
 		double first = 0.0, second = 0.0;
