@@ -18,18 +18,23 @@ to indicate the start and end of a function. More information can be found at [F
 
 ## Install
 
-Clone or download this repository and compile the src files.
-You can use the following command in terminals of Unix, macOS, Linux, and any other Unix-like systems under the repository.
+### Linux, macOS, and any other Unix-like systems
+
+Download the archive from release or simply clone from this repository. Enter make under the file you extracted.
 
     make
-Fundot will be installed to /usr/local/bin by the above command. However, if you want to simply install it under the repository, then enter the following command.
+Fundot will be installed to /usr/local/bin by the above command. However, if you want to simply install it under the file extracted, then enter the following command.
 
     make build
 After build, if you want to remove the object files generated, enter the following command.
 
     make clean
 
-**Note: Any following code in this README so far is for Unix-like systems, but we will definitely support Windows in the future.**
+### Windows
+
+Download the archive from release and add the extracted file to your PATH environment variable so that you can access it anywhere.
+
+**Note: Any following code in this README assumes that the binary has already been added to PATH.**
 
 ## Usage
 
