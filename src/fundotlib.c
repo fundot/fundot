@@ -214,7 +214,6 @@ char **eval(char **strv)
 				strv_insert(nsv, f->body[j], 0);
 			}
 			strv_insert_strv(strv, eval(nsv), i);
-			// i += strv_count(nsv) - 1;
 			destroy_strv(nsv);
 			destroy_fun_map(local_fun_map);
 		}
@@ -422,6 +421,25 @@ char **eval(char **strv)
 		strv_insert(new_strv, "List", 0);
 		strv_delete(new_strv, last_str_index(new_strv));
 		return new_strv;
+	}
+	else if (strcmp(strv[0], "Cons") == 0)
+	{
+		if (strcmp(strv[2], "List") == 0)
+		{
+			char **nsv = first_expr(strv + 2);
+			strv_cpy(new_strv, nsv);
+			destroy_strv(nsv);
+			strv_insert(new_strv, strv[1], 1);
+			return new_strv;
+		}
+		else
+		{
+			strcpy(new_strv[0], "List");
+			strcpy(new_strv[1], strv[1]);
+			strcpy(new_strv[2], strv[2]);
+			strcpy(new_strv[3], ".");
+			return new_strv;
+		}
 	}
 	else if (strcmp(strv[0], "Print") == 0)
 	{
