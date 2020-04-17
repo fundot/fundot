@@ -287,7 +287,7 @@ char **eval(char **strv)
 		}
 		++i;
 	}
-	if (strcmp(strv[0], "Import") == 0)
+	if (strcmp(strv[0], "Call") == 0)
 	{
 		return eval(read_file(strv[1]));
 	}

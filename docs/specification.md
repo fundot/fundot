@@ -61,8 +61,8 @@ Evaluate *expression* if *predicate* is true.
     Eval <expression>.
 Evaluate the evaluated *expression*.
 
-    Import file_name.
-Evaluate the file called file_name and return the evaluated value.
+    Call file_name.
+Evaluate the file called *file_name* and return the evaluated value.
 
     Less value_1 value_2
 Return *true* if *value_1* is less than *value_2* and return *false* otherwise.
