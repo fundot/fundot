@@ -134,7 +134,7 @@ char **eval(char **strv)
 	else if (strcmp(strv[0], "Def") == 0)
 	{
 		fun_map_insert(global_fun_map, construct_fun(strv + 1));
-		strcpy(new_strv[0], "defined");
+		strcpy(new_strv[0], "null");
 		return new_strv;
 	}
 	else if (strcmp(strv[0], "Set") == 0)
@@ -144,7 +144,7 @@ char **eval(char **strv)
 		strv_insert(nsv, ".", last_str_index(nsv) + 1);
 		fun_map_insert(global_fun_map, construct_fun(nsv));
 		destroy_strv(nsv);
-		strcpy(new_strv[0], "set");
+		strcpy(new_strv[0], "null");
 		return new_strv;
 	}
 	else if (strcmp(strv[0], "Cond") == 0)

@@ -92,12 +92,31 @@ int symbol_split(char **strv, int i)
 	int count = 0;
 	char c = strv[i][0];
 	c = *last_char(strv[i]);
+	if (c == '}' || c == ']')
+	{
+		*last_char(strv[i]) = '.';
+		c = '.';
+	}
+	if (strcmp(strv[i], "{") == 0)
+	{
+		strcpy(strv[i], "Block");
+		return count;
+	}
+	else if (strcmp(strv[i], "[") == 0)
+	{
+		strcpy(strv[i], "List");
+		return count;
+	}
 	if (strcmp(strv[i], ".") == 0)
 	{
 		return count;
 	}
 	while (c == '.')
 	{
+		if (last_char(strv[i]) == &strv[i][0])
+		{
+			break;
+		}
 		++count;
 		*last_char(strv[i]) = '\0';
 		char *str = malloc(STR_SIZE * sizeof(char));
@@ -106,6 +125,34 @@ int symbol_split(char **strv, int i)
 		strv_insert(strv, str, i + 1);
 		free(str);
 		c = *last_char(strv[i]);
+		if (c == '}' || c == ']')
+		{
+			*last_char(strv[i]) = '.';
+			c = '.';
+		}
+	}
+	c = strv[i][0];
+	while (c == '[' || c == '{')
+	{
+		if (strv[i][1] == '\0')
+		{
+			break;
+		}
+		++count;
+		char *str = malloc(STR_SIZE * sizeof(char));
+		strcpy(str, strv[i] + 1);
+		strv_insert(strv, str, i + 1);
+		if (c == '[')
+		{
+			strcpy(strv[i], "List");
+		}
+		else if (c == '{')
+		{
+			strcpy(strv[i], "Block");
+		}
+		strv[i][1] = '\0';
+		free(str);
+		c = strv[++i][0];
 	}
 	return count;
 }

@@ -1,22 +1,23 @@
 # The Fundot Programming Language Specification
 
-This is the official specification for Fundot programming language.
+This is the official language specification for Fundot programming language.
 
 ## READ ME FIRST
 
 For convenience, we invent some notations, so a list of explanations is provided below:
 
     Notation     | Explanation
+    --------------------------------------------------
     [values]     | value_1 value_2 value_3 ... value_n
     <expression> | Function [arguments].
 
 ## Built-in Functions
 
     Def Function [arguments]. <body>.
-Define a function named *Function* with a list of *arguments* as its arguments, and *body* as its body and return *defined*.
+Define a *Function* of a list of *arguments* with *body*.
 
     Def variable value.
-Define a variable named *variable* with *value* as its value and return *defined* and return *set*.
+Define a *variable* with *value*.
 
     Set variable value.
 Set the value of an existing variable named *variable* to be *value*.
