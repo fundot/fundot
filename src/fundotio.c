@@ -150,7 +150,6 @@ int symbol_split(char **strv, int i)
 		{
 			strcpy(strv[i], "Block");
 		}
-		strv[i][1] = '\0';
 		free(str);
 		c = strv[++i][0];
 	}
