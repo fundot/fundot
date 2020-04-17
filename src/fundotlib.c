@@ -92,6 +92,7 @@ char **number_to_string(double num)
 	{
 		sprintf(strv[0], "%f", num);
 	}
+	strcpy(strv[1], "null");
 	return strv;
 }
 
@@ -178,7 +179,62 @@ char **eval(char **strv)
 			++i;
 		}
 	}
+	else if (strcmp(strv[0], "While") == 0)
+	{
+		char **pred = eval(first_expr(strv + 1));
+		while (strcmp(pred[0], "true") == 0)
+		{
+			int i = strv_count(first_expr(strv + 1));
+			clear_strv(pred);
+			eval(first_expr(strv + 1 + i));
+			pred = eval(first_expr(strv + 1));
+		}
+		destroy_strv(pred);
+		strcpy(new_strv[0], "null");
+		return new_strv;
+	}
 	int start_count = 0, end_count = 0, i = 0;
+	while (isupper(strv[0][0]) && second_upper_index_outside_list(strv) != -1 && second_upper_index_outside_quote(strv) != -1)
+	{
+		int start_count = 0, end_count = 0, i = 0;
+		while (start_count > end_count || start_count == 0)
+		{
+			if (isupper(strv[i][0]))
+			{
+				++start_count;
+				if (i != 0)
+				{
+					char **sv = first_expr(strv + i);
+					for (int j = 0; j < strv_count(sv); ++j)
+					{
+						strv_delete(strv, i);
+					}
+					char **nsv = eval(sv);
+					strv_insert_strv(strv, nsv, i);
+					i += strv_count(nsv) - 1;
+					destroy_strv(nsv);
+					destroy_strv(sv);
+					++end_count;
+				}
+			}
+			else if (strcmp(strv[i], ".") == 0)
+			{
+				++end_count;
+			}
+			else
+			{
+				char **sv = construct_strv();
+				strcpy(sv[0], strv[i]);
+				strv_delete(strv, i);
+				char **nsv = eval(sv);
+				strv_insert_strv(strv, nsv, i);
+				i += strv_count(nsv) - 1;
+				destroy_strv(nsv);
+				destroy_strv(sv);
+			}
+			++i;
+		}
+	}
 	while (start_count > end_count || start_count == 0)
 	{
 		if (global_fun_map->funs[str_hash(global_fun_map->size, strv[i])].name != NULL)
@@ -230,49 +286,6 @@ char **eval(char **strv)
 			break;
 		}
 		++i;
-	}
-	if (isupper(strv[0][0]) && second_upper_index_outside_list(strv) != -1 && second_upper_index_outside_quote(strv) != -1)
-	{
-		int start_count = 0, end_count = 0, i = 0;
-		while (start_count > end_count || start_count == 0)
-		{
-			if (isupper(strv[i][0]))
-			{
-				++start_count;
-				if (i != 0)
-				{
-					char **sv = first_expr(strv + i);
-					for (int j = 0; j < strv_count(sv); ++j)
-					{
-						strv_delete(strv, i);
-					}
-					char **nsv = eval(sv);
-					strv_insert_strv(strv, nsv, i);
-					i += strv_count(nsv) - 1;
-					destroy_strv(nsv);
-					destroy_strv(sv);
-					++end_count;
-				}
-			}
-			else if (strcmp(strv[i], ".") == 0)
-			{
-				++end_count;
-			}
-			else
-			{
-				char **sv = construct_strv();
-				strcpy(sv[0], strv[i]);
-				strv_delete(strv, i);
-				char **nsv = eval(sv);
-				strv_insert_strv(strv, nsv, i);
-				i += strv_count(nsv) - 1;
-				destroy_strv(nsv);
-				destroy_strv(sv);
-			}
-			++i;
-		}
-		strv_cpy(new_strv, strv);
-		return eval(new_strv);
 	}
 	if (strcmp(strv[0], "Import") == 0)
 	{

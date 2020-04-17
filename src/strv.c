@@ -108,7 +108,7 @@ int is_strv_complete(char **strv, int p)
 void print_strv(char **strv)
 {
 	int i = 0;
-	while (strcmp(strv[i], "null") != 0)
+	while (strcmp(strv[i], "null") != 0 && i < STRV_SIZE)
 	{
 		printf("%s ", strv[i++]);
 	}

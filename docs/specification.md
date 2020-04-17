@@ -33,7 +33,7 @@ Return the value of the first expression whose predicate is *true*. The last lin
 
     If <predicate> <expression_1>
         else <expression_2>.
-Return the value of *expression_1* if the *predicate* is *true*, otherwise return the value of *expression_2*.
+Return the value of *expression_1* if *predicate* is *true*, otherwise return the value of *expression_2*.
 
     Quote [arguments].
 Return the list of *arguments* without evaluating.
@@ -54,6 +54,9 @@ Both return the list of the rest of *arguments* except the first one.
 
     Cons element [arguments].
 Return a list of *arguments* with *element* inserted at the first place.
+
+    While <predicate> <expression>.
+Evaluate *expression* if *predicate* is true.
 
     Eval <expression>.
 Evaluate the evaluated *expression*.
