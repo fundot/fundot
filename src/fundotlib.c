@@ -99,6 +99,7 @@ char **number_to_string(double num)
 /* Evaluate the strv. */
 char **eval(char **strv)
 {
+	print_strv(strv);
 	char **new_strv = construct_strv();
 	if (strcmp(strv[0], "If") == 0)
 	{
@@ -186,7 +187,8 @@ char **eval(char **strv)
 		{
 			int i = strv_count(first_expr(strv + 1));
 			clear_strv(pred);
-			eval(first_expr(strv + 1 + i));
+			char **nsv = eval(first_expr(strv + 1 + i));
+			destroy_strv(nsv);
 			pred = eval(first_expr(strv + 1));
 		}
 		destroy_strv(pred);

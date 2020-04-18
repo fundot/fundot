@@ -16,3 +16,5 @@ obj/str_pair.o
 obj/str.o
 obj/strv.o
 .vscode/settings.json
+test/test1.fundot
+test/test2.fundot

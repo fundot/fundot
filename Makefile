@@ -3,7 +3,7 @@ TARGETS := fundot
 MV := mv
 
 CC := gcc
-CFLAGS := -g -Wall -Werror
+CFLAGS := -g -Wall -Werror -O2
 CPPFLAGS := -Iinclude
 
 SRC_DIR := src

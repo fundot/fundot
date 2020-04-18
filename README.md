@@ -55,16 +55,14 @@ After displaying the information from Fundot, you can call functions and enjoy F
     >>> Def Sum l.
             If Atom l. 0
             else Add First l. Sum Rest l.....
-    defined
-    >>> Def ls List 1 2 3 4 5..
-    defined
+    >>> Def ls [ 1 2 3 4 5 ].
     >>> Sum ls.
     15
     >>> Quit.
 For file execution mode, access Fundot from terminal following an argument, the name of a .fundot file. For example, assume you have a file named test.fundot that contains the following content:
 
-    Block
-        Def ls List 1 2 3 4 5 6..
+    {
+        Def ls [ 1 2 3 4 5 6 ].
         Def Factorial n.
             If Equal n 1. 1
             else Mul n Factorial Sub n 1.....
@@ -72,7 +70,7 @@ For file execution mode, access Fundot from terminal following an argument, the 
         Def Sum l.
             If Atom l. 0
             else Add First l. Sum Rest l.....
-        Print Sum List 1 2 3 4 5...
+        Print Sum [ 1 2 3 4 5 ]..
         Def Product l.
             If Atom l. 1
             else Mul First l. Product Rest l.....
@@ -80,7 +78,8 @@ For file execution mode, access Fundot from terminal following an argument, the 
         Def Square x.
             Mul x x..
         Print Square First Rest ls....
-    test.fundot.
+    test.fundot
+    }
 Then if you enter the following code in terminal under this repository, Fundot will output as below.
 
     $ fundot test.fundot

@@ -50,16 +50,14 @@ Fundot 编程语言
     >>> Def Sum l.
             If Atom l. 0
             else Add First l. Sum Rest l.....
-    defined
-    >>> Def ls List 1 2 3 4 5..
-    defined
+    >>> Def ls [ 1 2 3 4 5 ].
     >>> Sum ls.
     15
     >>> Quit.
 对于文件执行模式，从终端访问 Fundot，并带有参数，.fundot 文件的名称。例如，假设您有一个名为 test.fundot 的文件，其中包含以下内容：
 
-    Block
-        Def ls List 1 2 3 4 5 6..
+    {
+        Def ls [ 1 2 3 4 5 6 ].
         Def Factorial n.
             If Equal n 1. 1
             else Mul n Factorial Sub n 1.....
@@ -67,7 +65,7 @@ Fundot 编程语言
         Def Sum l.
             If Atom l. 0
             else Add First l. Sum Rest l.....
-        Print Sum List 1 2 3 4 5...
+        Print Sum [ 1 2 3 4 5 ]..
         Def Product l.
             If Atom l. 1
             else Mul First l. Product Rest l.....
@@ -75,7 +73,8 @@ Fundot 编程语言
         Def Square x.
             Mul x x..
         Print Square First Rest ls....
-    test.fundot.
+    test.fundot
+    }
 那么，如果您在此版本库下的终端中输入以下代码，Fundot 将输出如下内容。
 
     $ fundot test.fundot
