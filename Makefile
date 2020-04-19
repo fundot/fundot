@@ -3,7 +3,7 @@ TARGETS := fundot
 MV := mv
 
 CC := g++
-CFLAGS := -g -Wall -Werror -std=c++11
+CFLAGS := -std=c++11 -g -Wall -Werror -O2
 CPPFLAGS := -Iinclude
 
 SRC_DIR := src

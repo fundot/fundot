@@ -37,7 +37,7 @@ std::vector<std::string> Function::replaceFun(std::vector<std::string> strv)
 {
     std::vector<std::string> to_return;
     std::map<std::string, Function> local_fun_map;
-    int p = 1;
+    size_t p = 1;
     for (size_t i = 1; i < argv_.size() - 1; ++i)
     {
         std::vector<std::string> new_strv = getExpr(strv, p);

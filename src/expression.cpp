@@ -110,6 +110,19 @@ Expression Expression::eval()
             }
         }
     }
+    else if (strv_[0] == "While")
+    {
+        size_t p = 1;
+        Expression predicate(getExpr(strv_, 1));
+        p += predicate.strv_.size();
+        while (predicate.eval().strv_[0] == "true")
+        {
+            Expression expr(getExpr(strv_, p));
+            expr.eval();
+            predicate = Expression(getExpr(strv_, 1));
+        }
+        return Expression("null");
+    }
     else if (strv_[0] == "Block")
     {
         size_t last_start_index = 0;
@@ -128,15 +141,15 @@ Expression Expression::eval()
         while (i < strv_.size() - 1)
         {
             Expression expr(getExpr(strv_, i));
-            i += expr.strv_.size();
             if (i == last_start_index)
             {
                 return expr.eval();
             }
+            i += expr.strv_.size();
             expr.eval();
         }
     }
-    for (int i = 0; i < strv_.size(); ++i)
+    for (size_t i = 0; i < strv_.size(); ++i)
     {
         if (global_fun_map.find(strv_[i]) != global_fun_map.end())
         {

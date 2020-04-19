@@ -18,3 +18,6 @@ obj/strv.o
 .vscode/settings.json
 test/test1.fundot
 test/test2.fundot
+obj/library.o
+obj/expression.o
+obj/function.o

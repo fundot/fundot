@@ -1,8 +1,11 @@
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
 #include "library.h"
+
+std::map<char, std::string> symbol_map = {{'{', "Block"}, {'[', "List"}};
 
 bool isFunStart(std::string str)
 {
@@ -89,6 +92,43 @@ std::vector<std::string> getExpr(std::vector<std::string> strv, size_t p)
     return new_strv;
 }
 
+bool isStartSymbol(char c)
+{
+    if (symbol_map.find(c) != symbol_map.end())
+    {
+        return true;
+    }
+    return false;
+}
+
+bool isEndSymbol(char c)
+{
+    if (c == '.' || c == '}' || c == ']')
+    {
+        return true;
+    }
+    return false;
+}
+
+void symbolSplit(std::vector<std::string> &strv, size_t p)
+{
+    for (size_t i = 0; i < strv[p].length() && isStartSymbol(strv[p][i]); ++i)
+    {
+        strv.push_back(strv[p].substr(1, strv[p].length() - 1));
+        strv[p] = symbol_map[strv[p][i]];
+        ++p;
+    }
+    if (isEndSymbol(strv[p][0]))
+    {
+        strv[p][0] = '.';
+    }
+    for (size_t i = strv[p].length() - 1; i > 0 && isEndSymbol(strv[p][i]); --i)
+    {
+        strv[p] = strv[p].substr(0, strv[p].length() - 1);
+        strv.push_back(".");
+    }
+}
+
 std::vector<std::string> readFile(std::string file_name)
 {
     std::ifstream file_stream;
@@ -102,11 +142,7 @@ std::vector<std::string> readFile(std::string file_name)
         file_stream >> str;
         strv.push_back(str);
         size_t p = strv.size() - 1;
-        for (size_t i = strv[p].length() - 1; i > 0 && strv[p][i] == '.'; --i)
-        {
-            strv[p] = strv[p].substr(0, strv[p].length() - 1);
-            strv.push_back(".");
-        }
+        symbolSplit(strv, p);
     }
     file_stream.close();
     return strv;
@@ -122,18 +158,14 @@ std::vector<std::string> readShell()
         std::cin >> str;
         strv.push_back(str);
         size_t p = strv.size() - 1;
-        for (size_t i = strv[p].length() - 1; i > 0 && strv[p][i] == '.'; --i)
-        {
-            strv[p] = strv[p].substr(0, strv[p].length() - 1);
-            strv.push_back(".");
-        }
+        symbolSplit(strv, p);
     }
     return strv;
 }
 
 std::string numToStr(double num)
 {
-    if (num - static_cast<int>(num) < EPSILON)
+    if (num - static_cast<long long>(num) < EPSILON)
     {
         return std::to_string(static_cast<long long>(num));
     }
