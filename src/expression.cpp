@@ -57,16 +57,6 @@ bool Expression::isFinal()
     return true;
 }
 
-void Expression::replaceFun()
-{
-    for (size_t i = 0; i < strv_.size(); ++i)
-    {
-        if (global_fun_map.find(strv_[i]) != global_fun_map.end())
-        {
-        }
-    }
-}
-
 Expression Expression::eval()
 {
     if (strv_[0] == "Exit" || strv_[0] == "Quit")
@@ -148,6 +138,7 @@ Expression Expression::eval()
             i += expr.strv_.size();
             expr.eval();
         }
+        return Expression("null");
     }
     for (size_t i = 0; i < strv_.size(); ++i)
     {

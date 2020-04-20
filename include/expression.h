@@ -11,7 +11,6 @@ public:
     std::vector<std::string> getStrv();
     bool isAtom();
     bool isFinal();
-    void replaceFun();
 
 private:
     std::vector<std::string> strv_;
