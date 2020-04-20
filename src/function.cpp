@@ -42,6 +42,8 @@ std::vector<std::string> Function::replaceFun(std::vector<std::string> strv)
     {
         std::vector<std::string> new_strv = getExpr(strv, p);
         p += new_strv.size();
+        Expression expr(new_strv);
+        new_strv = expr.eval().getStrv();
         new_strv.insert(new_strv.begin(), argv_[i]);
         new_strv.insert(new_strv.begin(), "Def");
         new_strv.push_back(".");

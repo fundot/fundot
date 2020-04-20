@@ -114,7 +114,10 @@ void symbolSplit(std::vector<std::string> &strv, size_t p)
 {
     for (size_t i = 0; i < strv[p].length() && isStartSymbol(strv[p][i]); ++i)
     {
-        strv.push_back(strv[p].substr(1, strv[p].length() - 1));
+        if (strv[p].length() - 1 != 0)
+        {
+            strv.push_back(strv[p].substr(1, strv[p].length() - 1));
+        }
         strv[p] = symbol_map[strv[p][i]];
         ++p;
     }
