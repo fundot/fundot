@@ -147,11 +147,9 @@ std::vector<std::string> readStream(std::istream &in)
             char c = in.get();
             while (c != '"')
             {
-                std::cout << c << std::endl;
                 if (c == '\\')
                 {
                     c = in.get();
-                    std::cout << c << std::endl;
                 }
                 strv[p] += c;
                 c = in.get();
