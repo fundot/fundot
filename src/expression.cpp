@@ -165,6 +165,10 @@ Expression Expression::eval()
     }
     if (strv_[0] == "Call")
     {
+        if (strv_[1][0] == '"')
+        {
+            strv_[1] = strv_[1].substr(1, strv_[1].size() - 2);
+        }
         return Expression(readFile(strv_[1])).eval();
     }
     else if (strv_[0] == "List")
@@ -218,6 +222,10 @@ Expression Expression::eval()
     else if (strv_[0] == "Print")
     {
         std::vector<std::string> new_strv(strv_.begin() + 1, strv_.end() - 1);
+        if (new_strv[0][0] == '"')
+        {
+            new_strv[0] = new_strv[0].substr(1, new_strv[0].size() - 2);
+        }
         std::cout << new_strv << std::endl;
         return Expression("null");
     }

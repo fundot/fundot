@@ -5,7 +5,7 @@
 #include <vector>
 #include "library.h"
 
-std::map<char, std::string> symbol_map = {{'{', "Block"}, {'[', "List"}};
+std::map<char, std::string> symbol_map = {{'{', "Block"}, {'[', "List"}, {'\'', "Quote"}};
 
 bool isFunStart(std::string str)
 {
@@ -132,38 +132,56 @@ void symbolSplit(std::vector<std::string> &strv, size_t p)
     }
 }
 
+std::vector<std::string> readStream(std::istream &in)
+{
+    std::vector<std::string> strv;
+    while (isFullExpr(strv) == false)
+    {
+        // !!!
+        std::string str;
+        in >> str;
+        strv.push_back(str);
+        size_t p = strv.size() - 1;
+        if (strv[p][0] == '"' && strv[p].find_last_of('"') == 0)
+        {
+            char c = in.get();
+            while (c != '"')
+            {
+                std::cout << c << std::endl;
+                if (c == '\\')
+                {
+                    c = in.get();
+                    std::cout << c << std::endl;
+                }
+                strv[p] += c;
+                c = in.get();
+            }
+            strv[p] += c;
+            c = in.get();
+            while (c != ' ' && c != '\t' && c != '\n')
+            {
+                strv[p] += c;
+                c = in.get();
+            }
+        }
+        symbolSplit(strv, p);
+    }
+    return strv;
+}
+
 std::vector<std::string> readFile(std::string file_name)
 {
     std::ifstream file_stream;
     file_stream.open(file_name);
     std::vector<std::string> strv;
-    while (isFullExpr(strv) == false)
-    {
-        // std::cout << strv << std::endl;
-        // !!!
-        std::string str;
-        file_stream >> str;
-        strv.push_back(str);
-        size_t p = strv.size() - 1;
-        symbolSplit(strv, p);
-    }
+    strv = readStream(file_stream);
     file_stream.close();
     return strv;
 }
 
 std::vector<std::string> readShell()
 {
-    std::vector<std::string> strv;
-    while (isFullExpr(strv) == false)
-    {
-        // !!!
-        std::string str;
-        std::cin >> str;
-        strv.push_back(str);
-        size_t p = strv.size() - 1;
-        symbolSplit(strv, p);
-    }
-    return strv;
+    return readStream(std::cin);
 }
 
 std::string numToStr(double num)
