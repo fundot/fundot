@@ -229,7 +229,25 @@ Expression Expression::eval()
         std::cout << new_strv << std::endl;
         return Expression("null");
     }
-    else if (strv_[0] == "Less")
+    else if (strv_[0] == "Str@")
+    {
+        // !!!
+        size_t i = std::stoull(strv_[2]);
+        char c = strv_[1][i + 1];
+        std::string str;
+        str += c;
+        return Expression(str);
+    }
+    else if (strv_[0] == "Num=")
+    {
+        double first = std::stod(strv_[1]), second = std::stod(strv_[2]);
+        if (first == second)
+        {
+            return Expression("true");
+        }
+        return Expression("false");
+    }
+    else if (strv_[0] == "Num<")
     {
         double first = std::stod(strv_[1]), second = std::stod(strv_[2]);
         if (first < second)
@@ -238,7 +256,7 @@ Expression Expression::eval()
         }
         return Expression("false");
     }
-    else if (strv_[0] == "Greater")
+    else if (strv_[0] == "Num>")
     {
         double first = std::stod(strv_[1]), second = std::stod(strv_[2]);
         if (first > second)
@@ -247,27 +265,45 @@ Expression Expression::eval()
         }
         return Expression("false");
     }
-    else if (strv_[0] == "Add")
+    else if (strv_[0] == "Num<=")
+    {
+        double first = std::stod(strv_[1]), second = std::stod(strv_[2]);
+        if (first <= second)
+        {
+            return Expression("true");
+        }
+        return Expression("false");
+    }
+    else if (strv_[0] == "Num>=")
+    {
+        double first = std::stod(strv_[1]), second = std::stod(strv_[2]);
+        if (first >= second)
+        {
+            return Expression("true");
+        }
+        return Expression("false");
+    }
+    else if (strv_[0] == "Num+")
     {
         double first = std::stod(strv_[1]), second = std::stod(strv_[2]);
         return Expression(numToStr(first + second));
     }
-    else if (strv_[0] == "Sub")
+    else if (strv_[0] == "Num-")
     {
         double first = std::stod(strv_[1]), second = std::stod(strv_[2]);
         return Expression(numToStr(first - second));
     }
-    else if (strv_[0] == "Mul")
+    else if (strv_[0] == "Num*")
     {
         double first = std::stod(strv_[1]), second = std::stod(strv_[2]);
         return Expression(numToStr(first * second));
     }
-    else if (strv_[0] == "Div")
+    else if (strv_[0] == "Num/")
     {
         double first = std::stod(strv_[1]), second = std::stod(strv_[2]);
         return Expression(numToStr(first / second));
     }
-    else if (strv_[0] == "Mod")
+    else if (strv_[0] == "Num%")
     {
         long long first = std::stoll(strv_[1]), second = std::stoll(strv_[2]);
         return Expression(numToStr(first % second));

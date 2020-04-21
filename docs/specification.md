@@ -65,26 +65,38 @@ Evaluate the evaluated *expression*.
     Call file_name.
 Evaluate the file called *file_name* and return the evaluated value.
 
-    Less value_1 value_2
-Return *true* if *value_1* is less than *value_2* and return *false* otherwise.
+    Str@ string position.
+Return the character of *string* at *position*.
 
-    Greater value_1 value_2
-Return *true* if *value_1* is greater than *value_2* and return *false* otherwise.
+    Num= num_1 num_2
+Return *true* if *num_1* is equal to *num_2* and return *false* otherwise.
 
-    Add value_1 value_2.
-Return the sum of *value_1* and *value_2*.
+    Num<= num_1 num_2
+Return *true* if *num_1* is less than or equal to *num_2* and return *false* otherwise.
 
-    Sub value_1 value_2.
-Return the difference of *value_1* and *value_2*.
+    Num>= num_1 num_2
+Return *true* if *num_1* is greater than or equal to *num_2* and return *false* otherwise.
 
-    Mul value_1 value_2.
-Return the product of *value_1* and *value_2*.
+    Num< num_1 num_2
+Return *true* if *num_1* is less than *num_2* and return *false* otherwise.
 
-    Div value_1 value_2.
-Return the quotient of *value_1* divided by *value_2*.
+    Num> num_1 num_2
+Return *true* if *num_1* is greater than *num_2* and return *false* otherwise.
 
-    Mod value_1 value_2.
-Return the remainder of *value_1* divided by *value_2*.
+    Num+ num_1 num_2.
+Return the sum of *num_1* and *num_2*.
+
+    Num- num_1 num_2.
+Return the difference of *num_1* and *num_2*.
+
+    Num* num_1 num_2.
+Return the product of *num_1* and *num_2*.
+
+    Num/ num_1 num_2.
+Return the quotient of *num_1* divided by *num_2*.
+
+    Num% num_1 num_2.
+Return the remainder of *num_1* divided by *num_2*.
 
     Block [<expression>s].
 Execute all the *expression*s in the list and return the value returned by the last *expression*.
