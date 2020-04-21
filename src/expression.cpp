@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <map>
 #include <string>
 #include <vector>
@@ -218,6 +219,29 @@ Expression Expression::eval()
         }
         to_return.insert(to_return.begin() + 1, element.begin(), element.end());
         return Expression(to_return);
+    }
+    else if (strv_[0] == "File>>")
+    {
+        std::ifstream file_stream;
+        file_stream.open(strv_[1]);
+        std::string str;
+        file_stream >> str;
+        file_stream.close();
+        return Expression(str);
+    }
+    else if (strv_[0] == "File<<")
+    {
+        std::ofstream file_stream;
+        file_stream.open(strv_[1]);
+        file_stream << strv_[2];
+        file_stream.close();
+        return Expression("null");
+    }
+    else if (strv_[0] == "Scan")
+    {
+        std::string str;
+        std::cin >> str;
+        return Expression(str);
     }
     else if (strv_[0] == "Print")
     {

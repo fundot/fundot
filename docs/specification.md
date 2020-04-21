@@ -101,6 +101,15 @@ Return the remainder of *num_1* divided by *num_2*.
     Block [<expression>s].
 Execute all the *expression*s in the list and return the value returned by the last *expression*.
 
+    File>> file_name.
+Return the input from file named *file_name*.
+
+    File<< file_name value.
+Output *value* to the file named *file_name* and return *null*.
+
+    Scan.
+Return the input from user.
+
     Print value.
 Print *value* on the terminal and return *null*.
 
