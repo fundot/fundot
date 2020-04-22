@@ -8,8 +8,6 @@
 #include "function.h"
 #include "library.h"
 
-std::map<std::string, Function> global_fun_map;
-
 int main(int argc, char **argv)
 {
     std::cout << "Fun." << std::endl;

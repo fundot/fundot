@@ -19,6 +19,9 @@ Define a *Function* of a list of *arguments* with *body*.
     Def variable value.
 Define a *variable* with *value*.
 
+    Let variable value.
+Define a local *variable* with *value*.
+
     Set variable value.
 Set the value of an existing variable named *variable* to be *value*.
 
@@ -37,7 +40,7 @@ Return the value of the first expression whose predicate is *true*. The last lin
 Return the value of *expression_1* if *predicate* is *true*, otherwise return the value of *expression_2*.
 
     Quote [arguments].
-Return the list of *arguments* without evaluating.
+Return *arguments* without evaluating.
 
     List [<expression>s].
 Return the list of evaluated *expression*s.

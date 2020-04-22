@@ -7,7 +7,8 @@
 #include "function.h"
 #include "library.h"
 
-extern std::map<std::string, Function> global_fun_map;
+std::map<std::string, Function> global_fun_map;
+std::map<std::string, Function> local_fun_map;
 
 Expression::Expression(std::vector<std::string> strv)
 {
@@ -60,6 +61,46 @@ bool Expression::isFinal()
 
 Expression Expression::eval()
 {
+    if (strv_[0] == "Quote")
+    {
+        strv_.erase(strv_.begin());
+        strv_.erase(strv_.end() - 1);
+        return *this;
+    }
+    for (size_t i = 0; i < strv_.size(); ++i)
+    {
+        if (strv_[i] == "Quote")
+        {
+            i += getExpr(strv_, i).size();
+            continue;
+        }
+        if (local_fun_map.find(strv_[i]) != local_fun_map.end())
+        {
+            std::vector<std::string> new_strv = local_fun_map.at(strv_[i]).replaceFun(getExpr(strv_, i));
+            strv_.erase(strv_.begin() + i, strv_.begin() + i + getExpr(strv_, i).size());
+            strv_.insert(strv_.begin() + i, new_strv.begin(), new_strv.end());
+        }
+        else if (global_fun_map.find(strv_[i]) != global_fun_map.end())
+        {
+            std::vector<std::string> new_strv = global_fun_map.at(strv_[i]).replaceFun(getExpr(strv_, i));
+            strv_.erase(strv_.begin() + i, strv_.begin() + i + getExpr(strv_, i).size());
+            strv_.insert(strv_.begin() + i, new_strv.begin(), new_strv.end());
+        }
+    }
+    if (isFinal() == false)
+    {
+        for (size_t i = 0; i < strv_.size(); ++i)
+        {
+            if (isupper(strv_[i][0]) && i != 0)
+            {
+                Expression to_recurse(getExpr(strv_, i));
+                strv_.erase(strv_.begin() + i, strv_.begin() + i + to_recurse.strv_.size());
+                to_recurse = to_recurse.eval();
+                strv_.insert(strv_.begin() + i, to_recurse.strv_.begin(), to_recurse.strv_.end());
+                i += to_recurse.strv_.size() - 1;
+            }
+        }
+    }
     if (strv_[0] == "Exit" || strv_[0] == "Quit")
     {
         exit(EXIT_SUCCESS);
@@ -68,6 +109,12 @@ Expression Expression::eval()
     {
         Function fun(*this);
         global_fun_map[fun.getName()] = fun;
+        return Expression("null");
+    }
+    else if (strv_[0] == "Let")
+    {
+        Function fun(*this);
+        local_fun_map[fun.getName()] = fun;
         return Expression("null");
     }
     else if (strv_[0] == "Set")
@@ -81,11 +128,6 @@ Expression Expression::eval()
         Function fun(new_strv);
         global_fun_map[fun.getName()] = fun;
         return Expression("null");
-    }
-    else if (strv_[0] == "Quote")
-    {
-        strv_[0] = "List";
-        return *this;
     }
     else if (strv_[0] == "Cond" || strv_[0] == "If")
     {
@@ -116,6 +158,7 @@ Expression Expression::eval()
     }
     else if (strv_[0] == "Block")
     {
+        // !!!
         size_t last_start_index = 0;
         for (size_t i = 0; i < strv_.size(); ++i)
         {
@@ -134,37 +177,17 @@ Expression Expression::eval()
             Expression expr(getExpr(strv_, i));
             if (i == last_start_index)
             {
-                return expr.eval();
+                expr = expr.eval();
+                local_fun_map.clear();
+                return expr;
             }
             i += expr.strv_.size();
             expr.eval();
         }
+        local_fun_map.clear();
         return Expression("null");
     }
-    for (size_t i = 0; i < strv_.size(); ++i)
-    {
-        if (global_fun_map.find(strv_[i]) != global_fun_map.end())
-        {
-            std::vector<std::string> new_strv = global_fun_map.at(strv_[i]).replaceFun(getExpr(strv_, i));
-            strv_.erase(strv_.begin() + i, strv_.begin() + i + getExpr(strv_, i).size());
-            strv_.insert(strv_.begin() + i, new_strv.begin(), new_strv.end());
-        }
-    }
-    while (isFinal() == false)
-    {
-        for (size_t i = 0; i < strv_.size(); ++i)
-        {
-            if (isupper(strv_[i][0]) && i != 0)
-            {
-                Expression to_recurse(getExpr(strv_, i));
-                strv_.erase(strv_.begin() + i, strv_.begin() + i + to_recurse.strv_.size());
-                to_recurse = to_recurse.eval();
-                strv_.insert(strv_.begin() + i, to_recurse.strv_.begin(), to_recurse.strv_.end());
-                i += to_recurse.strv_.size() - 1;
-            }
-        }
-    }
-    if (strv_[0] == "Call")
+    else if (strv_[0] == "Call")
     {
         if (strv_[1][0] == '"')
         {

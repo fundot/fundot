@@ -21,3 +21,4 @@ test/test2.fundot
 obj/library.o
 obj/expression.o
 obj/function.o
+test.txt
