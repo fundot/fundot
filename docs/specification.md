@@ -22,9 +22,6 @@ Define a *variable* with *value*.
     Let variable value.
 Define a local *variable* with *value*.
 
-    Set variable value.
-Set the value of an existing variable named *variable* to be *value*.
-
     Equal value_1 value_2.
 Return *true* if *value_1* and *value_2* are equal and return *false* otherwise.
 

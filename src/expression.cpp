@@ -8,7 +8,7 @@
 #include "library.h"
 
 std::map<std::string, Function> global_fun_map;
-std::map<std::string, Function> local_fun_map;
+std::vector<std::map<std::string, Function>> local_fun_maps;
 
 Expression::Expression(std::vector<std::string> strv)
 {
@@ -61,6 +61,7 @@ bool Expression::isFinal()
 
 Expression Expression::eval()
 {
+    // std::cout << strv_ << std::endl;
     if (strv_[0] == "Quote")
     {
         strv_.erase(strv_.begin());
@@ -74,13 +75,18 @@ Expression Expression::eval()
             i += getExpr(strv_, i).size();
             continue;
         }
-        if (local_fun_map.find(strv_[i]) != local_fun_map.end())
+        /*
+        for (size_t j = 0; j < local_fun_maps.size(); ++j)
         {
-            std::vector<std::string> new_strv = local_fun_map.at(strv_[i]).replaceFun(getExpr(strv_, i));
-            strv_.erase(strv_.begin() + i, strv_.begin() + i + getExpr(strv_, i).size());
-            strv_.insert(strv_.begin() + i, new_strv.begin(), new_strv.end());
+            if (local_fun_maps[j].find(strv_[i]) != local_fun_maps[j].end())
+            {
+                std::vector<std::string> new_strv = local_fun_maps[j].at(strv_[i]).replaceFun(getExpr(strv_, i));
+                strv_.erase(strv_.begin() + i, strv_.begin() + i + getExpr(strv_, i).size());
+                strv_.insert(strv_.begin() + i, new_strv.begin(), new_strv.end());
+            }
         }
-        else if (global_fun_map.find(strv_[i]) != global_fun_map.end())
+        */
+        if (global_fun_map.find(strv_[i]) != global_fun_map.end())
         {
             std::vector<std::string> new_strv = global_fun_map.at(strv_[i]).replaceFun(getExpr(strv_, i));
             strv_.erase(strv_.begin() + i, strv_.begin() + i + getExpr(strv_, i).size());
@@ -114,19 +120,7 @@ Expression Expression::eval()
     else if (strv_[0] == "Let")
     {
         Function fun(*this);
-        local_fun_map[fun.getName()] = fun;
-        return Expression("null");
-    }
-    else if (strv_[0] == "Set")
-    {
-        std::vector<std::string> new_strv = getExpr(strv_, 2);
-        Expression expr(new_strv);
-        new_strv = expr.eval().strv_;
-        new_strv.insert(new_strv.begin(), strv_[1]);
-        new_strv.insert(new_strv.begin(), "Set");
-        new_strv.push_back(".");
-        Function fun(new_strv);
-        global_fun_map[fun.getName()] = fun;
+        local_fun_maps[local_fun_maps.size() - 1][fun.getName()] = fun;
         return Expression("null");
     }
     else if (strv_[0] == "Cond" || strv_[0] == "If")
@@ -159,6 +153,8 @@ Expression Expression::eval()
     else if (strv_[0] == "Block")
     {
         // !!!
+        std::map<std::string, Function> local_fun_map;
+        local_fun_maps.push_back(local_fun_map);
         size_t last_start_index = 0;
         for (size_t i = 0; i < strv_.size(); ++i)
         {
@@ -177,14 +173,12 @@ Expression Expression::eval()
             Expression expr(getExpr(strv_, i));
             if (i == last_start_index)
             {
-                expr = expr.eval();
-                local_fun_map.clear();
+                local_fun_maps.erase(local_fun_maps.end() - 1);
                 return expr;
             }
-            i += expr.strv_.size();
-            expr.eval();
+            ++i;
         }
-        local_fun_map.clear();
+        local_fun_maps.erase(local_fun_maps.end() - 1);
         return Expression("null");
     }
     else if (strv_[0] == "Call")

@@ -5,7 +5,7 @@
 #include <vector>
 #include "library.h"
 
-std::map<char, std::string> symbol_map = {{'{', "Block"}, {'[', "List"}, {'\'', "Quote"}};
+std::map<char, std::string> symbol_map = {{'{', "Block"}, {'[', "List"}, {'\'', "'"}};
 
 bool isFunStart(std::string str)
 {
@@ -112,13 +112,15 @@ bool isEndSymbol(char c)
 
 void symbolSplit(std::vector<std::string> &strv, size_t p)
 {
-    for (size_t i = 0; i < strv[p].length() && isStartSymbol(strv[p][i]); ++i)
+    while (isStartSymbol(strv[p][0]))
     {
-        if (strv[p].length() - 1 != 0)
+        if (strv[p].length() == 1)
         {
-            strv.push_back(strv[p].substr(1, strv[p].length() - 1));
+            strv[p] = symbol_map[strv[p][0]];
+            break;
         }
-        strv[p] = symbol_map[strv[p][i]];
+        strv.push_back(strv[p].substr(1, strv[p].length() - 1));
+        strv[p] = symbol_map[strv[p][0]];
         ++p;
     }
     if (isEndSymbol(strv[p][0]))
@@ -163,6 +165,22 @@ std::vector<std::string> readStream(std::istream &in)
             }
         }
         symbolSplit(strv, p);
+    }
+    for (size_t i = 0; i < strv.size(); ++i)
+    {
+        if (strv[i] == "'")
+        {
+            strv[i] = "Quote";
+            size_t p = i + getExpr(strv, i + 1).size() + 1;
+            strv.insert(strv.begin() + p, ".");
+        }
+        else if (strv[i][strv[i].size() - 1] == '\'')
+        {
+            strv[i].erase(strv[i].end() - 1);
+            size_t p = i + getExpr(strv, i).size() - 1;
+            strv.insert(strv.begin() + p, ".");
+            strv.insert(strv.begin() + i + 1, "Quote");
+        }
     }
     return strv;
 }
