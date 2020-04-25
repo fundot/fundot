@@ -8,7 +8,7 @@
 #include "library.h"
 
 std::map<std::string, Function> global_fun_map;
-std::vector<std::map<std::string, Function>> local_fun_maps;
+std::vector<std::map<std::string, Function>> local_fun_maps{global_fun_map};
 
 Expression::Expression(std::vector<std::string> strv)
 {
@@ -61,12 +61,16 @@ bool Expression::isFinal()
 
 Expression Expression::eval()
 {
-    // std::cout << strv_ << std::endl;
     if (strv_[0] == "Quote")
     {
         strv_.erase(strv_.begin());
         strv_.erase(strv_.end() - 1);
         return *this;
+    }
+    else if (strv_[0] == "Block")
+    {
+        std::map<std::string, Function> local_fun_map;
+        local_fun_maps.push_back(local_fun_map);
     }
     for (size_t i = 0; i < strv_.size(); ++i)
     {
@@ -75,8 +79,7 @@ Expression Expression::eval()
             i += getExpr(strv_, i).size();
             continue;
         }
-        /*
-        for (size_t j = 0; j < local_fun_maps.size(); ++j)
+        for (ptrdiff_t j = local_fun_maps.size() - 1; j >= 0; --j)
         {
             if (local_fun_maps[j].find(strv_[i]) != local_fun_maps[j].end())
             {
@@ -85,7 +88,6 @@ Expression Expression::eval()
                 strv_.insert(strv_.begin() + i, new_strv.begin(), new_strv.end());
             }
         }
-        */
         if (global_fun_map.find(strv_[i]) != global_fun_map.end())
         {
             std::vector<std::string> new_strv = global_fun_map.at(strv_[i]).replaceFun(getExpr(strv_, i));
@@ -123,7 +125,7 @@ Expression Expression::eval()
         local_fun_maps[local_fun_maps.size() - 1][fun.getName()] = fun;
         return Expression("null");
     }
-    else if (strv_[0] == "Cond" || strv_[0] == "If")
+    else if (strv_[0] == "Cond")
     {
         size_t i = 1;
         while (i < strv_.size())
@@ -131,9 +133,37 @@ Expression Expression::eval()
             Expression predicate(getExpr(strv_, i));
             i += predicate.strv_.size();
             Expression expr(getExpr(strv_, i));
+            i += expr.strv_.size();
             if (predicate.eval().strv_[0] == "true" || predicate.eval().strv_[0] == "else")
             {
                 return expr.eval();
+            }
+        }
+    }
+    else if (strv_[0] == "If")
+    {
+        // !!!
+        size_t i = 1;
+        while (i < strv_.size())
+        {
+            Expression predicate(getExpr(strv_, i));
+            i += predicate.strv_.size();
+            Expression expr(getExpr(strv_, i));
+            i += expr.strv_.size();
+            if (predicate.eval().strv_[0] == "true")
+            {
+                return expr.eval();
+            }
+            else if (predicate.eval().strv_[0] == "else")
+            {
+                if (expr.strv_[0] == "if")
+                {
+                    continue;
+                }
+                else
+                {
+                    return expr.eval();
+                }
             }
         }
     }
@@ -153,8 +183,6 @@ Expression Expression::eval()
     else if (strv_[0] == "Block")
     {
         // !!!
-        std::map<std::string, Function> local_fun_map;
-        local_fun_maps.push_back(local_fun_map);
         size_t last_start_index = 0;
         for (size_t i = 0; i < strv_.size(); ++i)
         {
@@ -196,6 +224,12 @@ Expression Expression::eval()
     else if (strv_[0] == "Eval")
     {
         return Expression(getExpr(strv_, 1)).eval();
+    }
+    else if (strv_[0] == "Return")
+    {
+        strv_.erase(strv_.begin());
+        strv_.erase(strv_.end() - 1);
+        return *this;
     }
     else if (strv_[0] == "Atom")
     {
