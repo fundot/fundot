@@ -5,7 +5,7 @@
 #include <vector>
 #include "library.h"
 
-std::map<char, std::string> symbol_map = {{'{', "Block"}, {'[', "List"}, {'\'', "'"}};
+std::map<char, std::string> symbol_map = {{'{', "Block"}, {'[', "Vect"}, {'\'', "'"}};
 
 bool isFunStart(std::string str)
 {

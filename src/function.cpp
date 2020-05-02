@@ -18,16 +18,6 @@ Function::Function(Expression expr)
     body_ = getExpr(expr.getStrv(), p);
 }
 
-Function::Function(std::vector<std::string> strv)
-{
-    // !!!
-    name_ = strv[1];
-    size_t p = 1;
-    argv_ = getExpr(strv, p);
-    p += argv_.size();
-    body_ = getExpr(strv, p);
-}
-
 std::string Function::getName()
 {
     return name_;

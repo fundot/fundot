@@ -32,7 +32,7 @@ bool Expression::isAtom()
     }
     else if (strv_.size() == 2)
     {
-        if (strv_[0] == "List" && strv_[1] == ".")
+        if (strv_[0] == "Vect" && strv_[1] == ".")
         {
             return true;
         }
@@ -50,7 +50,7 @@ bool Expression::isFinal()
     {
         for (size_t i = 1; i < strv_.size(); ++i)
         {
-            if (isupper(strv_[i][0]) && strv_[i] != "List")
+            if (isupper(strv_[i][0]) && strv_[i] != "Vect")
             {
                 return false;
             }
@@ -217,7 +217,7 @@ Expression Expression::eval()
         }
         return Expression(readFile(strv_[1])).eval();
     }
-    else if (strv_[0] == "List")
+    else if (strv_[0] == "Vect")
     {
         return *this;
     }
@@ -248,6 +248,46 @@ Expression Expression::eval()
         }
         return Expression("false");
     }
+    else if (strv_[0] == "At")
+    {
+        // !!!
+        std::vector<std::string> new_strv;
+        size_t j = 0;
+        for (size_t i = 0; i <= stoll(strv_[strv_.size() - 2]); ++i)
+        {
+            new_strv = getExpr(strv_, j + 2);
+            j += new_strv.size();
+        }
+        return Expression(new_strv);
+    }
+    else if (strv_[0] == "Push")
+    {
+        strv_.erase(strv_.begin());
+        strv_.pop_back();
+        size_t p = getExpr(strv_, 0).size() - 1;
+        strv_.erase(strv_.begin() + p);
+        strv_.push_back(".");
+        return *this;
+    }
+    else if (strv_[0] == "Pop")
+    {
+        strv_.erase(strv_.begin());
+        strv_.pop_back();
+        size_t last_start_index = 0;
+        for (size_t i = 0; i < strv_.size(); ++i)
+        {
+            if (isupper(strv_[i][0]))
+            {
+                last_start_index = i;
+            }
+        }
+        if (strv_[strv_.size() - 2] != ".")
+        {
+            last_start_index = strv_.size() - 2;
+        }
+        strv_.erase(strv_.begin() + last_start_index, strv_.begin() + last_start_index + getExpr(strv_, last_start_index).size());
+        return *this;
+    }
     else if (strv_[0] == "CAR" || strv_[0] == "First")
     {
         return Expression(getExpr(strv_, 2));
@@ -265,7 +305,7 @@ Expression Expression::eval()
         std::vector<std::string> to_return = getExpr(strv_, 1 + element.size());
         if (isupper(to_return[0][0]) == 0)
         {
-            to_return.insert(to_return.begin(), "List");
+            to_return.insert(to_return.begin(), "Vector");
             to_return.push_back(".");
         }
         to_return.insert(to_return.begin() + 1, element.begin(), element.end());

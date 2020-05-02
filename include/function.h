@@ -6,7 +6,6 @@ class Function
 public:
     Function() = default;
     Function(Expression expr);
-    Function(std::vector<std::string> strv);
     std::string getName();
     std::vector<std::string> replaceFun(std::vector<std::string> strv);
 private:

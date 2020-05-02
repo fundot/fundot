@@ -64,6 +64,24 @@ Atom [arguments].
 Return true if *arguments* is an atom.
 
 ```Fundot
+At vector index.
+```
+
+Return the element at position *index* in *vector*.
+
+```Fundot
+Push vector element.
+```
+
+Return a vector containing the elements in *vector* with *element* pushed back.
+
+```Fundot
+Pop vector.
+```
+
+Return a *vector* without its last element.
+
+```Fundot
 CAR [arguments].
 First [arguments].
 ```
