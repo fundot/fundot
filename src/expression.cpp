@@ -59,6 +59,15 @@ bool Expression::isFinal()
     return true;
 }
 
+bool Expression::isNull()
+{
+    if (strv_.size() == 1 && strv_[0] == "null")
+    {
+        return true;
+    }
+    return false;
+}
+
 Expression Expression::eval()
 {
     if (strv_[0] == "Quote")
@@ -432,14 +441,19 @@ Expression Expression::eval()
 
 std::ostream &operator<<(std::ostream &out, Expression expr)
 {
-    for (size_t i = 0; i < expr.strv_.size(); ++i)
+    std::vector<std::string> to_output = expr.strv_;
+    std::vector<std::string>::iterator it = std::find(to_output.begin(), to_output.end(), "Vect");
+    while (it != to_output.end())
     {
-        std::cout << expr.strv_[i] << " ";
+        int it_index = it - to_output.begin();
+        int it_dot_index = it_index + getExpr(to_output, it_index).size() - 1;
+        to_output[it_index] = "[";
+        to_output[it_dot_index] = "]";
+        it = std::find(to_output.begin(), to_output.end(), "Vect");
+    }
+    for (size_t i = 0; i < to_output.size(); ++i)
+    {
+        std::cout << to_output[i] << " ";
     }
     return out;
-}
-
-std::vector<std::string> Expression::getStrv()
-{
-    return strv_;
 }

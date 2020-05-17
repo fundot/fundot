@@ -11,11 +11,11 @@ extern std::map<std::string, Function> global_fun_map;
 Function::Function(Expression expr)
 {
     // !!!
-    name_ = expr.getStrv()[1];
+    name_ = expr.strv_[1];
     size_t p = 1;
-    argv_ = getExpr(expr.getStrv(), p);
+    argv_ = getExpr(expr.strv_, p);
     p += argv_.size();
-    body_ = getExpr(expr.getStrv(), p);
+    body_ = getExpr(expr.strv_, p);
 }
 
 std::string Function::getName()
@@ -33,7 +33,7 @@ std::vector<std::string> Function::replaceFun(std::vector<std::string> strv)
         std::vector<std::string> new_strv = getExpr(strv, p);
         p += new_strv.size();
         Expression expr(new_strv);
-        new_strv = expr.eval().getStrv();
+        new_strv = expr.eval().strv_;
         new_strv.insert(new_strv.begin(), argv_[i]);
         new_strv.insert(new_strv.begin(), "Def");
         new_strv.push_back(".");
@@ -53,6 +53,6 @@ std::vector<std::string> Function::replaceFun(std::vector<std::string> strv)
         }
     }
     Expression expr(to_return);
-    to_return = expr.eval().getStrv();
+    to_return = expr.eval().strv_;
     return to_return;
 }

@@ -16,7 +16,7 @@ int main(int argc, char **argv)
         std::vector<std::string> strv = readFile(argv[1]);
         Expression expr(strv);
         Expression eval_expr = expr.eval();
-        if (!(eval_expr.getStrv().size() == 1 && eval_expr.getStrv()[0] == "null"))
+        if (eval_expr.isNull() == false)
         {
             std::cout << eval_expr << std::endl;
         }
@@ -28,7 +28,7 @@ int main(int argc, char **argv)
     {
         Expression expr(strv);
         Expression eval_expr = expr.eval();
-        if (!(eval_expr.getStrv().size() == 1 && eval_expr.getStrv()[0] == "null"))
+        if (eval_expr.isNull() == false)
         {
             std::cout << eval_expr << std::endl;
         }

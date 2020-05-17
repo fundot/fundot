@@ -4,13 +4,14 @@
 class Expression
 {
 public:
+    friend class Function;
     friend std::ostream &operator<<(std::ostream &out, Expression expr);
     Expression(std::vector<std::string> strv);
     Expression(std::string str);
     Expression eval();
-    std::vector<std::string> getStrv();
     bool isAtom();
     bool isFinal();
+    bool isNull();
 
 private:
     std::vector<std::string> strv_;
