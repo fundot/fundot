@@ -19,3 +19,4 @@ An underdeveloped tutorial for beginners.
 * [Language Specification](specification.md)
 
 The official Fundot Programming Language Specification.
+

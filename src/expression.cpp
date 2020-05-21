@@ -323,17 +323,23 @@ Expression Expression::eval()
     else if (strv_[0] == "File>>")
     {
         std::ifstream file_stream;
+        std::vector<std::string> strv;
+        strv.push_back("Vect");
         file_stream.open(strv_[1]);
         std::string str;
-        file_stream >> str;
+        while (file_stream >> str)
+        {
+            strv.push_back(str);
+        }
         file_stream.close();
-        return Expression(str);
+        strv.push_back(".");
+        return Expression(strv);
     }
     else if (strv_[0] == "File<<")
     {
         std::ofstream file_stream;
-        file_stream.open(strv_[1]);
-        file_stream << strv_[2];
+        file_stream.open(strv_[1], std::ios::app);
+        file_stream << strv_[2] << " ";
         file_stream.close();
         return Expression("null");
     }
