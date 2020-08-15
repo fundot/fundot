@@ -12,7 +12,7 @@ vector<Token> Parser::eval()
     tokens.push_back(*token_vector.begin());
     for (vector<Token>::iterator iter = token_vector.begin() + 1; iter != token_vector.end();)
     {
-        if (iter->name() == Token::Name::KEYWORD)
+        if (iter->name() == Token::Name::KEYWORD || (iter->name() == Token::Name::IDENTIFIER && findObject(iter->value()).typeName() == "Function"))
         {
             vector<Token> tks = getCompleteTokens(iter);
             Parser parser(tks);
@@ -20,9 +20,6 @@ vector<Token> Parser::eval()
             {
                 tokens.push_back(tk);
             }
-        }
-        else if (iter->name() == Token::Name::IDENTIFIER)
-        {
         }
         else
         {
@@ -40,6 +37,10 @@ vector<Token> Parser::eval()
             {
                 to_return.push_back(tk);
             }
+        }
+        else
+        {
+            to_return.push_back(Token(Token::Name::LITERAL, object.toString()));
         }
     }
     if (tokens[0].value() == "Exit")

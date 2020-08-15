@@ -98,8 +98,24 @@ const string &Object::typeName()
     return type_name;
 }
 
-template <typename T>
-const T &get(const Object &object)
+string Object::toString()
 {
-    return *static_cast<T *>(object.vptr);
+    string to_return;
+    if (type_name == "Function")
+    {
+        // error
+    }
+    else if (type_name == "int")
+    {
+        to_return = to_string(get<int>());
+    }
+    else if (type_name == "float")
+    {
+        to_return = to_string(get<double>());
+    }
+    else if (type_name == "string")
+    {
+        to_return = get<string>();
+    }
+    return to_return;
 }

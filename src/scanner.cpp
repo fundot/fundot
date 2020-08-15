@@ -24,17 +24,25 @@ vector<string> Scanner::scan(istream &in)
                 }
                 expression.push_back(";");
             }
-            else if (c == ';')
+            else if (separators.find(string(1, c)) != separators.end())
             {
-                ++end_count;
+                if (isEnd(string(1, c)))
+                {
+                    ++end_count;
+                }
                 if (str.empty() == false)
                 {
                     expression.push_back(str);
+                    if (isStart(str))
+                    {
+                        ++start_count;
+                    }
                     str.clear();
                 }
-                expression.push_back(";");
+                expression.push_back(string(1, c));
                 break;
             }
+            /*
             else if (c == ':')
             {
                 if (str.empty() == false)
@@ -45,6 +53,7 @@ vector<string> Scanner::scan(istream &in)
                 expression.push_back(":");
                 break;
             }
+            */
             else if (c == '"')
             {
                 str.push_back('"');
@@ -63,6 +72,11 @@ vector<string> Scanner::scan(istream &in)
         {
             ++start_count;
         }
+        else if (!str.empty() && start_count == 0)
+        {
+            expression.push_back(str);
+            break;
+        }
         if (str.empty() == false)
         {
             expression.push_back(str);
@@ -71,4 +85,3 @@ vector<string> Scanner::scan(istream &in)
     ios::sync_with_stdio(true);
     return expression;
 }
-

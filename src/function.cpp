@@ -2,12 +2,6 @@
 
 Function::Function(const vector<Token> &init_tokens)
 {
-    cout << "init_tokens: ";
-    for (auto tk : init_tokens)
-    {
-        cout << tk.value() << " ";
-    }
-    cout << endl;
     size_t i = 2;
     while (init_tokens[i].value() != ":")
     {
@@ -18,24 +12,12 @@ Function::Function(const vector<Token> &init_tokens)
     {
         body.push_back(init_tokens[i++]);
     }
-    cout << "argv: ";
-    for (auto tk : argv)
-    {
-        cout << tk.value() << " ";
-    }
-    cout << endl;
-    cout << "body: ";
-    for (auto tk : body)
-    {
-        cout << tk.value() << " ";
-    }
-    cout << endl;
 }
 
 vector<Token> Function::replace(const vector<Token> &tokens) const
 {
     unordered_map<string, Token> arg_map;
-    for (size_t i = 1; i < tokens.size(); ++i)
+    for (size_t i = 1; i < tokens.size() - 1; ++i)
     {
         arg_map[argv[i - 1].value()] = tokens[i];
     }

@@ -2,7 +2,7 @@
 
 vector<unordered_map<string, Object>> object_scopes(1);
 unordered_set<string> keywords{ "Exit", "Quote", "Def", "Num+" };
-unordered_set<string> separators{ ";" };
+unordered_set<string> separators{ ";", ":" };
 
 Object null_object;
 

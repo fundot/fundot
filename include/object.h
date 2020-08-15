@@ -21,6 +21,7 @@ public:
     Object &operator=(const Object &other);
 
     const string &typeName();
+    string toString();
 
     template <typename T>
     inline const T &get() { return *static_cast<T *>(vptr); }
