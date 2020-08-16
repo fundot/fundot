@@ -15,7 +15,7 @@ public:
     Parser(const vector<Token> &init_token_vector) : token_vector(init_token_vector) {}
 
     vector<Token> eval();
-    
+
     vector<Token> getCompleteTokens(vector<Token>::iterator &iter);
 
 private:

@@ -20,6 +20,11 @@ vector<Token> Lexer::lex()
             Token token(Token::Name::IDENTIFIER, expression[i]);
             tokens.push_back(token);
         }
+        else if (operators.find(expression[i]) != operators.end())
+        {
+            Token token(Token::Name::OPERATOR, expression[i]);
+            tokens.push_back(token);
+        }
         else
         {
             Token token(Token::Name::LITERAL, expression[i]);

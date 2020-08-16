@@ -8,9 +8,19 @@ vector<string> Scanner::scan(istream &in)
     while (start_count != end_count || start_count == 0)
     {
         string str;
-        for (char c; in >> std::noskipws >> c;)
+        for (char c; in >> noskipws >> c;)
         {
-            if (c == ' ' || c == '\t' || c == '\n')
+            if (c == '\n')
+            {
+                if (start_count == end_count)
+                {
+                    expression.push_back(str);
+                    ios::sync_with_stdio(true);
+                    return expression;
+                }
+                break;
+            }
+            else if (c == ' ' || c == '\t')
             {
                 break;
             }
@@ -42,22 +52,10 @@ vector<string> Scanner::scan(istream &in)
                 expression.push_back(string(1, c));
                 break;
             }
-            /*
-            else if (c == ':')
-            {
-                if (str.empty() == false)
-                {
-                    expression.push_back(str);
-                    str.clear();
-                }
-                expression.push_back(":");
-                break;
-            }
-            */
             else if (c == '"')
             {
                 str.push_back('"');
-                while (in >> std::noskipws >> c && c != '"')
+                while (in >> noskipws >> c && c != '"')
                 {
                     str.push_back(c);
                 }
@@ -71,11 +69,6 @@ vector<string> Scanner::scan(istream &in)
         if (isStart(str))
         {
             ++start_count;
-        }
-        else if (!str.empty() && start_count == 0)
-        {
-            expression.push_back(str);
-            break;
         }
         if (str.empty() == false)
         {

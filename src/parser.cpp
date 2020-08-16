@@ -2,6 +2,41 @@
 
 vector<Token> Parser::eval()
 {
+    /*
+    for (vector<Token>::iterator iter = token_vector.begin(), last_iter = iter; iter != token_vector.end();)
+    {
+        cout << "token_vector:" << endl;
+        for (auto tk : token_vector)
+        {
+            cout << tk.value() << " ";
+        }
+        cout << endl;
+        if (iter->name() == Token::Name::OPERATOR)
+        {
+            cout << 1 << endl;
+            static unordered_map<string, string> binary_operators{{"=", "Def"}, {"==", "Equal"}, {"+", "Add"}};
+            cout << 2 << endl;
+            if (binary_operators.find(iter->value()) != binary_operators.end())
+            {
+                cout << 3 << endl;
+                iter = token_vector.erase(iter);
+                cout << 4 << endl;
+                token_vector.insert(last_iter, Token(Token::Name::KEYWORD, binary_operators[iter->value()]));
+                cout << 5 << endl;
+            }
+        }
+        cout << 1 << endl;
+        last_iter = iter;
+        cout << 2 << endl;
+        getCompleteTokens(iter);
+    }
+    cout << "token_vector:" << endl;
+    for (auto tk : token_vector)
+    {
+        cout << tk.value() << " ";
+    }
+    cout << endl;
+    */
     vector<Token> to_return;
     if (token_vector[0].value() == "Quote")
     {
@@ -26,7 +61,11 @@ vector<Token> Parser::eval()
             tokens.push_back(*iter++);
         }
     }
-    if (tokens[0].name() == Token::Name::IDENTIFIER)
+    if (tokens[0].name() == Token::Name::LITERAL)
+    {
+        to_return.push_back(tokens[0]);
+    }
+    else if (tokens[0].name() == Token::Name::IDENTIFIER)
     {
         Object object = findObject(tokens[0].value());
         if (object.typeName() == "Function")
@@ -43,7 +82,7 @@ vector<Token> Parser::eval()
             to_return.push_back(Token(Token::Name::LITERAL, object.toString()));
         }
     }
-    if (tokens[0].value() == "Exit")
+    else if (tokens[0].value() == "Exit")
     {
         exit(0);
     }
@@ -52,11 +91,48 @@ vector<Token> Parser::eval()
         Object object(tokens);
         object_scopes[object_scopes.size() - 1][tokens[1].value()] = object;
     }
-    else if (tokens[0].value() == "Num+")
+    else if (tokens[0].value() == "Equal")
     {
-        double first = stod(tokens[1].value()), second = stod(tokens[2].value());
-        double sum = first + second;
-        to_return.push_back(Token(Token::Name::LITERAL, to_string(sum)));
+        Object first(tokens[1]), second(tokens[2]);
+        to_return.push_back(Token(Token::Name::LITERAL, (first == second).toString()));
+    }
+    else if (tokens[0].value() == "Add")
+    {
+        Object first(tokens[1]), second(tokens[2]);
+        to_return.push_back(Token(Token::Name::LITERAL, (first + second).toString()));
+    }
+    else if (tokens[0].value() == "If")
+    {
+        for (vector<Token>::iterator iter = tokens.begin() + 1; iter != tokens.end();)
+        {
+            if (iter->value() == "true")
+            {
+                while ((++iter)->value() != "else" && isEnd(iter->value()) == false)
+                {
+                    to_return.push_back(*iter);
+                }
+                if ((++iter)->value() == "if")
+                {
+                    ++iter;
+                }
+            }
+            else
+            {
+                while (iter->value() != "else" && isEnd(iter->value()) == false)
+                {
+                    ++iter;
+                }
+                if ((++iter)->value() == "if")
+                {
+                    ++iter;
+                }
+                else
+                {
+                    to_return.push_back(*iter);
+                    break;
+                }
+            }
+        }
     }
     return to_return;
 }

@@ -3,7 +3,6 @@
 
 #include <regex>
 #include <unordered_set>
-#include <variant>
 #include "function.h"
 #include "global.h"
 #include "token.h"
@@ -15,6 +14,7 @@ class Object
 public:
     Object() = default;
     Object(const Object &init_object);
+    Object(const Token &init_token);
     Object(const vector<Token> &init_tokens);
     ~Object();
 
@@ -24,7 +24,10 @@ public:
     string toString();
 
     template <typename T>
-    inline const T &get() { return *static_cast<T *>(vptr); }
+    const T &get() const { return *static_cast<T *>(vptr); }
+
+    friend Object operator==(const Object &first, const Object &second);
+    friend Object operator+(const Object &first, const Object &second);
 
 private:
     string type_name;
