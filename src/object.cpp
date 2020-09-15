@@ -60,6 +60,45 @@ namespace fundot
             {
                 break;
             }
+            else if (c == '\\')
+            {
+                is >> c;
+                if (c == 'b')
+                {
+                    c = '\b';
+                }
+                else if (c == 'f')
+                {
+                    c = '\f';
+                }
+                else if (c == 'n')
+                {
+                    c = '\n';
+                }
+                else if (c == 'r')
+                {
+                    c = '\r';
+                }
+                else if (c == 't')
+                {
+                    c = '\t';
+                }
+                else if (c == 'u')
+                {
+                    for (size_t i = 0; i < 4; ++i)
+                    {
+                        is >> c;
+                        if (i != 3)
+                        {
+                            str.push_back(c);
+                        }
+                    }
+                }
+            }
+            else if (isspace(c) && c != ' ')
+            {
+                continue;
+            }
             str.push_back(c);
         }
         Object obj(str);
