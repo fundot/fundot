@@ -51,12 +51,14 @@ namespace fundot
         any _value;
         set<char> _separators = {':', ',', '{', '}', '[', ']', '"', '(', ')'};
         Object _scan(istream &is);
+        Object _scanNumber(istream &is);
         Object _scanString(istream &is);
         Object _scanVector(istream &is);
         Object _scanMap(istream &is);
         Object _scanIdentifier(istream &is);
         Object _scanList(istream &is);
         void _print(ostream &os) const;
+        void _printNumber(ostream &os) const;
         void _printString(ostream &os) const;
         void _printVector(ostream &os) const;
         void _printMap(ostream &os) const;

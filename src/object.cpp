@@ -24,6 +24,11 @@ namespace fundot
         {
             return _scanString(is);
         }
+        else if (c == '-' || (c >= '0' && c <= '9'))
+        {
+            is.putback(c);
+            return _scanNumber(is);
+        }
         else if (c == '[')
         {
             return _scanVector(is);
@@ -47,6 +52,18 @@ namespace fundot
         }
         
         return Object(c);
+    }
+
+    Object Object::_scanNumber(istream &is)
+    {
+        double double_num;
+        is >> double_num;
+        int int_num = static_cast<int>(double_num);
+        if (double_num - int_num == 0)
+        {
+            return Object(int_num);
+        }
+        return Object(double_num);
     }
 
     Object Object::_scanString(istream &is)
@@ -187,6 +204,10 @@ namespace fundot
         {
             _printString(os);
         }
+        else if (_value.type() == typeid(int) || _value.type() == typeid(double))
+        {
+            _printNumber(os);
+        }
         else if (_value.type() == typeid(vector<Object>))
         {
             _printVector(os);
@@ -202,6 +223,18 @@ namespace fundot
         else if (_value.type() == typeid(list<Object>))
         {
             _printList(os);
+        }
+    }
+
+    void Object::_printNumber(ostream &os) const
+    {
+        if (_value.type() == typeid(int))
+        {
+            os << any_cast<int>(_value);
+        }
+        else if (_value.type() == typeid(double))
+        {
+            os << any_cast<double>(_value);
         }
     }
 
