@@ -32,6 +32,20 @@ namespace fundot
         {
             return _scanMap(is);
         }
+        else if (c == '(')
+        {
+            return _scanList(is);
+        }
+        else if (_separators.find(c) != _separators.end())
+        {
+            return Object(c);
+        }
+        else
+        {
+            is.putback(c);
+            return _scanIdentifier(is);
+        }
+        
         return Object(c);
     }
 
@@ -73,17 +87,17 @@ namespace fundot
 
     Object Object::_scanMap(istream &is)
     {
-        map<string, Object> obj_map;
+        map<Identifier, Object> obj_map;
         Object obj(_scan(is));
         char c;
-        while ((obj.getType() == typeid(char) && obj.getValue<char>() == ']') == false)
+        while ((obj.getType() == typeid(char) && obj.getValue<char>() == '}') == false)
         {
             is >> c;
             if (c != ':')
             {
                 // error handle
             }
-            obj_map[obj.getValue<string>()] = _scan(is);
+            obj_map[obj.getValue<Identifier>()] = _scan(is);
             is >> c;
             if (c == '}')
             {
@@ -92,6 +106,40 @@ namespace fundot
             obj = _scan(is);
         }
         return Object(obj_map);
+    }
+
+    Object Object::_scanIdentifier(istream &is)
+    {
+        Identifier id;
+        char c;
+        is >> noskipws;
+        while (is >> c)
+        {
+            if (_separators.find(c) != _separators.end())
+            {
+                is.putback(c);
+                break;
+            }
+            else if (isspace(c))
+            {
+                break;
+            }
+            id.push_back(c);
+        }
+        is >>skipws;
+        return Object(id);
+    }
+
+    Object Object::_scanList(istream &is)
+    {
+        list<Object> obj_lst;
+        Object obj(_scan(is));
+        while ((obj.getType() == typeid(char) && obj.getValue<char>() == ')') == false)
+        {
+            obj_lst.push_back(obj);
+            obj = _scan(is);
+        }
+        return Object(obj_lst);
     }
 
     void Object::_print(ostream &os) const
@@ -104,9 +152,17 @@ namespace fundot
         {
             _printVector(os);
         }
-        else if (_value.type() == typeid(map<string, Object>))
+        else if (_value.type() == typeid(map<Identifier, Object>))
         {
             _printMap(os);
+        }
+        else if (_value.type() == typeid(Identifier))
+        {
+            _printIdentifier(os);
+        }
+        else if (_value.type() == typeid(list<Object>))
+        {
+            _printList(os);
         }
     }
 
@@ -120,18 +176,22 @@ namespace fundot
         os << '[';
         vector<Object> obj_vct = any_cast<vector<Object>>(_value);
         vector<Object>::iterator it = obj_vct.begin();
-        while (it != obj_vct.end() - 1)
+        while (it != obj_vct.end())
         {
-            os << *it++ << ", ";
+            os << *it++;
+            if (it != obj_vct.end())
+            {
+                os << ", ";
+            }
         }
-        os << *it << ']';
+        os << ']';
     }
 
     void Object::_printMap(ostream &os) const
     {
         os << '{';
-        map<string, Object> obj_map = any_cast<map<string, Object>>(_value);
-        map<string, Object>::iterator it = obj_map.begin();
+        map<Identifier, Object> obj_map = any_cast<map<Identifier, Object>>(_value);
+        map<Identifier, Object>::iterator it = obj_map.begin();
         while (it != obj_map.end())
         {
             os << it->first << ": " << it->second;
@@ -144,18 +204,34 @@ namespace fundot
         os << '}';
     }
 
+    void Object::_printIdentifier(ostream &os) const
+    {
+        os << any_cast<Identifier>(_value);
+    }
+
+    void Object::_printList(ostream &os) const
+    {
+        os << '(';
+        list<Object> obj_lst = any_cast<list<Object>>(_value);
+        list<Object>::iterator it = obj_lst.begin();
+        while (it != obj_lst.end())
+        {
+            
+            os << *it++;
+            if (it != obj_lst.end())
+            {
+                os << ' ';
+            }
+        }
+        os << ')';
+    }
+
 } // namespace fundot
-
-// test
-
-#include <iostream>
-
-using namespace fundot;
 
 int main()
 {
-    Object obj;
+    fundot::Object obj;
     cin >> obj;
-    cout << obj << endl;
+    cout << obj << '\n';
     return 0;
 }
