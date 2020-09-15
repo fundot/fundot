@@ -1,310 +1,161 @@
-#include "object.h"
+#include "../include/object.h"
 
-Object::Object(const Object &init_object)
-{
-    type_name = init_object.type_name;
-    if (type_name == "Function")
-    {
-        vptr = new Function(*static_cast<Function *>(init_object.vptr));
-    }
-    else if (type_name == "int")
-    {
-        vptr = new int(*static_cast<int *>(init_object.vptr));
-    }
-    else if (type_name == "float")
-    {
-        vptr = new double(*static_cast<double *>(init_object.vptr));
-    }
-    else if (type_name == "string")
-    {
-        vptr = new string(*static_cast<string *>(init_object.vptr));
-    }
-    else if (type_name == "bool")
-    {
-        vptr = new bool(*static_cast<bool *>(init_object.vptr));
-    }
-}
+#include "../include/debug.h"
 
-Object::Object(const Token &init_token)
+namespace fundot
 {
-    if (init_token.name() == Token::Name::LITERAL)
+    istream &operator>>(istream &is, Object &obj)
     {
-        if (init_token.value() == "true")
+        obj = obj._scan(is);
+        return is;
+    }
+
+    ostream &operator<<(ostream &os, const Object &obj)
+    {
+        obj._print(os);
+        return os;
+    }
+
+    Object Object::_scan(istream &is)
+    {
+        char c;
+        is >> c;
+        if (c == '"')
         {
-            type_name = "bool";
-            vptr = new bool(true);
+            return _scanString(is);
         }
-        else if (init_token.value() == "false")
+        else if (c == '[')
         {
-            type_name = "bool";
-            vptr = new bool(false);
+            return _scanVector(is);
         }
-        static const regex int_regex(R"([+-]?\d+)");
-        static const regex double_regex(R"([+-]?(?:0|[1-9]\d*)(?:.\d*)?(?:[eE][+-]?\d+)?)");
-        static const regex string_regex(R"(".*")");
-        if (regex_match(init_token.value(), int_regex))
+        else if (c == '{')
         {
-            type_name = "int";
-            vptr = new int(stoi(init_token.value()));
+            return _scanMap(is);
         }
-        else if (regex_match(init_token.value(), double_regex))
+        return Object(c);
+    }
+
+    Object Object::_scanString(istream &is)
+    {
+        is >> noskipws;
+        string str;
+        char c;
+        while (is >> c)
         {
-            if (stod(init_token.value()) - stoi(init_token.value()) == 0)
+            if (c == '"')
             {
-                type_name = "int";
-                vptr = new int(stoi(init_token.value()));
+                break;
             }
-            else
+            str.push_back(c);
+        }
+        Object obj(str);
+        is >> skipws;
+        return obj;
+    }
+
+    Object Object::_scanVector(istream &is)
+    {
+        vector<Object> obj_vct;
+        Object obj(_scan(is));
+        char c;
+        while ((obj.getType() == typeid(char) && obj.getValue<char>() == ']') == false)
+        {
+            obj_vct.push_back(obj);
+            is >> c;
+            if (c == ']')
             {
-                type_name = "float";
-                vptr = new double(stod(init_token.value()));
+                break;
             }
+            obj = _scan(is);
         }
-        else if (regex_match(init_token.value(), string_regex))
-        {
-            type_name = "string";
-            vptr = new string(init_token.value().substr(1, init_token.value().size() - 2));
-        }
+        return Object(obj_vct);
     }
-    else if (init_token.name() == Token::Name::IDENTIFIER)
-    {
-        *this = findObject(init_token.value());
-    }
-}
 
-Object::Object(const vector<Token> &init_tokens)
-{
-    if (init_tokens[2].value() != ":")
+    Object Object::_scanMap(istream &is)
     {
-        type_name = "Function";
-        vptr = new Function(init_tokens);
-    }
-    else
-    {
-        if (init_tokens[3].value() == "true")
+        map<string, Object> obj_map;
+        Object obj(_scan(is));
+        char c;
+        while ((obj.getType() == typeid(char) && obj.getValue<char>() == ']') == false)
         {
-            type_name = "bool";
-            vptr = new bool(true);
-        }
-        else if (init_tokens[3].value() == "false")
-        {
-            type_name = "bool";
-            vptr = new bool(false);
-        }
-        static const regex int_regex(R"([+-]?\d+)");
-        static const regex double_regex(R"([+-]?(?:0|[1-9]\d*)(?:.\d*)?(?:[eE][+-]?\d+)?)");
-        static const regex string_regex(R"(".*")");
-        if (regex_match(init_tokens[3].value(), int_regex))
-        {
-            type_name = "int";
-            vptr = new int(stoi(init_tokens[3].value()));
-        }
-        else if (regex_match(init_tokens[3].value(), double_regex))
-        {
-            if (stod(init_tokens[3].value()) - stoi(init_tokens[3].value()) == 0)
+            is >> c;
+            if (c != ':')
             {
-                type_name = "int";
-                vptr = new int(stoi(init_tokens[3].value()));
+                // error handle
             }
-            else
+            obj_map[obj.getValue<string>()] = _scan(is);
+            is >> c;
+            if (c == '}')
             {
-                type_name = "float";
-                vptr = new double(stod(init_tokens[3].value()));
+                break;
+            }
+            obj = _scan(is);
+        }
+        return Object(obj_map);
+    }
+
+    void Object::_print(ostream &os) const
+    {
+        if (_value.type() == typeid(string))
+        {
+            _printString(os);
+        }
+        else if (_value.type() == typeid(vector<Object>))
+        {
+            _printVector(os);
+        }
+        else if (_value.type() == typeid(map<string, Object>))
+        {
+            _printMap(os);
+        }
+    }
+
+    void Object::_printString(ostream &os) const
+    {
+        os << '"' << any_cast<string>(_value) << '"';
+    }
+
+    void Object::_printVector(ostream &os) const
+    {
+        os << '[';
+        vector<Object> obj_vct = any_cast<vector<Object>>(_value);
+        vector<Object>::iterator it = obj_vct.begin();
+        while (it != obj_vct.end() - 1)
+        {
+            os << *it++ << ", ";
+        }
+        os << *it << ']';
+    }
+
+    void Object::_printMap(ostream &os) const
+    {
+        os << '{';
+        map<string, Object> obj_map = any_cast<map<string, Object>>(_value);
+        map<string, Object>::iterator it = obj_map.begin();
+        while (it != obj_map.end())
+        {
+            os << it->first << ": " << it->second;
+            ++it;
+            if (it != obj_map.end())
+            {
+                os << ", ";
             }
         }
-        else if (regex_match(init_tokens[3].value(), string_regex))
-        {
-            type_name = "string";
-            vptr = new string(init_tokens[3].value().substr(1, init_tokens[3].value().size() - 2));
-        }
+        os << '}';
     }
-}
 
-Object::~Object()
-{
-    if (type_name == "Function")
-    {
-        delete static_cast<Function *>(vptr);
-    }
-    else if (type_name == "int")
-    {
-        delete static_cast<int *>(vptr);
-    }
-    else if (type_name == "float")
-    {
-        delete static_cast<double *>(vptr);
-    }
-    else if (type_name == "string")
-    {
-        delete static_cast<string *>(vptr);
-    }
-    else if (type_name == "bool")
-    {
-        delete static_cast<bool *>(vptr);
-    }
-}
+} // namespace fundot
 
-Object &Object::operator=(const Object &other)
-{
-    type_name = other.type_name;
-    if (type_name == "Function")
-    {
-        vptr = new Function(*static_cast<Function *>(other.vptr));
-    }
-    else if (type_name == "int")
-    {
-        vptr = new int(*static_cast<int *>(other.vptr));
-    }
-    else if (type_name == "float")
-    {
-        vptr = new double(*static_cast<double *>(other.vptr));
-    }
-    else if (type_name == "string")
-    {
-        vptr = new string(*static_cast<string *>(other.vptr));
-    }
-    else if (type_name == "bool")
-    {
-        vptr = new bool(*static_cast<bool *>(other.vptr));
-    }
-    return *this;
-}
+// test
 
-const string &Object::typeName()
-{
-    return type_name;
-}
+#include <iostream>
 
-string Object::toString()
-{
-    string to_return;
-    if (type_name == "Function")
-    {
-        // error
-    }
-    else if (type_name == "int")
-    {
-        to_return = to_string(get<int>());
-    }
-    else if (type_name == "float")
-    {
-        to_return = to_string(get<double>());
-        to_return.erase(to_return.find_last_not_of('0') + 1);
-    }
-    else if (type_name == "string")
-    {
-        to_return = get<string>();
-    }
-    else if (type_name == "bool")
-    {
-        to_return = get<bool>() ? "true" : "false";
-    }
-    return to_return;
-}
+using namespace fundot;
 
-Object operator==(const Object &first, const Object &second)
+int main()
 {
-    Object to_return;
-    to_return.type_name = "bool";
-    if (first.type_name == "int" && second.type_name == "int")
-    {
-        if (first.get<int>() == second.get<int>())
-        {
-            to_return.vptr = new bool(true);
-        }
-        else
-        {
-            to_return.vptr = new bool(false);
-        }
-    }
-    else if (first.type_name == "int" && second.type_name == "float")
-    {
-        if (first.get<int>() == second.get<int>())
-        {
-            to_return.vptr = new bool(true);
-        }
-        else
-        {
-            to_return.vptr = new bool(false);
-        }
-    }
-    else if (first.type_name == "float" && second.type_name == "int")
-    {
-        if (first.get<int>() == second.get<int>())
-        {
-            to_return.vptr = new bool(true);
-        }
-        else
-        {
-            to_return.vptr = new bool(false);
-        }
-    }
-    else if (first.type_name == "float" && second.type_name == "float")
-    {
-        if (first.get<int>() == second.get<int>())
-        {
-            to_return.vptr = new bool(true);
-        }
-        else
-        {
-            to_return.vptr = new bool(false);
-        }
-    }
-    else if (first.type_name == "string" && second.type_name == "string")
-    {
-        if (first.get<string>() == second.get<string>())
-        {
-            to_return.vptr = new bool(true);
-        }
-        else
-        {
-            to_return.vptr = new bool(false);
-        }
-    }
-    else if (first.type_name == "bool" && second.type_name == "bool")
-    {
-        if (first.get<bool>() == second.get<bool>())
-        {
-            to_return.vptr = new bool(true);
-        }
-        else
-        {
-            to_return.vptr = new bool(false);
-        }
-    }
-    else
-    {
-        to_return.vptr = new bool(false);
-    }
-    return to_return;
-}
-
-Object operator+(const Object &first, const Object &second)
-{
-    Object to_return;
-    if (first.type_name == "int" && second.type_name == "int")
-    {
-        int sum = first.get<int>() + second.get<int>();
-        to_return.type_name = "int";
-        to_return.vptr = new int(sum);
-    }
-    else if (first.type_name == "int" && second.type_name == "float")
-    {
-        double sum = first.get<int>() + second.get<double>();
-        to_return.type_name = "float";
-        to_return.vptr = new double(sum);
-    }
-    else if (first.type_name == "float" && second.type_name == "int")
-    {
-        double sum = first.get<double>() + second.get<int>();
-        to_return.type_name = "float";
-        to_return.vptr = new double(sum);
-    }
-    else if (first.type_name == "float" && second.type_name == "float")
-    {
-        double sum = first.get<double>() + second.get<double>();
-        to_return.type_name = "float";
-        to_return.vptr = new double(sum);
-    }
-    return to_return;
+    Object obj;
+    cin >> obj;
+    cout << obj << endl;
+    return 0;
 }

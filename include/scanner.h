@@ -1,18 +1,23 @@
-#ifndef __SCANNER_H__
-#define __SCANNER_H__
+#ifndef SCANNER_H
+#define SCANNER_H
 
 #include <iostream>
-#include <string>
 #include <vector>
-#include "global.h"
+#include <string>
+#include <unordered_set>
 
 using namespace std;
 
-class Scanner
+namespace fundot
 {
-public:
-    Scanner() = default;
-    vector<string> scan(istream &in);
-};
+    class Scanner
+    {
+    public:
+        string &scanString(istream &is);
+
+    private:
+        unordered_set<string> _separators = {";"};
+    };
+} // namespace fundot
 
 #endif

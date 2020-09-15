@@ -1,8 +1,7 @@
 .DS_Store
-.vscode/c_cpp_properties.json
-fundot.dSYM/Contents/Info.plist
-fundot.dSYM/Contents/Resources/DWARF/fundot
-test.fundot
+.vscode
 fundot.dSYM
 obj
-.vscode
+test
+include/debug.h
+boost*
