@@ -253,6 +253,10 @@ namespace fundot
         {
             _printList(os);
         }
+        else if (_value.type() == typeid(pair<Identifier, Object>))
+        {
+            _printPair(os);
+        }
     }
 
     void Object::_printNumber(ostream &os) const
@@ -325,6 +329,12 @@ namespace fundot
             }
         }
         os << ')';
+    }
+
+    void Object::_printPair(ostream &os) const
+    {
+        pair<Identifier, Object> obj_pair = any_cast<pair<Identifier, Object>>(_value);
+        os << obj_pair.first << ": " << obj_pair.second;
     }
 
 } // namespace fundot

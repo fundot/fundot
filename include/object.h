@@ -72,6 +72,7 @@ namespace fundot
         void _printMap(ostream &os) const;
         void _printIdentifier(ostream &os) const;
         void _printList(ostream &os) const;
+        void _printPair(ostream &os) const;
     };
 
 } // namespace fundot
