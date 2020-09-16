@@ -19,6 +19,7 @@ namespace fundot
     using std::map;
     using std::noskipws;
     using std::ostream;
+    using std::pair;
     using std::set;
     using std::skipws;
     using std::string;

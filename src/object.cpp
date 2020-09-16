@@ -170,16 +170,15 @@ namespace fundot
         char c;
         while ((obj.type() == typeid(char) && obj.value<char>() == '}') == false)
         {
-            is >> c;
-            if (c != ':')
-            {
-                // error handle
-            }
-            obj_map[obj.value<Identifier>()] = _scan(is);
+            obj_map.insert(obj.value<pair<Identifier, Object>>());
             is >> c;
             if (c == '}')
             {
                 break;
+            }
+            else if (c != ',')
+            {
+                // error handle
             }
             obj = _scan(is);
         }
@@ -193,7 +192,15 @@ namespace fundot
         is >> noskipws;
         while (is >> c)
         {
-            if (_separators.find(c) != _separators.end())
+            if (c == ':')
+            {
+                pair<Identifier, Object> id_pair;
+                id_pair.first = id;
+                is >> skipws;
+                id_pair.second = _scan(is);
+                return Object(id_pair);
+            }
+            else if (_separators.find(c) != _separators.end())
             {
                 is.putback(c);
                 break;
