@@ -11,7 +11,6 @@ namespace fundot
     {
     public:
         Fundot() : _obj(map<Identifier, Object>()) { _init(); }
-        Fundot(const Object &obj) : _obj(obj) { _init(); }
 
         Object eval(Object &obj);
 
@@ -22,7 +21,7 @@ namespace fundot
     private:
         Object _obj;
         void _init();
-        Object _add(const Object &obj);
+        Object _add(Object &obj);
     };
 
     ostream &operator<<(ostream &os, const Fundot &fdt)

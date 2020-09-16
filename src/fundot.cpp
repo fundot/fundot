@@ -7,16 +7,40 @@ namespace fundot
         if (obj.type() == typeid(list<Object>))
         {
             list<Object> &obj_lst = obj.value<list<Object>>();
+            if (obj_lst.empty())
+            {
+                return obj;
+            }
             if (obj_lst.front().type() == typeid(Identifier))
             {
+                Identifier fun_id = obj_lst.front().value<Identifier>();
                 map<Identifier, Object> &obj_map = _obj.value<map<Identifier, Object>>();
                 if (obj_map.find(obj_lst.front().value<Identifier>()) != obj_map.end())
                 {
-                    return _obj;
+                    if (fun_id == "quote")
+                    {
+                        return *(++obj_lst.begin());
+                    }
+                    for (list<Object>::reverse_iterator it = obj_lst.rbegin(); it != --obj_lst.rend(); ++it)
+                    {
+                        *it = eval(*it);
+                    }
+                    if (fun_id == "add")
+                    {
+                        return _add(obj);
+                    }
+                    else if (fun_id == "exit")
+                    {
+                        exit(0);
+                    }
                 }
             }
+            else
+            {
+                return obj_lst.front();
+            }
         }
-        return Object();
+        return obj;
     }
 
     void Fundot::repl(istream &is, ostream &os)
@@ -32,17 +56,34 @@ namespace fundot
 
     void Fundot::_init()
     {
-        static const map<Identifier, Object> function_definitions = {{static_cast<Identifier>("type"), static_cast<Identifier>("function")}};
-        static vector<string> functions = {"quote", "add"};
-        for (size_t i = 0; i < functions.size(); ++i)
+        static const map<Identifier, Object> fun_defs = {{static_cast<Identifier>("type"), static_cast<Identifier>("built-in-function")}};
+        static vector<string> fun_ids = {"quote", "add", "exit"};
+        for (size_t i = 0; i < fun_ids.size(); ++i)
         {
-            _obj.value<map<Identifier, Object>>()[functions[i]] = Object(function_definitions);
+            _obj[fun_ids[i]] = Object(fun_defs);
         }
     }
 
-    Object Fundot::_add(const Object &obj)
+    Object Fundot::_add(Object &obj)
     {
-        return "Hello";
+        double sum = 0;
+        list<Object> obj_lst = obj.value<list<Object>>();
+        for (list<Object>::iterator it = ++obj_lst.begin(); it != obj_lst.end(); ++it)
+        {
+            if (it->type() == typeid(int))
+            {
+                sum += it->value<int>();
+            }
+            else if (it->type() == typeid(double))
+            {
+                sum += it->value<double>();
+            }
+            else
+            {
+                // error handling
+            }
+        }
+        return Object(sum);
     }
 } // namespace fundot
 

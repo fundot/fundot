@@ -23,6 +23,7 @@ namespace fundot
         else
         {
         }
+        return *this;
     }
 
     Object &Object::operator[](Identifier id)
@@ -34,6 +35,7 @@ namespace fundot
         else
         {
         }
+        return *this;
     }
 
     Object Object::_scan(istream &is)
