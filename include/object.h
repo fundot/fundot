@@ -6,29 +6,29 @@
 #include <list>
 #include <map>
 #include <set>
+#include <string>
 #include <typeinfo>
 #include <vector>
 
-using std::any;
-using std::cin;
-using std::cout;
-using std::istream;
-using std::list;
-using std::map;
-using std::noskipws;
-using std::ostream;
-using std::set;
-using std::skipws;
-using std::string;
-using std::type_info;
-using std::vector;
-
-using namespace std;
-
 namespace fundot
 {
+    using std::any;
+    using std::any_cast;
+    using std::istream;
+    using std::list;
+    using std::map;
+    using std::noskipws;
+    using std::ostream;
+    using std::set;
+    using std::skipws;
+    using std::string;
+    using std::type_info;
+    using std::vector;
+
     struct Identifier : public string
     {
+        Identifier() = default;
+        Identifier(const string &str) : string(str) {}
     };
 
     class Object
@@ -36,13 +36,17 @@ namespace fundot
     public:
         Object() = default;
 
-        template <typename T>
-        Object(T value) : _value(value) {}
+        Object(const Object &other) : _value(other._value) {}
 
         template <typename T>
-        T getValue() const { return any_cast<T>(_value); }
+        Object(const T &value) : _value(value) {}
 
-        const type_info &getType() const { return _value.type(); }
+        void operator=(const Object &other) { _value = other._value; }
+
+        template <typename T>
+        T &value() { return *any_cast<T>(&_value); }
+
+        const type_info &type() const { return _value.type(); }
 
         friend istream &operator>>(istream &is, Object &obj);
         friend ostream &operator<<(ostream &os, const Object &obj);

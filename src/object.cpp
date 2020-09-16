@@ -1,7 +1,5 @@
 #include "../include/object.h"
 
-#include "../include/debug.h"
-
 namespace fundot
 {
     istream &operator>>(istream &is, Object &obj)
@@ -50,7 +48,7 @@ namespace fundot
             is.putback(c);
             return _scanIdentifier(is);
         }
-        
+
         return Object(c);
     }
 
@@ -128,7 +126,7 @@ namespace fundot
         vector<Object> obj_vct;
         Object obj(_scan(is));
         char c;
-        while ((obj.getType() == typeid(char) && obj.getValue<char>() == ']') == false)
+        while ((obj.type() == typeid(char) && obj.value<char>() == ']') == false)
         {
             obj_vct.push_back(obj);
             is >> c;
@@ -146,14 +144,14 @@ namespace fundot
         map<Identifier, Object> obj_map;
         Object obj(_scan(is));
         char c;
-        while ((obj.getType() == typeid(char) && obj.getValue<char>() == '}') == false)
+        while ((obj.type() == typeid(char) && obj.value<char>() == '}') == false)
         {
             is >> c;
             if (c != ':')
             {
                 // error handle
             }
-            obj_map[obj.getValue<Identifier>()] = _scan(is);
+            obj_map[obj.value<Identifier>()] = _scan(is);
             is >> c;
             if (c == '}')
             {
@@ -182,7 +180,7 @@ namespace fundot
             }
             id.push_back(c);
         }
-        is >>skipws;
+        is >> skipws;
         return Object(id);
     }
 
@@ -190,7 +188,7 @@ namespace fundot
     {
         list<Object> obj_lst;
         Object obj(_scan(is));
-        while ((obj.getType() == typeid(char) && obj.getValue<char>() == ')') == false)
+        while ((obj.type() == typeid(char) && obj.value<char>() == ')') == false)
         {
             obj_lst.push_back(obj);
             obj = _scan(is);
@@ -288,7 +286,7 @@ namespace fundot
         list<Object>::iterator it = obj_lst.begin();
         while (it != obj_lst.end())
         {
-            
+
             os << *it++;
             if (it != obj_lst.end())
             {
@@ -299,11 +297,3 @@ namespace fundot
     }
 
 } // namespace fundot
-
-int main()
-{
-    fundot::Object obj;
-    cin >> obj;
-    cout << obj << '\n';
-    return 0;
-}
