@@ -14,6 +14,28 @@ namespace fundot
         return os;
     }
 
+    Object &Object::operator[](size_t index)
+    {
+        if (_value.type() == typeid(vector<Object>))
+        {
+            return value<vector<Object>>()[index];
+        }
+        else
+        {
+        }
+    }
+
+    Object &Object::operator[](Identifier id)
+    {
+        if (_value.type() == typeid(map<Identifier, Object>))
+        {
+            return value<map<Identifier, Object>>()[id];
+        }
+        else
+        {
+        }
+    }
+
     Object Object::_scan(istream &is)
     {
         char c;

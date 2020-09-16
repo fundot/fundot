@@ -43,6 +43,9 @@ namespace fundot
 
         void operator=(const Object &other) { _value = other._value; }
 
+        Object &operator[](size_t index);
+        Object &operator[](Identifier id);
+
         template <typename T>
         T &value() { return *any_cast<T>(&_value); }
 
