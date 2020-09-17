@@ -5,3 +5,7 @@ obj
 test
 include/debug.h
 boost*
+html
+latex
+Doxyfile
+doxygen

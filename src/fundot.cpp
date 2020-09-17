@@ -13,25 +13,28 @@ namespace fundot
             }
             if (obj_lst.front().type() == typeid(Identifier))
             {
-                Identifier fun_id = obj_lst.front().value<Identifier>();
+                Identifier id = obj_lst.front().value<Identifier>();
                 map<Identifier, Object> &obj_map = _obj.value<map<Identifier, Object>>();
                 if (obj_map.find(obj_lst.front().value<Identifier>()) != obj_map.end())
                 {
-                    if (fun_id == "quote")
+                    if (obj_map[id].type() == typeid(map<Identifier, Object>))
                     {
-                        return *(++obj_lst.begin());
-                    }
-                    for (list<Object>::reverse_iterator it = obj_lst.rbegin(); it != --obj_lst.rend(); ++it)
-                    {
-                        *it = eval(*it);
-                    }
-                    if (fun_id == "add")
-                    {
-                        return _add(obj);
-                    }
-                    else if (fun_id == "exit")
-                    {
-                        exit(0);
+                        if (id == "quote")
+                        {
+                            return *(++obj_lst.begin());
+                        }
+                        for (list<Object>::iterator it = ++obj_lst.begin(); it != obj_lst.end(); ++it)
+                        {
+                            *it = eval(*it);
+                        }
+                        if (id == "add")
+                        {
+                            return _add(obj);
+                        }
+                        else if (id == "exit")
+                        {
+                            exit(0);
+                        }
                     }
                 }
             }

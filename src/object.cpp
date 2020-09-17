@@ -16,7 +16,7 @@ namespace fundot
 
     Object &Object::operator[](size_t index)
     {
-        if (_value.type() == typeid(vector<Object>))
+        if (holds<vector<Object>>())
         {
             return value<vector<Object>>()[index];
         }
@@ -28,7 +28,7 @@ namespace fundot
 
     Object &Object::operator[](Identifier id)
     {
-        if (_value.type() == typeid(map<Identifier, Object>))
+        if (holds<map<Identifier, Object>>())
         {
             return value<map<Identifier, Object>>()[id];
         }
@@ -150,7 +150,7 @@ namespace fundot
         vector<Object> obj_vct;
         Object obj(_scan(is));
         char c;
-        while ((obj.type() == typeid(char) && obj.value<char>() == ']') == false)
+        while ((obj.holds<char>() && obj.value<char>() == ']') == false)
         {
             obj_vct.push_back(obj);
             is >> c;
@@ -168,7 +168,7 @@ namespace fundot
         map<Identifier, Object> obj_map;
         Object obj(_scan(is));
         char c;
-        while ((obj.type() == typeid(char) && obj.value<char>() == '}') == false)
+        while ((obj.holds<char>() && obj.value<char>() == '}') == false)
         {
             obj_map.insert(obj.value<pair<Identifier, Object>>());
             is >> c;
@@ -209,7 +209,7 @@ namespace fundot
             {
                 break;
             }
-            id.push_back(c);
+            id.str().push_back(c);
         }
         is >> skipws;
         return Object(id);
@@ -219,7 +219,7 @@ namespace fundot
     {
         list<Object> obj_lst;
         Object obj(_scan(is));
-        while ((obj.type() == typeid(char) && obj.value<char>() == ')') == false)
+        while ((obj.holds<char>() && obj.value<char>() == ')') == false)
         {
             obj_lst.push_back(obj);
             obj = _scan(is);
@@ -229,31 +229,31 @@ namespace fundot
 
     void Object::_print(ostream &os) const
     {
-        if (_value.type() == typeid(string))
+        if (holds<string>())
         {
             _printString(os);
         }
-        else if (_value.type() == typeid(int) || _value.type() == typeid(double))
+        else if (holds<int>() || holds<double>())
         {
             _printNumber(os);
         }
-        else if (_value.type() == typeid(vector<Object>))
+        else if (holds<vector<Object>>())
         {
             _printVector(os);
         }
-        else if (_value.type() == typeid(map<Identifier, Object>))
+        else if (holds<map<Identifier, Object>>())
         {
             _printMap(os);
         }
-        else if (_value.type() == typeid(Identifier))
+        else if (holds<Identifier>())
         {
             _printIdentifier(os);
         }
-        else if (_value.type() == typeid(list<Object>))
+        else if (holds<list<Object>>())
         {
             _printList(os);
         }
-        else if (_value.type() == typeid(pair<Identifier, Object>))
+        else if (holds<pair<Identifier, Object>>())
         {
             _printPair(os);
         }
@@ -261,11 +261,11 @@ namespace fundot
 
     void Object::_printNumber(ostream &os) const
     {
-        if (_value.type() == typeid(int))
+        if (holds<int>())
         {
             os << any_cast<int>(_value);
         }
-        else if (_value.type() == typeid(double))
+        else if (holds<double>())
         {
             os << any_cast<double>(_value);
         }
@@ -311,7 +311,7 @@ namespace fundot
 
     void Object::_printIdentifier(ostream &os) const
     {
-        os << any_cast<Identifier>(_value);
+        os << any_cast<Identifier>(_value).str();
     }
 
     void Object::_printList(ostream &os) const

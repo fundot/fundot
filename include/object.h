@@ -16,6 +16,8 @@
 #include <typeinfo>
 #include <vector>
 
+#include "identifier.h"
+
 /**
  * A namespace for Fundot project.
  */
@@ -34,28 +36,6 @@ namespace fundot
     using std::string;
     using std::type_info;
     using std::vector;
-
-    /**
-     * A struct that extends std::string.
-     * This struct is used to help C++ differentiate identifier from string, 
-     * because identifier and string are two different types of objects in Fundot.
-     * However, the way that they are stored in memory can be the same.
-     * Therefore, a class that extends std::string should be a good implementation,
-     * although it is normally not recommended.
-     */
-    struct Identifier : public string
-    {
-        /**
-         * Create a default Identifier.
-         */
-        Identifier() = default;
-
-        /**
-         * Create an Identifier by calling the copy constructor of std::string.
-         * @param str std::string to be copied.
-         */
-        Identifier(const string &str) : string(str) {}
-    };
 
     /**
      * A class that stores and handles Fundot objects.
@@ -113,6 +93,13 @@ namespace fundot
          * Get the type of the value contained in this Object.
          */
         const type_info &type() const { return _value.type(); }
+
+        /**
+         * Return true if the Object holds the given type.
+         * @tparam T Type to check.
+         */
+        template <typename T>
+        bool holds() const { return _value.type() == typeid(T); }
 
         /**
          * Extraction operator: extract the std::istream into an Object.
