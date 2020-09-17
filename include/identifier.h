@@ -14,7 +14,7 @@ namespace fundot
     using std::string;
 
     /**
-     * A class that extends std::string.
+     * A class that has a std::string member.
      * This class is used to help C++ differentiate identifier from string, 
      * because identifier and string are two different types of objects in Fundot.
      */
