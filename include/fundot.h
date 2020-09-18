@@ -40,7 +40,18 @@ namespace fundot
 
     private:
         Object _obj; /**< Code stored just as data. */
+        vector<map<Identifier, Object>*> _scopes; /**< std::vector that contains scopes from global to local. */
         map<Identifier, Object> *_local_scope; /**< Points to the local scope that the code is evaluated. */
+
+        /**
+         * Find the last occurence of an Identifier as a key in scopes.
+         * @param id Identifier to find.
+         */
+        vector<map<Identifier, Object>*>::reverse_iterator _inWhichScope(const Identifier &id);
+
+        void _scopeTraceForward(map<Identifier, Object>* current_scope);
+
+        void _scopeTraceBackward(map<Identifier, Object>* previous_scope);
 
         /**
          * Evaluate a list.
@@ -76,7 +87,7 @@ namespace fundot
          * Initialize the Object and prepare for evaluation process.
          */
         void _init();
-        
+
         /**
          * Add a list of numbers.
          * @param obj Object with numbers to add.

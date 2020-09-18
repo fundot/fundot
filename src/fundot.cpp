@@ -4,7 +4,7 @@ namespace fundot
 {
     Fundot::Fundot() : _obj(map<Identifier, Object>())
     {
-        _local_scope = &_obj.value<map<Identifier, Object>>();
+        _scopeTraceForward(&_obj.value<map<Identifier, Object>>());
         _init();
     }
 
@@ -40,13 +40,48 @@ namespace fundot
         }
     }
 
+    vector<map<Identifier, Object>*>::reverse_iterator Fundot::_inWhichScope(const Identifier &id)
+    {
+        vector<map<Identifier, Object>*>::reverse_iterator it = _scopes.rbegin();
+        while (it != _scopes.rend())
+        {
+            if ((*it)->count(id) > 0)
+            {
+                return it;
+            }
+            ++it;
+        }
+        return _scopes.rend();
+    }
+
+    void Fundot::_scopeTraceForward(map<Identifier, Object>* current_scope)
+    {
+        _local_scope = current_scope;
+        _scopes.push_back(_local_scope);
+    }
+
+    void Fundot::_scopeTraceBackward(map<Identifier, Object>* previous_scope)
+    {
+        _local_scope = previous_scope;
+        vector<map<Identifier, Object>*>::reverse_iterator it = _scopes.rbegin();
+        while (it != _scopes.rend())
+        {
+            if (*it == previous_scope)
+            {
+                break;
+            }
+            _scopes.pop_back();
+            ++it;
+        }
+    }
+
     Object Fundot::_evalList(Object &obj)
     {
         list<Object> &obj_lst = obj.value<list<Object>>();
         if (obj_lst.front().holds<Identifier>())
         {
             Identifier &id = obj_lst.front().value<Identifier>();
-            if (_local_scope->count(id) > 0)
+            if (_inWhichScope(id) != _scopes.rend())
             {
                 if (id == "quote")
                 {
@@ -70,8 +105,8 @@ namespace fundot
                 }
                 else if ((*_local_scope)[id].holds<map<Identifier, Object>>())
                 {
-                    map<Identifier, Object> *last_local = _local_scope;
-                    _local_scope = &(*_local_scope)[id].value<map<Identifier, Object>>();
+                    map<Identifier, Object> *previous_scope = _local_scope;
+                    _scopeTraceForward(&(*_local_scope)[id].value<map<Identifier, Object>>());
                     Object to_return;
                     if (_local_scope->count(Identifier("type")) > 0 && (*_local_scope)[Identifier("type")].holds<Identifier>())
                     {
@@ -83,7 +118,7 @@ namespace fundot
                             }
                         }
                     }
-                    _local_scope = last_local;
+                    _scopeTraceBackward(previous_scope);
                     return to_return;
                 }
             }
@@ -104,9 +139,9 @@ namespace fundot
                 if ((*_local_scope)[id.str().substr(0, dot_pos)].holds<map<Identifier, Object>>())
                 {
                     Object to_eval = Identifier(id.str().substr(dot_pos + 1, id.str().length() - dot_pos - 1));
-                    _local_scope = &(*_local_scope)[id.str().substr(0, dot_pos)].value<map<Identifier, Object>>();
+                    _scopeTraceForward(&(*_local_scope)[id.str().substr(0, dot_pos)].value<map<Identifier, Object>>());
                     to_return = _evalIdentifier(to_eval);
-                    _local_scope = previous_scope;
+                    _scopeTraceBackward(previous_scope);
                     return to_return;
                 }
             }
@@ -131,7 +166,7 @@ namespace fundot
             {
                 if ((*_local_scope)[id.str().substr(0, dot_pos)].holds<map<Identifier, Object>>())
                 {
-                    _local_scope = &(*_local_scope)[id.str().substr(0, dot_pos)].value<map<Identifier, Object>>();
+                    _scopeTraceForward(&(*_local_scope)[id.str().substr(0, dot_pos)].value<map<Identifier, Object>>());
                     id = id.str().substr(dot_pos + 1, id.str().length() - dot_pos - 1);
                     dot_pos = id.str().find('.');
                     if (dot_pos == string::npos)
@@ -142,7 +177,7 @@ namespace fundot
             }
         }
         (*_local_scope)[obj_pair.first] = obj_pair.second;
-        _local_scope = previous_scope;
+        _scopeTraceBackward(previous_scope);
         return obj;
     }
 
@@ -158,11 +193,32 @@ namespace fundot
 
     Object Fundot::_evalFunction(Object &obj)
     {
+        Object to_return;
         list<Object> &obj_lst = obj.value<list<Object>>();
-        for (list<Object>::iterator it = obj_lst.begin(); it != obj_lst.end(); ++it)
+        vector<Object> &params = (*_local_scope)[Identifier("params")].value<vector<Object>>();
+        map<Identifier, Object> param_map;
+        list<Object>::iterator it = ++obj_lst.begin();
+        for (size_t i = 0; i < params.size(); ++i)
         {
+            if (params[i].holds<Identifier>())
+            {
+                param_map[params[i].value<Identifier>()] = *it++;
+            }
         }
-        return obj;
+        if (_local_scope->count(Identifier("body")) > 0 && (*_local_scope)[Identifier("body")].holds<list<Object>>())
+        {
+            list<Object> &body = (*_local_scope)[Identifier("body")].value<list<Object>>();
+            for (list<Object>::iterator it = body.begin(); it != body.end(); ++it)
+            {
+                if (it->holds<Identifier>() && param_map.count(it->value<Identifier>()) > 0)
+                {
+                    *it = param_map[it->value<Identifier>()];
+                }
+            }
+            Object to_eval = body;
+            to_return = eval(to_eval);
+        }
+        return to_return;
     }
 
     void Fundot::_init()
