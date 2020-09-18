@@ -68,6 +68,24 @@ namespace fundot
                 {
                     return _obj;
                 }
+                else if ((*_local_scope)[id].holds<map<Identifier, Object>>())
+                {
+                    map<Identifier, Object> *last_local = _local_scope;
+                    _local_scope = &(*_local_scope)[id].value<map<Identifier, Object>>();
+                    Object to_return;
+                    if (_local_scope->count(Identifier("type")) > 0 && (*_local_scope)[Identifier("type")].holds<Identifier>())
+                    {
+                        if ((*_local_scope)[Identifier("type")].value<Identifier>() == "function")
+                        {
+                            if ((_local_scope->count(Identifier("params")) > 0 && (*_local_scope)[Identifier("params")].holds<vector<Object>>()))
+                            {
+                                to_return = _evalFunction(obj);
+                            }
+                        }
+                    }
+                    _local_scope = last_local;
+                    return to_return;
+                }
             }
         }
         return obj;
@@ -77,25 +95,19 @@ namespace fundot
     {
         Identifier &id = obj.value<Identifier>();
         size_t dot_pos = id.str().find('.');
-        map<Identifier, Object> *map_ptr = _local_scope;
-        Identifier id_copy = id;
-        while (dot_pos != string::npos)
+        map<Identifier, Object> *previous_scope = _local_scope;
+        Object to_return;
+        if (dot_pos != string::npos)
         {
-            if (map_ptr->count(id_copy.str().substr(0, dot_pos)) > 0)
+            if (_local_scope->count(id.str().substr(0, dot_pos)) > 0)
             {
-                if ((*map_ptr)[id_copy.str().substr(0, dot_pos)].holds<map<Identifier, Object>>())
+                if ((*_local_scope)[id.str().substr(0, dot_pos)].holds<map<Identifier, Object>>())
                 {
-                    map_ptr = &(*map_ptr)[id_copy.str().substr(0, dot_pos)].value<map<Identifier, Object>>();
-                    id_copy = id_copy.str().substr(dot_pos + 1, id_copy.str().length() - dot_pos - 1);
-                    dot_pos = id_copy.str().find('.');
-                    if (dot_pos == string::npos)
-                    {
-                        return (*map_ptr)[id_copy];
-                    }
-                }
-                else
-                {
-                    return (*map_ptr)[id_copy.str().substr(0, dot_pos)];
+                    Object to_eval = Identifier(id.str().substr(dot_pos + 1, id.str().length() - dot_pos - 1));
+                    _local_scope = &(*_local_scope)[id.str().substr(0, dot_pos)].value<map<Identifier, Object>>();
+                    to_return = _evalIdentifier(to_eval);
+                    _local_scope = previous_scope;
+                    return to_return;
                 }
             }
         }
@@ -110,7 +122,27 @@ namespace fundot
     {
         pair<Identifier, Object> &obj_pair = obj.value<pair<Identifier, Object>>();
         obj_pair.second = eval(obj_pair.second);
-        _obj[obj_pair.first] = obj_pair.second;
+        Identifier &id = obj_pair.first;
+        size_t dot_pos = id.str().find('.');
+        map<Identifier, Object> *previous_scope = _local_scope;
+        while (dot_pos != string::npos)
+        {
+            if (_local_scope->count(id.str().substr(0, dot_pos)) > 0)
+            {
+                if ((*_local_scope)[id.str().substr(0, dot_pos)].holds<map<Identifier, Object>>())
+                {
+                    _local_scope = &(*_local_scope)[id.str().substr(0, dot_pos)].value<map<Identifier, Object>>();
+                    id = id.str().substr(dot_pos + 1, id.str().length() - dot_pos - 1);
+                    dot_pos = id.str().find('.');
+                    if (dot_pos == string::npos)
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+        (*_local_scope)[obj_pair.first] = obj_pair.second;
+        _local_scope = previous_scope;
         return obj;
     }
 
@@ -122,6 +154,15 @@ namespace fundot
             obj_vct[i] = eval(obj_vct[i]);
         }
         return obj_vct;
+    }
+
+    Object Fundot::_evalFunction(Object &obj)
+    {
+        list<Object> &obj_lst = obj.value<list<Object>>();
+        for (list<Object>::iterator it = obj_lst.begin(); it != obj_lst.end(); ++it)
+        {
+        }
+        return obj;
     }
 
     void Fundot::_init()

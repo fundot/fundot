@@ -67,6 +67,12 @@ namespace fundot
         Object _evalVector(Object &obj);
 
         /**
+         * Evaluate a function.
+         * @param obj Object that has type std::list<Object> and its front object has type function.
+         */
+        Object _evalFunction(Object &obj);
+
+        /**
          * Initialize the Object and prepare for evaluation process.
          */
         void _init();
