@@ -80,7 +80,7 @@ namespace fundot
          * if the value contained in this Object is of type std::map<Identifier, Object>.
          * @param id key of the Object to be accessed.
          */
-        Object &operator[](Identifier id);
+        Object &operator[](const Identifier &id);
 
         /**
          * Get the reference of the value contained in this Object of a specific type.

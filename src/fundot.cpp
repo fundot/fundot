@@ -15,7 +15,7 @@ namespace fundot
                 {
                     if (id == "quote")
                     {
-                        return ++obj_lst.begin();
+                        return *(++obj_lst.begin());
                     }
                     for (list<Object>::iterator it = ++obj_lst.begin(); it != obj_lst.end(); ++it)
                     {
@@ -32,11 +32,52 @@ namespace fundot
                 }
             }
         }
-        else
+        else if (obj.holds<Identifier>())
         {
-            return obj;
+            Identifier &id = obj.value<Identifier>();
+            size_t dot_pos = id.str().find('.');
+            map<Identifier, Object> *map_ptr = &obj_map;
+            Identifier id_copy = id;
+            while (dot_pos != string::npos)
+            {
+                if (map_ptr->count(id_copy.str().substr(0, dot_pos)) > 0)
+                {
+                    if ((*map_ptr)[id_copy.str().substr(0, dot_pos)].holds<map<Identifier, Object>>())
+                    {
+                        map_ptr = &(*map_ptr)[id_copy.str().substr(0, dot_pos)].value<map<Identifier, Object>>();
+                        id_copy = id_copy.str().substr(dot_pos + 1, id_copy.str().length() - dot_pos - 1);
+                        dot_pos = id_copy.str().find('.');
+                        if (dot_pos == string::npos)
+                        {
+                            return (*map_ptr)[id_copy];
+                        }
+                    }
+                    else
+                    {
+                        return (*map_ptr)[id_copy.str().substr(0, dot_pos)];
+                    }
+                }
+            }
+            if (obj_map.count(id) > 0)
+            {
+                return eval(obj_map[id]);
+            }
         }
-
+        else if (obj.holds<pair<Identifier, Object>>())
+        {
+            pair<Identifier, Object> &obj_pair = obj.value<pair<Identifier, Object>>();
+            obj_pair.second = eval(obj_pair.second);
+            _obj[obj_pair.first] = obj_pair.second;
+        }
+        else if (obj.holds<vector<Object>>())
+        {
+            vector<Object> &obj_vct = obj.value<vector<Object>>();
+            for (size_t i = 0; i < obj_vct.size(); ++i)
+            {
+                obj_vct[i] = eval(obj_vct[i]);
+            }
+            return obj_vct;
+        }
         return obj;
     }
 

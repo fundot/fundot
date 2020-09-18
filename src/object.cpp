@@ -26,7 +26,7 @@ namespace fundot
         return *this;
     }
 
-    Object &Object::operator[](Identifier id)
+    Object &Object::operator[](const Identifier &id)
     {
         if (holds<map<Identifier, Object>>())
         {
