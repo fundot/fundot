@@ -66,7 +66,7 @@ namespace fundot
          * Assignment operator: set this object equal to another.
          * @param other Object to be copied.
          */
-        void operator=(const Object &other) { _value = other._value; }
+        Object &operator=(const Object &other) { _value = other._value; return *this; }
 
         /**
          * Bracket operator: access an Object with an index
