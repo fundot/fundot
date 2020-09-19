@@ -355,7 +355,7 @@ namespace fundot
 
     void Object::_printBool(ostream &os) const
     {
-        os << boolalpha << any_cast<bool>(_value);
+        os << boolalpha << any_cast<bool>(_value) << noboolalpha;
     }
 
 } // namespace fundot

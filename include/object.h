@@ -29,6 +29,7 @@ namespace fundot
     using std::istream;
     using std::list;
     using std::map;
+    using std::noboolalpha;
     using std::noskipws;
     using std::ostream;
     using std::pair;

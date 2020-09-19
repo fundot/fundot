@@ -118,7 +118,6 @@ namespace fundot
                 {
                     *it = eval(*it);
                 }
-                cout << obj << endl;
                 if (id == "exit")
                 {
                     exit(0);
@@ -299,16 +298,18 @@ namespace fundot
         list<Object>::iterator it = ++obj_lst.begin();
         while (it != obj_lst.end())
         {
-            if (it->holds<bool>() && it->value<bool>() == true)
+            Object cond_eval = eval(*it++);
+            if (cond_eval.holds<bool>() && cond_eval.value<bool>() == true)
             {
-                return *(++it);
+                return eval(*it);
             }
-            else if (it->holds<Identifier>() && it->value<Identifier>() == "else")
+            ++it;
+            if (it->holds<Identifier>() && it->value<Identifier>() == "else")
             {
                 ++it;
                 if ((it->holds<Identifier>() && it->value<Identifier>() == "if") == false)
                 {
-                    return *it;
+                    return eval(*it);
                 }
             }
             ++it;
@@ -320,10 +321,17 @@ namespace fundot
     {
         list<Object> &obj_lst = obj.value<list<Object>>();
         list<Object>::iterator it = ++obj_lst.begin();
-        while (it->holds<bool>() && it->value<bool>() == true)
+        Object condition = *it++;
+        Object cond_copy = condition;
+        Object cond_eval = eval(condition);
+        Object expression = *it;
+        Object expr_copy = expression;
+        while (cond_eval.holds<bool>() && cond_eval.value<bool>() == true)
         {
-            eval(*(++it));
-            --it;
+            eval(expression);
+            expression = expr_copy;
+            condition = cond_copy;
+            cond_eval = eval(condition);
         }
         return obj;
     }
@@ -341,7 +349,7 @@ namespace fundot
             _output_stream << to_print;
         }
         _output_stream << endl;
-        return Object();
+        return obj;
     }
 
     Object Fundot::_add(Object &obj)
@@ -549,7 +557,7 @@ namespace fundot
         return false;
     }
 
-        Object Fundot::_and(Object &obj)
+    Object Fundot::_and(Object &obj)
     {
         list<Object> &obj_lst = obj.value<list<Object>>();
         list<Object>::iterator it = ++obj_lst.begin();
