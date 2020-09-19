@@ -110,6 +110,10 @@ namespace fundot
                 {
                     return _if(obj);
                 }
+                else if (id == "while")
+                {
+                    return _while(obj);
+                }
                 for (list<Object>::iterator it = ++obj_lst.begin(); it != obj_lst.end(); ++it)
                 {
                     *it = eval(*it);
@@ -127,25 +131,37 @@ namespace fundot
                 {
                     return _print(obj);
                 }
-                else if (id == "add")
+                else if (id == "+")
                 {
                     return _add(obj);
                 }
-                else if (id == "sub")
+                else if (id == "-")
                 {
                     return _sub(obj);
                 }
-                else if (id == "mul")
+                else if (id == "*")
                 {
                     return _mul(obj);
                 }
-                else if (id == "div")
+                else if (id == "/")
                 {
                     return _div(obj);
                 }
-                else if (id == "mod")
+                else if (id == "%")
                 {
                     return _mod(obj);
+                }
+                else if (id == "<")
+                {
+                    return _lessThan(obj);
+                }
+                else if (id == "==")
+                {
+                    return _equalTo(obj);
+                }
+                else if (id == "&&")
+                {
+                    return _and(obj);
                 }
                 else if ((*_local_scope)[id].holds<map<Identifier, Object>>())
                 {
@@ -269,8 +285,8 @@ namespace fundot
     {
         static const map<Identifier, Object> fun_defs = {
             {Identifier("type"), Identifier("built-in-function")}};
-        static const vector<string> fun_ids = {"quote", "if", "exit", "global", "print",
-                                               "add", "sub", "mul", "div", "mod"};
+        static const vector<string> fun_ids = {"quote", "if", "while", "exit", "global", "print",
+                                               "+", "-", "*", "/", "%", "<", "==", "&&"};
         for (size_t i = 0; i < fun_ids.size(); ++i)
         {
             _obj[fun_ids[i]] = fun_defs;
@@ -297,7 +313,19 @@ namespace fundot
             }
             ++it;
         }
-        return Object();
+        return obj;
+    }
+
+    Object Fundot::_while(Object &obj)
+    {
+        list<Object> &obj_lst = obj.value<list<Object>>();
+        list<Object>::iterator it = ++obj_lst.begin();
+        while (it->holds<bool>() && it->value<bool>() == true)
+        {
+            eval(*(++it));
+            --it;
+        }
+        return obj;
     }
 
     Object Fundot::_print(Object &obj)
@@ -441,5 +469,114 @@ namespace fundot
             result %= it->value<int>();
         }
         return Object(result);
+    }
+
+    Object Fundot::_lessThan(Object &obj)
+    {
+        list<Object> &obj_lst = obj.value<list<Object>>();
+        list<Object>::iterator it = ++obj_lst.begin();
+        double first = 0;
+        if (it->holds<int>())
+        {
+            first = it->value<int>();
+        }
+        else if (it->holds<double>())
+        {
+            first = it->value<double>();
+        }
+        ++it;
+        double second = 0;
+        if (it->holds<int>())
+        {
+            second = it->value<int>();
+        }
+        else if (it->holds<double>())
+        {
+            second = it->value<double>();
+        }
+        bool result = first < second;
+        if (obj_lst.size() == 3)
+        {
+            return result;
+        }
+        list<Object> rest(it, obj_lst.end());
+        rest.push_front(Identifier("<"));
+        Object to_recurse(rest);
+        Object recurse_result = _lessThan(to_recurse);
+        if (recurse_result.holds<bool>())
+        {
+            return result && recurse_result.value<bool>();
+        }
+        return false;
+    }
+
+    Object Fundot::_equalTo(Object &obj)
+    {
+        list<Object> &obj_lst = obj.value<list<Object>>();
+        list<Object>::iterator it = ++obj_lst.begin();
+        double first = 0;
+        if (it->holds<int>())
+        {
+            first = it->value<int>();
+        }
+        else if (it->holds<double>())
+        {
+            first = it->value<double>();
+        }
+        ++it;
+        double second = 0;
+        if (it->holds<int>())
+        {
+            second = it->value<int>();
+        }
+        else if (it->holds<double>())
+        {
+            second = it->value<double>();
+        }
+        bool result = first == second;
+        if (obj_lst.size() == 3)
+        {
+            return result;
+        }
+        list<Object> rest(it, obj_lst.end());
+        rest.push_front(Identifier("=="));
+        Object to_recurse(rest);
+        Object recurse_result = _equalTo(to_recurse);
+        if (recurse_result.holds<bool>())
+        {
+            return result && recurse_result.value<bool>();
+        }
+        return false;
+    }
+
+        Object Fundot::_and(Object &obj)
+    {
+        list<Object> &obj_lst = obj.value<list<Object>>();
+        list<Object>::iterator it = ++obj_lst.begin();
+        bool first = false;
+        if (it->holds<bool>())
+        {
+            first = it->value<bool>();
+        }
+        ++it;
+        bool second = false;
+        if (it->holds<bool>())
+        {
+            second = it->value<bool>();
+        }
+        bool result = first && second;
+        if (obj_lst.size() == 3)
+        {
+            return result;
+        }
+        list<Object> rest(it, obj_lst.end());
+        rest.push_front(Identifier("&&"));
+        Object to_recurse(rest);
+        Object recurse_result = _and(to_recurse);
+        if (recurse_result.holds<bool>())
+        {
+            return result && recurse_result.value<bool>();
+        }
+        return false;
     }
 } // namespace fundot

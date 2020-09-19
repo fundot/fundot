@@ -113,6 +113,12 @@ namespace fundot
         Object _if(Object &obj);
 
         /**
+         * Evaluate a while loop.
+         * @param obj Object with a while statement.
+         */
+        Object _while(Object &obj);
+
+        /**
          * Print an Object.
          * @param obj Object with Object to print.
          */
@@ -147,6 +153,24 @@ namespace fundot
          * @param obj Object with numbers to module with.
          */
         Object _mod(Object &obj);
+
+        /**
+         * Return a true Object if the front of the list is less than all of the rest.
+         * @param obj Object with a list to compare with.
+         */
+        Object _lessThan(Object &obj);
+
+        /**
+         * Return a true Object if all Objects in the list are equal.
+         * @param obj Object with a list to compare with.
+         */
+        Object _equalTo(Object &obj);
+
+        /**
+         * Return a true Object if all Objects in the list are true.
+         * @param obj Object with a list to and with.
+         */
+        Object _and(Object &obj);
     };
 } // namespace fundot
 
