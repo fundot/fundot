@@ -25,6 +25,7 @@ namespace fundot
 {
     using std::any;
     using std::any_cast;
+    using std::boolalpha;
     using std::istream;
     using std::list;
     using std::map;
@@ -44,9 +45,9 @@ namespace fundot
     {
     public:
         /**
-         * Create a default Object that does not have value.
+         * Create a default Object that takes nullptr as its value.
          */
-        Object() = default;
+        Object() : _value(nullptr) {}
 
         /**
          * Copy constructor: create an object that is a copy of another.
@@ -200,6 +201,11 @@ namespace fundot
          * @param os std::ostream to be printed.
          */
         void _printPair(ostream &os) const;
+
+        /** Print this Object to std::ostream if the value it contained is of type bool.
+         * @param os std::ostream to be printed.
+         */
+        void _printBool(ostream &os) const;
     };
 
 } // namespace fundot

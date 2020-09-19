@@ -51,6 +51,10 @@ namespace fundot
             is.putback(c);
             return _scanNumber(is);
         }
+        else if (c == '\'')
+        {
+            return list<Object>({Identifier("quote"), _scan(is)});
+        }
         else if (c == '[')
         {
             return _scanVector(is);
@@ -212,6 +216,14 @@ namespace fundot
             id.str().push_back(c);
         }
         is >> skipws;
+        if (id.str() == "true")
+        {
+            return true;
+        }
+        else if (id.str() == "false")
+        {
+            return false;
+        }
         return Object(id);
     }
 
@@ -256,6 +268,10 @@ namespace fundot
         else if (holds<pair<Identifier, Object>>())
         {
             _printPair(os);
+        }
+        else if (holds<bool>())
+        {
+            _printBool(os);
         }
     }
 
@@ -335,6 +351,11 @@ namespace fundot
     {
         pair<Identifier, Object> obj_pair = any_cast<pair<Identifier, Object>>(_value);
         os << obj_pair.first << ": " << obj_pair.second;
+    }
+
+    void Object::_printBool(ostream &os) const
+    {
+        os << boolalpha << any_cast<bool>(_value);
     }
 
 } // namespace fundot

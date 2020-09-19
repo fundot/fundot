@@ -54,7 +54,7 @@ namespace fundot
             obj = eval(obj);
             if (obj.type() != typeid(nullptr))
             {
-                _output_stream << eval(obj) << endl;
+                _output_stream << obj << endl;
             }
         }
     }
@@ -106,11 +106,28 @@ namespace fundot
                 {
                     return *(++obj_lst.begin());
                 }
+                else if (id == "if")
+                {
+                    return _if(obj);
+                }
                 for (list<Object>::iterator it = ++obj_lst.begin(); it != obj_lst.end(); ++it)
                 {
                     *it = eval(*it);
                 }
-                if (id == "add")
+                cout << obj << endl;
+                if (id == "exit")
+                {
+                    exit(0);
+                }
+                else if (id == "global")
+                {
+                    return _obj;
+                }
+                else if (id == "print")
+                {
+                    return _print(obj);
+                }
+                else if (id == "add")
                 {
                     return _add(obj);
                 }
@@ -129,29 +146,6 @@ namespace fundot
                 else if (id == "mod")
                 {
                     return _mod(obj);
-                }
-                else if (id == "exit")
-                {
-                    exit(0);
-                }
-                else if (id == "global")
-                {
-                    return _obj;
-                }
-                else if (id == "print")
-                {
-                    Object to_print = *(++obj_lst.begin());
-                    if (to_print.holds<string>())
-                    {
-                        _output_stream << to_print.value<string>();
-                    }
-                    else
-                    {
-                        _output_stream << to_print;
-                    }
-
-                    _output_stream << endl;
-                    return Object(nullptr);
                 }
                 else if ((*_local_scope)[id].holds<map<Identifier, Object>>())
                 {
@@ -275,12 +269,51 @@ namespace fundot
     {
         static const map<Identifier, Object> fun_defs = {
             {Identifier("type"), Identifier("built-in-function")}};
-        static const vector<string> fun_ids = {"quote", "add", "exit", "global", "print",
-                                               "sub", "mul", "div", "mod"};
+        static const vector<string> fun_ids = {"quote", "if", "exit", "global", "print",
+                                               "add", "sub", "mul", "div", "mod"};
         for (size_t i = 0; i < fun_ids.size(); ++i)
         {
             _obj[fun_ids[i]] = fun_defs;
         }
+    }
+
+    Object Fundot::_if(Object &obj)
+    {
+        list<Object> &obj_lst = obj.value<list<Object>>();
+        list<Object>::iterator it = ++obj_lst.begin();
+        while (it != obj_lst.end())
+        {
+            if (it->holds<bool>() && it->value<bool>() == true)
+            {
+                return *(++it);
+            }
+            else if (it->holds<Identifier>() && it->value<Identifier>() == "else")
+            {
+                ++it;
+                if ((it->holds<Identifier>() && it->value<Identifier>() == "if") == false)
+                {
+                    return *it;
+                }
+            }
+            ++it;
+        }
+        return Object();
+    }
+
+    Object Fundot::_print(Object &obj)
+    {
+        list<Object> &obj_lst = obj.value<list<Object>>();
+        Object to_print = *(++obj_lst.begin());
+        if (to_print.holds<string>())
+        {
+            _output_stream << to_print.value<string>();
+        }
+        else
+        {
+            _output_stream << to_print;
+        }
+        _output_stream << endl;
+        return Object();
     }
 
     Object Fundot::_add(Object &obj)

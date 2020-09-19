@@ -107,6 +107,18 @@ namespace fundot
         void _init();
 
         /**
+         * Evaluate an if statement.
+         * @param obj Object with a if statement.
+         */
+        Object _if(Object &obj);
+
+        /**
+         * Print an Object.
+         * @param obj Object with Object to print.
+         */
+        Object _print(Object &obj);
+
+        /**
          * Add a list of numbers.
          * @param obj Object with numbers to add.
          */
