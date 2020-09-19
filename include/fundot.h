@@ -11,6 +11,8 @@
 
 namespace fundot
 {
+    using std::cin;
+    using std::cout;
     using std::endl;
 
     /**
@@ -26,6 +28,19 @@ namespace fundot
         Fundot();
 
         /**
+         * Initialize the object and explicitly set input streams.
+         * @param is std::istream to extract data.
+         */
+        Fundot(istream &is);
+
+        /**
+         * Initialize the object and explicitly set I/O streams.
+         * @param is std::istream to extract data.
+         * @param os std::ostream to insert data.
+         */
+        Fundot(istream &is, ostream &os);
+
+        /**
          * Evaluate an Object as code.
          * @param obj Object to be evaluated.
          */
@@ -36,22 +51,25 @@ namespace fundot
          * @param is std::istream to be extracted.
          * @param os std::ostream to be inserted.
          */
-        void repl(istream &is, ostream &os);
+        void repl();
 
     private:
-        Object _obj; /**< Code stored just as data. */
-        vector<map<Identifier, Object>*> _scopes; /**< std::vector that contains scopes from global to local. */
-        map<Identifier, Object> *_local_scope; /**< Points to the local scope that the code is evaluated. */
+        Object _obj;                               /**< Code stored just as data. */
+        vector<map<Identifier, Object> *> _scopes; /**< std::vector that contains scopes from global to local. */
+        map<Identifier, Object> *_local_scope;     /**< Points to the local scope that the code is evaluated. */
+
+        istream &_input_stream;  /**< Input stream to extract data. */
+        ostream &_output_stream; /**< Output stream to insert data. */
 
         /**
          * Find the last occurence of an Identifier as a key in scopes.
          * @param id Identifier to find.
          */
-        vector<map<Identifier, Object>*>::reverse_iterator _inWhichScope(const Identifier &id);
+        vector<map<Identifier, Object> *>::reverse_iterator _inWhichScope(const Identifier &id);
 
-        void _scopeTraceForward(map<Identifier, Object>* current_scope);
+        void _scopeTraceForward(map<Identifier, Object> *current_scope);
 
-        void _scopeTraceBackward(map<Identifier, Object>* previous_scope);
+        void _scopeTraceBackward(map<Identifier, Object> *previous_scope);
 
         /**
          * Evaluate a list.
@@ -93,6 +111,30 @@ namespace fundot
          * @param obj Object with numbers to add.
          */
         Object _add(Object &obj);
+
+        /**
+         * Subtract a list of numbers from the front.
+         * @param obj Object with numbers to subtract.
+         */
+        Object _sub(Object &obj);
+
+        /**
+         * Multiply a list of numbers.
+         * @param obj Object with numbers to multiply.
+         */
+        Object _mul(Object &obj);
+
+        /**
+         * Divide a list of numbers by the front.
+         * @param obj Object with numbers to divide.
+         */
+        Object _div(Object &obj);
+
+        /**
+         * Module a list of two numbers.
+         * @param obj Object with numbers to module with.
+         */
+        Object _mod(Object &obj);
     };
 } // namespace fundot
 

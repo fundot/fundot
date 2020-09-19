@@ -2,7 +2,22 @@
 
 namespace fundot
 {
-    Fundot::Fundot() : _obj(map<Identifier, Object>())
+    Fundot::Fundot()
+        : _obj(map<Identifier, Object>()), _input_stream(cin), _output_stream(cout)
+    {
+        _scopeTraceForward(&_obj.value<map<Identifier, Object>>());
+        _init();
+    }
+
+    Fundot::Fundot(istream &is)
+        : _obj(map<Identifier, Object>()), _input_stream(is), _output_stream(cout)
+    {
+        _scopeTraceForward(&_obj.value<map<Identifier, Object>>());
+        _init();
+    }
+
+    Fundot::Fundot(istream &is, ostream &os)
+        : _obj(map<Identifier, Object>()), _input_stream(is), _output_stream(os)
     {
         _scopeTraceForward(&_obj.value<map<Identifier, Object>>());
         _init();
@@ -29,20 +44,24 @@ namespace fundot
         return obj;
     }
 
-    void Fundot::repl(istream &is, ostream &os)
+    void Fundot::repl()
     {
         Object obj;
         for (size_t i = 0;; ++i)
         {
-            os << "Fundot> ";
-            is >> obj;
-            os << eval(obj) << endl;
+            _output_stream << "Fundot> ";
+            _input_stream >> obj;
+            obj = eval(obj);
+            if (obj.type() != typeid(nullptr))
+            {
+                _output_stream << eval(obj) << endl;
+            }
         }
     }
 
-    vector<map<Identifier, Object>*>::reverse_iterator Fundot::_inWhichScope(const Identifier &id)
+    vector<map<Identifier, Object> *>::reverse_iterator Fundot::_inWhichScope(const Identifier &id)
     {
-        vector<map<Identifier, Object>*>::reverse_iterator it = _scopes.rbegin();
+        vector<map<Identifier, Object> *>::reverse_iterator it = _scopes.rbegin();
         while (it != _scopes.rend())
         {
             if ((*it)->count(id) > 0)
@@ -54,16 +73,16 @@ namespace fundot
         return _scopes.rend();
     }
 
-    void Fundot::_scopeTraceForward(map<Identifier, Object>* current_scope)
+    void Fundot::_scopeTraceForward(map<Identifier, Object> *current_scope)
     {
         _local_scope = current_scope;
         _scopes.push_back(_local_scope);
     }
 
-    void Fundot::_scopeTraceBackward(map<Identifier, Object>* previous_scope)
+    void Fundot::_scopeTraceBackward(map<Identifier, Object> *previous_scope)
     {
         _local_scope = previous_scope;
-        vector<map<Identifier, Object>*>::reverse_iterator it = _scopes.rbegin();
+        vector<map<Identifier, Object> *>::reverse_iterator it = _scopes.rbegin();
         while (it != _scopes.rend())
         {
             if (*it == previous_scope)
@@ -95,13 +114,44 @@ namespace fundot
                 {
                     return _add(obj);
                 }
+                else if (id == "sub")
+                {
+                    return _sub(obj);
+                }
+                else if (id == "mul")
+                {
+                    return _mul(obj);
+                }
+                else if (id == "div")
+                {
+                    return _div(obj);
+                }
+                else if (id == "mod")
+                {
+                    return _mod(obj);
+                }
                 else if (id == "exit")
                 {
                     exit(0);
                 }
-                else if (id == "show")
+                else if (id == "global")
                 {
                     return _obj;
+                }
+                else if (id == "print")
+                {
+                    Object to_print = *(++obj_lst.begin());
+                    if (to_print.holds<string>())
+                    {
+                        _output_stream << to_print.value<string>();
+                    }
+                    else
+                    {
+                        _output_stream << to_print;
+                    }
+
+                    _output_stream << endl;
+                    return Object(nullptr);
                 }
                 else if ((*_local_scope)[id].holds<map<Identifier, Object>>())
                 {
@@ -223,8 +273,10 @@ namespace fundot
 
     void Fundot::_init()
     {
-        static const map<Identifier, Object> fun_defs = {{Identifier("type"), Identifier("built-in-function")}};
-        static const vector<string> fun_ids = {"quote", "add", "exit", "show"};
+        static const map<Identifier, Object> fun_defs = {
+            {Identifier("type"), Identifier("built-in-function")}};
+        static const vector<string> fun_ids = {"quote", "add", "exit", "global", "print",
+                                               "sub", "mul", "div", "mod"};
         for (size_t i = 0; i < fun_ids.size(); ++i)
         {
             _obj[fun_ids[i]] = fun_defs;
@@ -233,23 +285,128 @@ namespace fundot
 
     Object Fundot::_add(Object &obj)
     {
-        double sum = 0;
+        double result = 0;
         list<Object> &obj_lst = obj.value<list<Object>>();
         for (list<Object>::iterator it = ++obj_lst.begin(); it != obj_lst.end(); ++it)
         {
             if (it->holds<int>())
             {
-                sum += it->value<int>();
+                result += it->value<int>();
             }
             else if (it->holds<double>())
             {
-                sum += it->value<double>();
+                result += it->value<double>();
             }
             else
             {
                 // error handling
             }
         }
-        return Object(sum);
+        return Object(result);
+    }
+
+    Object Fundot::_sub(Object &obj)
+    {
+        list<Object> &obj_lst = obj.value<list<Object>>();
+        double result = 0;
+        list<Object>::iterator it = ++obj_lst.begin();
+        if (it->holds<int>())
+        {
+            result = it->value<int>();
+            ++it;
+        }
+        else if (it->holds<double>())
+        {
+            result = it->value<double>();
+            ++it;
+        }
+        for (; it != obj_lst.end(); ++it)
+        {
+            if (it->holds<int>())
+            {
+                result -= it->value<int>();
+            }
+            else if (it->holds<double>())
+            {
+                result -= it->value<double>();
+            }
+            else
+            {
+                // error handling
+            }
+        }
+        return Object(result);
+    }
+
+    Object Fundot::_mul(Object &obj)
+    {
+        double result = 1;
+        list<Object> &obj_lst = obj.value<list<Object>>();
+        for (list<Object>::iterator it = ++obj_lst.begin(); it != obj_lst.end(); ++it)
+        {
+            if (it->holds<int>())
+            {
+                result *= it->value<int>();
+            }
+            else if (it->holds<double>())
+            {
+                result *= it->value<double>();
+            }
+            else
+            {
+                // error handling
+            }
+        }
+        return Object(result);
+    }
+
+    Object Fundot::_div(Object &obj)
+    {
+        list<Object> &obj_lst = obj.value<list<Object>>();
+        double result = 0;
+        list<Object>::iterator it = ++obj_lst.begin();
+        if (it->holds<int>())
+        {
+            result = it->value<int>();
+            ++it;
+        }
+        else if (it->holds<double>())
+        {
+            result = it->value<double>();
+            ++it;
+        }
+        for (; it != obj_lst.end(); ++it)
+        {
+            if (it->holds<int>())
+            {
+                result /= it->value<int>();
+            }
+            else if (it->holds<double>())
+            {
+                result /= it->value<double>();
+            }
+            else
+            {
+                // error handling
+            }
+        }
+        return Object(result);
+    }
+
+    Object Fundot::_mod(Object &obj)
+    {
+        int result = 0;
+        list<Object> &obj_lst = obj.value<list<Object>>();
+        list<Object>::iterator it = ++obj_lst.begin();
+        if (it->holds<int>())
+        {
+            result = it->value<int>();
+            ++it;
+        }
+        if (it->holds<int>())
+        {
+            result %= it->value<int>();
+        }
+        return Object(result);
     }
 } // namespace fundot
