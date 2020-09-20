@@ -2,19 +2,9 @@
 
 Fundot Programming Language
 
-## Language
-
-* [中文](README.zh.md)
-* English (shown below)
-
 ## Background
 
-As someone who has always been interested in inventing a new programming language,
-I started this project, Fundot, to make my idea come true.
-Inspired by Lisp, Fundot is a functional programming language,
-but it does not need parenthesis, "(" and ")", which is the biggest difference between Fundot and Lisp.
-Instead, Fundot uses capital letters, "A" to "Z", and dot, ".", as we normally do in English,
-to indicate the start and end of a function. More information can be found at [Fundot Documenation](https://fundot.readthedocs.io/en/latest/).
+This project was initially my personl project called Jia, in which I want to realize my dream of creating a new programming language. After rewritting in C++, this project was renamed Fundot and placed into this organization. Recently inspired by LISP and JSON, I found a new way to combine code and data to make code-as-data programming much more readable.
 
 ## Install
 
@@ -43,52 +33,38 @@ This program is a interpreter of Fundot programming language that contains the R
 For REPL mode, simply enter fundot in the terminal.
 
     $ fundot
-    Fun.
-After displaying the information from Fundot, you can call functions and enjoy Fundot until you call Quit or Exit function.
+    Fundot> 
+After displaying `Fundot>`, you can enter expressions and enjoy Fundot until you call exit function.
 
     $ fundot
-    Fun.
-    >>> Add 1 2.
+    Fundot> x: 1
+    x: 1
+    Fundot> pi: 3.14
+    pi: 3.14
+    Fundot> (+ x pi)
+    4.14
+For file execution mode, access Fundot from terminal following a name or path of a .fd file. For example, assume you have a file named test.fd that contains the following content:
+
+    [
+        x: 0,
+        (while (< x 10) [
+            x: (+ x 1),
+            (print x)
+        ])
+    ]
+Then if you enter the following code in terminal under the directory that conatins test.fd, Fundot will output as below.
+
+    $ fundot test.fd
+    1
+    2
     3
-    >>> Add Add 1 2. Add 1 2..
+    4
+    5
     6
-    >>> Def Sum l.
-            If Atom l. 0
-            else Add First l. Sum Rest l.....
-    >>> Def ls [ 1 2 3 4 5 ].
-    >>> Sum ls.
-    15
-    >>> Quit.
-For file execution mode, access Fundot from terminal following an argument, the name of a .fundot file. For example, assume you have a file named test.fundot that contains the following content:
-
-    {
-        Def ls [ 1 2 3 4 5 6 ].
-        Def Factorial n.
-            If Equal n 1. 1
-            else Mul n Factorial Sub n 1.....
-        Print Factorial 5..
-        Def Sum l.
-            If Atom l. 0
-            else Add First l. Sum Rest l.....
-        Print Sum [ 1 2 3 4 5 ]..
-        Def Product l.
-            If Atom l. 1
-            else Mul First l. Product Rest l.....
-        Print Product ls..
-        Def Square x.
-            Mul x x..
-        Print Square First Rest ls....
-    test.fundot
-    }
-Then if you enter the following code in terminal under this repository, Fundot will output as below.
-
-    $ fundot test.fundot
-    Fun.
-    120 
-    15 
-    720 
-    4 
-    test.fundot
+    7
+    8
+    9
+    10
 **Note: So far, this interpreter has not been stable, and huge changes may occur in each new commit.**
 
 ## Contributing
@@ -97,4 +73,4 @@ Contributions are welcome.
 
 ## License
 
-GPL-3.0 © Jiacheng Huang
+MIT License © Jiacheng Huang

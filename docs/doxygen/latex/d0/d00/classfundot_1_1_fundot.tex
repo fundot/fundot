@@ -1,0 +1,88 @@
+\hypertarget{classfundot_1_1_fundot}{}\doxysection{fundot\+::Fundot Class Reference}
+\label{classfundot_1_1_fundot}\index{fundot::Fundot@{fundot::Fundot}}
+
+
+An interpreter class of \mbox{\hyperlink{classfundot_1_1_fundot}{Fundot}}.  
+
+
+
+
+{\ttfamily \#include $<$fundot.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classfundot_1_1_fundot_af7746839476f879ac55bc69d41cbb38c}\label{classfundot_1_1_fundot_af7746839476f879ac55bc69d41cbb38c}} 
+\mbox{\hyperlink{classfundot_1_1_fundot_af7746839476f879ac55bc69d41cbb38c}{Fundot}} ()
+\begin{DoxyCompactList}\small\item\em Initialize the object with a map and insert some built-\/in functions into it. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classfundot_1_1_fundot_a4cb0d13bad9bc9d53623f2f1e9a087a1}{Fundot}} (istream \&is)
+\begin{DoxyCompactList}\small\item\em Initialize the object and explicitly set input streams. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classfundot_1_1_fundot_a5ce0013cb8fb26fd7fa295a5cf48254b}{Fundot}} (istream \&is, ostream \&os)
+\begin{DoxyCompactList}\small\item\em Initialize the object and explicitly set I/O streams. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classfundot_1_1_object}{Object}} \mbox{\hyperlink{classfundot_1_1_fundot_a6aa7c160d2c71518bf140cd6efa3d105}{eval}} (\mbox{\hyperlink{classfundot_1_1_object}{Object}} \&obj)
+\begin{DoxyCompactList}\small\item\em Evaluate an \mbox{\hyperlink{classfundot_1_1_object}{Object}} as code. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classfundot_1_1_fundot_ab5f0fc3eec017fd90308f6902ab870b6}{repl}} ()
+\begin{DoxyCompactList}\small\item\em Start a read-\/eval-\/print loop. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+This class handles input and output as well as the evaluation process of \mbox{\hyperlink{classfundot_1_1_fundot}{Fundot}} code. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classfundot_1_1_fundot_a4cb0d13bad9bc9d53623f2f1e9a087a1}\label{classfundot_1_1_fundot_a4cb0d13bad9bc9d53623f2f1e9a087a1}} 
+\index{fundot::Fundot@{fundot::Fundot}!Fundot@{Fundot}}
+\index{Fundot@{Fundot}!fundot::Fundot@{fundot::Fundot}}
+\doxysubsubsection{\texorpdfstring{Fundot()}{Fundot()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily fundot\+::\+Fundot\+::\+Fundot (\begin{DoxyParamCaption}\item[{istream \&}]{is }\end{DoxyParamCaption})}
+
+
+\begin{DoxyParams}{Parameters}
+{\em is} & std\+::istream to extract data. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classfundot_1_1_fundot_a5ce0013cb8fb26fd7fa295a5cf48254b}\label{classfundot_1_1_fundot_a5ce0013cb8fb26fd7fa295a5cf48254b}} 
+\index{fundot::Fundot@{fundot::Fundot}!Fundot@{Fundot}}
+\index{Fundot@{Fundot}!fundot::Fundot@{fundot::Fundot}}
+\doxysubsubsection{\texorpdfstring{Fundot()}{Fundot()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily fundot\+::\+Fundot\+::\+Fundot (\begin{DoxyParamCaption}\item[{istream \&}]{is,  }\item[{ostream \&}]{os }\end{DoxyParamCaption})}
+
+
+\begin{DoxyParams}{Parameters}
+{\em is} & std\+::istream to extract data. \\
+\hline
+{\em os} & std\+::ostream to insert data. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classfundot_1_1_fundot_a6aa7c160d2c71518bf140cd6efa3d105}\label{classfundot_1_1_fundot_a6aa7c160d2c71518bf140cd6efa3d105}} 
+\index{fundot::Fundot@{fundot::Fundot}!eval@{eval}}
+\index{eval@{eval}!fundot::Fundot@{fundot::Fundot}}
+\doxysubsubsection{\texorpdfstring{eval()}{eval()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classfundot_1_1_object}{Object}} fundot\+::\+Fundot\+::eval (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classfundot_1_1_object}{Object}} \&}]{obj }\end{DoxyParamCaption})}
+
+
+\begin{DoxyParams}{Parameters}
+{\em obj} & \mbox{\hyperlink{classfundot_1_1_object}{Object}} to be evaluated. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classfundot_1_1_fundot_ab5f0fc3eec017fd90308f6902ab870b6}\label{classfundot_1_1_fundot_ab5f0fc3eec017fd90308f6902ab870b6}} 
+\index{fundot::Fundot@{fundot::Fundot}!repl@{repl}}
+\index{repl@{repl}!fundot::Fundot@{fundot::Fundot}}
+\doxysubsubsection{\texorpdfstring{repl()}{repl()}}
+{\footnotesize\ttfamily void fundot\+::\+Fundot\+::repl (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+\begin{DoxyParams}{Parameters}
+{\em is} & std\+::istream to be extracted. \\
+\hline
+{\em os} & std\+::ostream to be inserted. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+include/\mbox{\hyperlink{fundot_8h}{fundot.\+h}}\item 
+src/fundot.\+cpp\end{DoxyCompactItemize}
