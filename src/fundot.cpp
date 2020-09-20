@@ -122,6 +122,10 @@ namespace fundot
                 {
                     exit(0);
                 }
+                else if (id == "return")
+                {
+                    return *(++obj_lst.begin());
+                }
                 else if (id == "global")
                 {
                     return _obj;
@@ -245,6 +249,17 @@ namespace fundot
         vector<Object> &obj_vct = obj.value<vector<Object>>();
         for (size_t i = 0; i < obj_vct.size(); ++i)
         {
+            if (i == obj_vct.size() - 1)
+            {
+                if (obj_vct[i].holds<list<Object>>())
+                {
+                    Object front = obj_vct[i].value<list<Object>>().front();
+                    if (front.holds<Identifier>() && front.value<Identifier>() == "return")
+                    {
+                        return eval(obj_vct[i]);
+                    }
+                }
+            }
             obj_vct[i] = eval(obj_vct[i]);
         }
         return obj_vct;
@@ -284,7 +299,7 @@ namespace fundot
     {
         static const map<Identifier, Object> fun_defs = {
             {Identifier("type"), Identifier("built-in-function")}};
-        static const vector<string> fun_ids = {"quote", "if", "while", "exit", "global", "print",
+        static const vector<string> fun_ids = {"quote", "if", "while", "exit", "return", "global", "print",
                                                "+", "-", "*", "/", "%", "<", "==", "&&"};
         for (size_t i = 0; i < fun_ids.size(); ++i)
         {
