@@ -1,0 +1,167 @@
+\hypertarget{classfundot_1_1_object}{}\doxysection{fundot\+::Object Class Reference}
+\label{classfundot_1_1_object}\index{fundot::Object@{fundot::Object}}
+
+
+A class that stores and handles \mbox{\hyperlink{classfundot_1_1_fundot}{Fundot}} objects.  
+
+
+
+
+{\ttfamily \#include $<$object.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classfundot_1_1_object_aa046ee91229c577912eb3c6297b84c2f}\label{classfundot_1_1_object_aa046ee91229c577912eb3c6297b84c2f}} 
+\mbox{\hyperlink{classfundot_1_1_object_aa046ee91229c577912eb3c6297b84c2f}{Object}} ()
+\begin{DoxyCompactList}\small\item\em Create a default \mbox{\hyperlink{classfundot_1_1_object}{Object}} that takes nullptr as its value. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classfundot_1_1_object_adf723d5672430b2534de217f232c08be}{Object}} (const \mbox{\hyperlink{classfundot_1_1_object}{Object}} \&other)
+\begin{DoxyCompactList}\small\item\em Copy constructor\+: create an object that is a copy of another. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename T $>$ }\\\mbox{\hyperlink{classfundot_1_1_object_aac1af0c8e5e5c6eb02080476e8ac9086}{Object}} (const T \&\mbox{\hyperlink{classfundot_1_1_object_a3dac86b1312f84355d637ffdea8b32fb}{value}})
+\begin{DoxyCompactList}\small\item\em Create an \mbox{\hyperlink{classfundot_1_1_object}{Object}} with a value of any type. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classfundot_1_1_object}{Object}} \& \mbox{\hyperlink{classfundot_1_1_object_a35d02f6f7bfc646c35e1db646d5904c3}{operator=}} (const \mbox{\hyperlink{classfundot_1_1_object}{Object}} \&other)
+\begin{DoxyCompactList}\small\item\em Assignment operator\+: set this object equal to another. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classfundot_1_1_object}{Object}} \& \mbox{\hyperlink{classfundot_1_1_object_aecfb268c7970a6df33d7565e4fb25dfb}{operator\mbox{[}$\,$\mbox{]}}} (size\+\_\+t index)
+\begin{DoxyCompactList}\small\item\em Bracket operator\+: access an \mbox{\hyperlink{classfundot_1_1_object}{Object}} with an index if the value contained in this \mbox{\hyperlink{classfundot_1_1_object}{Object}} is of type std\+::vector$<$\+Object$>$. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classfundot_1_1_object}{Object}} \& \mbox{\hyperlink{classfundot_1_1_object_a73fe10bd9ff03159633e1a45abb2c454}{operator\mbox{[}$\,$\mbox{]}}} (const \mbox{\hyperlink{classfundot_1_1_identifier}{Identifier}} \&id)
+\begin{DoxyCompactList}\small\item\em Bracket operator\+: access an \mbox{\hyperlink{classfundot_1_1_object}{Object}} mapped by the key \mbox{\hyperlink{classfundot_1_1_identifier}{Identifier}} if the value contained in this \mbox{\hyperlink{classfundot_1_1_object}{Object}} is of type std\+::map$<$\+Identifier, Object$>$. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename T $>$ }\\T \& \mbox{\hyperlink{classfundot_1_1_object_a3dac86b1312f84355d637ffdea8b32fb}{value}} ()
+\begin{DoxyCompactList}\small\item\em Get the reference of the value contained in this \mbox{\hyperlink{classfundot_1_1_object}{Object}} of a specific type. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classfundot_1_1_object_ad5d4f797be2de2c4a906cd9e52d0d7ff}\label{classfundot_1_1_object_ad5d4f797be2de2c4a906cd9e52d0d7ff}} 
+const type\+\_\+info \& \mbox{\hyperlink{classfundot_1_1_object_ad5d4f797be2de2c4a906cd9e52d0d7ff}{type}} () const
+\begin{DoxyCompactList}\small\item\em Get the type of the value contained in this \mbox{\hyperlink{classfundot_1_1_object}{Object}}. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename T $>$ }\\bool \mbox{\hyperlink{classfundot_1_1_object_a08ec2bd606465bc4fe480096af1a77fb}{holds}} () const
+\begin{DoxyCompactList}\small\item\em Return true if the \mbox{\hyperlink{classfundot_1_1_object}{Object}} holds the given type. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+istream \& \mbox{\hyperlink{classfundot_1_1_object_a67656af114c1c402329df49c6254367d}{operator$>$$>$}} (istream \&is, \mbox{\hyperlink{classfundot_1_1_object}{Object}} \&obj)
+\begin{DoxyCompactList}\small\item\em Extraction operator\+: extract the std\+::istream into an \mbox{\hyperlink{classfundot_1_1_object}{Object}}. \end{DoxyCompactList}\item 
+ostream \& \mbox{\hyperlink{classfundot_1_1_object_a9f60f4f7a5918a22befa5f67e00e5aef}{operator$<$$<$}} (ostream \&os, const \mbox{\hyperlink{classfundot_1_1_object}{Object}} \&obj)
+\begin{DoxyCompactList}\small\item\em Insertion operator\+: insert the object into the std\+::ostream. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classfundot_1_1_object_adf723d5672430b2534de217f232c08be}\label{classfundot_1_1_object_adf723d5672430b2534de217f232c08be}} 
+\index{fundot::Object@{fundot::Object}!Object@{Object}}
+\index{Object@{Object}!fundot::Object@{fundot::Object}}
+\doxysubsubsection{\texorpdfstring{Object()}{Object()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily fundot\+::\+Object\+::\+Object (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classfundot_1_1_object}{Object}} \&}]{other }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+\begin{DoxyParams}{Parameters}
+{\em other} & \mbox{\hyperlink{classfundot_1_1_object}{Object}} to be copied. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classfundot_1_1_object_aac1af0c8e5e5c6eb02080476e8ac9086}\label{classfundot_1_1_object_aac1af0c8e5e5c6eb02080476e8ac9086}} 
+\index{fundot::Object@{fundot::Object}!Object@{Object}}
+\index{Object@{Object}!fundot::Object@{fundot::Object}}
+\doxysubsubsection{\texorpdfstring{Object()}{Object()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+fundot\+::\+Object\+::\+Object (\begin{DoxyParamCaption}\item[{const T \&}]{value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em T} & Type of the value. \\
+\hline
+\end{DoxyTemplParams}
+
+\begin{DoxyParams}{Parameters}
+{\em value} & Value to be copied. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classfundot_1_1_object_a08ec2bd606465bc4fe480096af1a77fb}\label{classfundot_1_1_object_a08ec2bd606465bc4fe480096af1a77fb}} 
+\index{fundot::Object@{fundot::Object}!holds@{holds}}
+\index{holds@{holds}!fundot::Object@{fundot::Object}}
+\doxysubsubsection{\texorpdfstring{holds()}{holds()}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+bool fundot\+::\+Object\+::holds (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em T} & Type to check. \\
+\hline
+\end{DoxyTemplParams}
+\mbox{\Hypertarget{classfundot_1_1_object_a35d02f6f7bfc646c35e1db646d5904c3}\label{classfundot_1_1_object_a35d02f6f7bfc646c35e1db646d5904c3}} 
+\index{fundot::Object@{fundot::Object}!operator=@{operator=}}
+\index{operator=@{operator=}!fundot::Object@{fundot::Object}}
+\doxysubsubsection{\texorpdfstring{operator=()}{operator=()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classfundot_1_1_object}{Object}}\& fundot\+::\+Object\+::operator= (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classfundot_1_1_object}{Object}} \&}]{other }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+\begin{DoxyParams}{Parameters}
+{\em other} & \mbox{\hyperlink{classfundot_1_1_object}{Object}} to be copied. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classfundot_1_1_object_a73fe10bd9ff03159633e1a45abb2c454}\label{classfundot_1_1_object_a73fe10bd9ff03159633e1a45abb2c454}} 
+\index{fundot::Object@{fundot::Object}!operator\mbox{[}\mbox{]}@{operator[]}}
+\index{operator\mbox{[}\mbox{]}@{operator[]}!fundot::Object@{fundot::Object}}
+\doxysubsubsection{\texorpdfstring{operator[]()}{operator[]()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classfundot_1_1_object}{Object}} \& fundot\+::\+Object\+::operator\mbox{[}$\,$\mbox{]} (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classfundot_1_1_identifier}{Identifier}} \&}]{id }\end{DoxyParamCaption})}
+
+
+\begin{DoxyParams}{Parameters}
+{\em id} & key of the \mbox{\hyperlink{classfundot_1_1_object}{Object}} to be accessed. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classfundot_1_1_object_aecfb268c7970a6df33d7565e4fb25dfb}\label{classfundot_1_1_object_aecfb268c7970a6df33d7565e4fb25dfb}} 
+\index{fundot::Object@{fundot::Object}!operator\mbox{[}\mbox{]}@{operator[]}}
+\index{operator\mbox{[}\mbox{]}@{operator[]}!fundot::Object@{fundot::Object}}
+\doxysubsubsection{\texorpdfstring{operator[]()}{operator[]()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classfundot_1_1_object}{Object}} \& fundot\+::\+Object\+::operator\mbox{[}$\,$\mbox{]} (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{index }\end{DoxyParamCaption})}
+
+
+\begin{DoxyParams}{Parameters}
+{\em index} & index of the \mbox{\hyperlink{classfundot_1_1_object}{Object}} to be accessed. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classfundot_1_1_object_a3dac86b1312f84355d637ffdea8b32fb}\label{classfundot_1_1_object_a3dac86b1312f84355d637ffdea8b32fb}} 
+\index{fundot::Object@{fundot::Object}!value@{value}}
+\index{value@{value}!fundot::Object@{fundot::Object}}
+\doxysubsubsection{\texorpdfstring{value()}{value()}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+T\& fundot\+::\+Object\+::value (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em T} & Type of the value. \\
+\hline
+\end{DoxyTemplParams}
+
+
+\doxysubsection{Friends And Related Function Documentation}
+\mbox{\Hypertarget{classfundot_1_1_object_a9f60f4f7a5918a22befa5f67e00e5aef}\label{classfundot_1_1_object_a9f60f4f7a5918a22befa5f67e00e5aef}} 
+\index{fundot::Object@{fundot::Object}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!fundot::Object@{fundot::Object}}
+\doxysubsubsection{\texorpdfstring{operator$<$$<$}{operator<<}}
+{\footnotesize\ttfamily ostream\& operator$<$$<$ (\begin{DoxyParamCaption}\item[{ostream \&}]{os,  }\item[{const \mbox{\hyperlink{classfundot_1_1_object}{Object}} \&}]{obj }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+\begin{DoxyParams}{Parameters}
+{\em os} & std\+::ostream to be inserted. \\
+\hline
+{\em obj} & \mbox{\hyperlink{classfundot_1_1_object}{Object}} to insert. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classfundot_1_1_object_a67656af114c1c402329df49c6254367d}\label{classfundot_1_1_object_a67656af114c1c402329df49c6254367d}} 
+\index{fundot::Object@{fundot::Object}!operator$>$$>$@{operator$>$$>$}}
+\index{operator$>$$>$@{operator$>$$>$}!fundot::Object@{fundot::Object}}
+\doxysubsubsection{\texorpdfstring{operator$>$$>$}{operator>>}}
+{\footnotesize\ttfamily istream\& operator$>$$>$ (\begin{DoxyParamCaption}\item[{istream \&}]{is,  }\item[{\mbox{\hyperlink{classfundot_1_1_object}{Object}} \&}]{obj }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+\begin{DoxyParams}{Parameters}
+{\em is} & std\+::istream to be extracted. \\
+\hline
+{\em obj} & \mbox{\hyperlink{classfundot_1_1_object}{Object}} to store the extracted value. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+include/\mbox{\hyperlink{object_8h}{object.\+h}}\item 
+src/object.\+cpp\end{DoxyCompactItemize}
