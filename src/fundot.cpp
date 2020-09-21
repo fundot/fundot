@@ -166,10 +166,10 @@ namespace fundot
                 {
                     return _and(obj);
                 }
-                else if ((*_local_scope)[id].holds<map<Identifier, Object>>())
+                else if ((*(*_inWhichScope(id)))[id].holds<map<Identifier, Object>>())
                 {
                     map<Identifier, Object> *previous_scope = _local_scope;
-                    _scopeTraceForward(&(*_local_scope)[id].value<map<Identifier, Object>>());
+                    _scopeTraceForward(&(*(*_inWhichScope(id)))[id].value<map<Identifier, Object>>());
                     Object to_return;
                     if (_local_scope->count(Identifier("type")) > 0 && (*_local_scope)[Identifier("type")].holds<Identifier>())
                     {
@@ -270,13 +270,12 @@ namespace fundot
         Object to_return;
         list<Object> &obj_lst = obj.value<list<Object>>();
         vector<Object> &params = (*_local_scope)[Identifier("params")].value<vector<Object>>();
-        map<Identifier, Object> param_map;
         list<Object>::iterator it = ++obj_lst.begin();
         for (size_t i = 0; i < params.size(); ++i)
         {
             if (params[i].holds<Identifier>())
             {
-                param_map[params[i].value<Identifier>()] = *it++;
+                (*_local_scope)[params[i].value<Identifier>()] = *it++;
             }
         }
         if (_local_scope->count(Identifier("body")) > 0 && (*_local_scope)[Identifier("body")].holds<list<Object>>())
@@ -284,13 +283,20 @@ namespace fundot
             list<Object> &body = (*_local_scope)[Identifier("body")].value<list<Object>>();
             for (list<Object>::iterator it = body.begin(); it != body.end(); ++it)
             {
-                if (it->holds<Identifier>() && param_map.count(it->value<Identifier>()) > 0)
+                if (it->holds<Identifier>() && (*_local_scope).count(it->value<Identifier>()) > 0)
                 {
-                    *it = param_map[it->value<Identifier>()];
+                    *it = (*_local_scope)[it->value<Identifier>()];
                 }
             }
             Object to_eval = body;
             to_return = eval(to_eval);
+        }
+        for (size_t i = 0; i < params.size(); ++i)
+        {
+            if (params[i].holds<Identifier>())
+            {
+                _local_scope->erase(params[i].value<Identifier>());
+            }
         }
         return to_return;
     }

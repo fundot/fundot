@@ -46,7 +46,26 @@ namespace fundot
         {
             return _scanString(is);
         }
-        else if (c == '-' || (c >= '0' && c <= '9'))
+        else if (c == '-')
+        {
+            is >> noskipws;
+            is >> c;
+            if (c >= '0' && c <= '9')
+            {
+                is.putback(c);
+                is.putback('-');
+                is >> skipws;
+                return _scanNumber(is);
+            }
+            else
+            {
+                is.putback(c);
+                is.putback('-');
+                is >> skipws;
+                return _scanIdentifier(is);
+            }
+        }
+        else if (c >= '0' && c <= '9')
         {
             is.putback(c);
             return _scanNumber(is);
