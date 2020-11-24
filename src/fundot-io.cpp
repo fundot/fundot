@@ -22,15 +22,51 @@
  * SOFTWARE.
  */
 
-#include "../include/fundot-object.h"
+#include "../include/fundot-io.h"
 
-using namespace fundot;
-
-int main()
+namespace fundot {
+std::istream& operator>>(std::istream& in, String& str)
 {
-    std::cout << ">>> ";
-    Object obj;
-    std::cin >> obj;
-    std::cout << obj << "\n";
-    return 0;
+    str.clear();
+    char c;
+    in >> std::noskipws;
+    while (in >> c) {
+        if (c == '"') {
+            in >> std::skipws;
+            return in;
+        }
+        str.pushBack(c);
+    }
+    in >> std::skipws;
+    return in;
 }
+
+std::ostream& operator<<(std::ostream& out, const String& str)
+{
+    out << '"';
+    for (std::size_t i = 0; i < str.size(); ++i) { out << str[i]; }
+    out << '"';
+    return out;
+}
+
+std::istream& operator>>(std::istream& in, Symbol& symbol)
+{
+    static const std::unordered_set<char> delimiters = {':', '}', ','};
+    symbol.clear();
+    std::string ident;
+    in >> ident;
+    symbol = ident;
+    if (delimiters.find(symbol.back()) != delimiters.end()) {
+        in.putback(symbol.back());
+        symbol.popBack();
+    }
+    return in;
+}
+
+std::ostream& operator<<(std::ostream& out, const Symbol& symbol)
+{
+    for (std::size_t i = 0; i < symbol.size(); ++i) { out << symbol[i]; }
+    return out;
+}
+
+}  // namespace fundot

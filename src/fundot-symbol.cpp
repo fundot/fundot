@@ -22,15 +22,33 @@
  * SOFTWARE.
  */
 
-#include "../include/fundot-object.h"
+#include "../include/fundot-symbol.h"
 
-using namespace fundot;
-
-int main()
+namespace fundot {
+bool operator==(const Symbol& lhs, const Symbol& rhs)
 {
-    std::cout << ">>> ";
-    Object obj;
-    std::cin >> obj;
-    std::cout << obj << "\n";
-    return 0;
+    if (lhs.size() != rhs.size()) {
+        return false;
+    }
+    for (std::size_t i = 0; i < lhs.size(); ++i) {
+        if (lhs[i] != rhs[i]) {
+            return false;
+        }
+    }
+    return true;
 }
+
+bool operator<(const Symbol& lhs, const Symbol& rhs)
+{
+    for (std::size_t i = 0; i < lhs.size() && i < rhs.size(); ++i) {
+        if (lhs[i] < rhs[i]) {
+            return true;
+        }
+        if (lhs[i] > rhs[i]) {
+            return false;
+        }
+    }
+    return lhs.size() < rhs.size();
+}
+
+}  // namespace fundot

@@ -22,15 +22,44 @@
  * SOFTWARE.
  */
 
-#include "../include/fundot-object.h"
+#ifndef FUNDOT_SYMBOL_H
+#define FUNDOT_SYMBOL_H
 
-using namespace fundot;
+#include <iostream>
+#include <string>
 
-int main()
-{
-    std::cout << ">>> ";
-    Object obj;
-    std::cin >> obj;
-    std::cout << obj << "\n";
-    return 0;
-}
+namespace fundot {
+class Symbol {
+public:
+    struct Hash {
+        std::size_t operator()(const Symbol& id) const
+        {
+            return std::hash<std::string>()(id.ident_);
+        }
+    };
+
+    Symbol() = default;
+    Symbol(const std::string& str) : ident_(str) {}
+
+    char& operator[](std::size_t idx) { return ident_[idx]; }
+    char operator[](std::size_t idx) const { return ident_[idx]; }
+
+    char& back() { return ident_[size() - 1]; }
+    char back() const { return ident_[size() - 1]; }
+
+    std::size_t size() const { return ident_.size(); }
+
+    void clear() { ident_.clear(); }
+    void pushBack(char c) { ident_.push_back(c); }
+    void popBack() { ident_.pop_back(); }
+
+private:
+    std::string ident_;
+};
+
+bool operator==(const Symbol& lhs, const Symbol& rhs);
+bool operator<(const Symbol& lhs, const Symbol& rhs);
+
+}  // namespace fundot
+
+#endif

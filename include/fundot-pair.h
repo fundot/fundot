@@ -22,15 +22,25 @@
  * SOFTWARE.
  */
 
-#include "../include/fundot-object.h"
+#ifndef FUNDOT_PAIR_H
+#define FUNDOT_PAIR_H
 
-using namespace fundot;
+#include <iostream>
 
-int main()
-{
-    std::cout << ">>> ";
-    Object obj;
-    std::cin >> obj;
-    std::cout << obj << "\n";
-    return 0;
-}
+namespace fundot {
+template<typename T, typename U>
+struct Pair {
+    struct Hash {
+        std::size_t operator()(const Pair& pr) const
+        {
+            return T::Hash()(pr.left);
+        }
+    };
+
+    T left;
+    U right;
+};
+
+}  // namespace fundot
+
+#endif
