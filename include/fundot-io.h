@@ -25,21 +25,19 @@
 #ifndef FUNDOT_IO_H
 #define FUNDOT_IO_H
 
-#include <string>
+#include <cstddef>
+#include <iostream>
 #include <unordered_set>
 
-#include "fundot-pair.h"
-#include "fundot-string.h"
-#include "fundot-symbol.h"
-#include "fundot-unordered-set.h"
+#include "fundot-utility.h"
 
 namespace fundot {
-template<typename T, typename U>
-std::ostream& operator<<(std::ostream& out, const Pair<T, U>& pr)
-{
-    out << pr.left << ": " << pr.right;
-    return out;
-}
+std::ostream& operator<<(std::ostream& out, const FunGetter& getter);
+
+std::istream& operator>>(std::istream& in, FunList& fun_list);
+std::ostream& operator<<(std::ostream& out, const FunList& fun_list);
+
+std::ostream& operator<<(std::ostream& out, const FunSetter& setter);
 
 std::istream& operator>>(std::istream& in, String& str);
 std::ostream& operator<<(std::ostream& out, const String& str);
@@ -47,30 +45,15 @@ std::ostream& operator<<(std::ostream& out, const String& str);
 std::istream& operator>>(std::istream& in, Symbol& symbol);
 std::ostream& operator<<(std::ostream& out, const Symbol& symbol);
 
-template<typename T, typename Hash = std::hash<T>>
-std::istream& operator>>(std::istream& in, UnorderedSet<T, Hash>& ust)
-{
-    ust.clear();
-    char delimiter;
-    T elem;
-    while (in >> elem) {
-        ust.emplace(elem);
-        in >> delimiter;
-        if (delimiter == '}') {
-            return in;
-        }
-    }
-    return in;
-}
+std::istream& operator>>(std::istream& in, FunSet& fun_set);
+std::ostream& operator<<(std::ostream& out, const FunSet& fun_set);
 
-template<typename T, typename Hash = std::hash<T>>
-std::ostream& operator<<(std::ostream& out, const UnorderedSet<T, Hash>& ust)
-{
-    out << "{\n";
-    for (const T& elem : ust) { out << "    " << elem << ",\n"; }
-    out << "}";
-    return out;
-}
+std::istream& operator>>(std::istream& in, FunVector& fun_vector);
+
+std::ostream& operator<<(std::ostream& out, const FunVector& fun_vector);
+
+std::istream& operator>>(std::istream& in, Object& obj);
+std::ostream& operator<<(std::ostream& out, const Object& obj);
 
 }  // namespace fundot
 

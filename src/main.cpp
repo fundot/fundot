@@ -22,15 +22,17 @@
  * SOFTWARE.
  */
 
-#include "../include/fundot-object.h"
+#include "fundot-io.h"
 
 using namespace fundot;
 
 int main()
 {
-    std::cout << ">>> ";
-    Object obj;
-    std::cin >> obj;
-    std::cout << obj << "\n";
+    for (;;) {
+        std::cout << ">>> ";
+        Object obj;
+        std::cin >> obj;
+        std::cout << obj << "\n";
+    }
     return 0;
 }

@@ -22,25 +22,46 @@
  * SOFTWARE.
  */
 
-#ifndef FUNDOT_PAIR_H
-#define FUNDOT_PAIR_H
-
-#include <iostream>
+#include "fundot-utility.h"
 
 namespace fundot {
-template<typename T, typename U>
-struct Pair {
-    struct Hash {
-        std::size_t operator()(const Pair& pr) const
-        {
-            return T::Hash()(pr.left);
-        }
-    };
 
-    T left;
-    U right;
+template<>
+struct Hash<String> {
+    std::size_t operator()(const String& str) const
+    {
+        return std::hash<std::string>{}(static_cast<std::string>(str));
+    }
+};
+
+template<>
+struct Hash<Symbol> {
+    std::size_t operator()(const Symbol& symbol) const
+    {
+        return std::hash<std::string>{}(static_cast<std::string>(symbol));
+    }
+};
+
+template<>
+struct Hash<Object> {
+    std::size_t operator()(const Object& obj) const
+    {
+        if (obj.hasType<Symbol>()) {
+            return Hash<Symbol>{}(static_cast<Symbol>(obj));
+        }
+        if (obj.hasType<String>()) {
+            return Hash<String>{}(static_cast<String>(obj));
+        }
+        return 0;
+    }
+};
+
+template<>
+struct Hash<FunSetter> {
+    std::size_t operator()(const FunSetter& setter) const
+    {
+        return Hash<Object>{}(setter.key);
+    }
 };
 
 }  // namespace fundot
-
-#endif

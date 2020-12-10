@@ -52,7 +52,7 @@ $(TARGETS): $(OBJS)
 	$(LD) -o $@ $(LDFLAGS) $^
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
-	$(CXX) -o $@ $(CXXFLAGS) -c $< -I $(INC_DIR)
+	$(CXX) -o $@ $(CXXFLAGS) -c $< -I $(INC_DIR) -I $(SRC_DIR)
 
 $(OBJ_DIR):
 	mkdir $@
@@ -63,7 +63,7 @@ $(TEST_BINS): $(TEST_OBJS) | $(BIN_DIR)
 	$(LD) -o $@ $(LDFLAGS) $^
 
 $(OBJ_DIR)/%.o: $(TEST_DIR)/%.cpp | $(OBJ_DIR)
-	$(CXX) -o $@ $(CXXFLAGS) -c $< -I $(INC_DIR)
+	$(CXX) -o $@ $(CXXFLAGS) -c $< -I $(INC_DIR) -I $(SRC_DIR)
 
 $(BIN_DIR):
 	mkdir $@

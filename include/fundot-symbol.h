@@ -25,28 +25,24 @@
 #ifndef FUNDOT_SYMBOL_H
 #define FUNDOT_SYMBOL_H
 
-#include <iostream>
+#include <cstddef>
 #include <string>
 
 namespace fundot {
 class Symbol {
 public:
-    struct Hash {
-        std::size_t operator()(const Symbol& id) const
-        {
-            return std::hash<std::string>()(id.ident_);
-        }
-    };
-
     Symbol() = default;
-    Symbol(const std::string& str) : ident_(str) {}
+    Symbol(std::string&& str) : ident_(std::move(str)) {}
+
+    explicit operator std::string() const { return ident_; }
 
     char& operator[](std::size_t idx) { return ident_[idx]; }
     char operator[](std::size_t idx) const { return ident_[idx]; }
 
-    char& back() { return ident_[size() - 1]; }
-    char back() const { return ident_[size() - 1]; }
+    char& back() { return ident_.back(); }
+    char back() const { return ident_.back(); }
 
+    bool empty() const { return ident_.empty(); }
     std::size_t size() const { return ident_.size(); }
 
     void clear() { ident_.clear(); }
@@ -56,9 +52,6 @@ public:
 private:
     std::string ident_;
 };
-
-bool operator==(const Symbol& lhs, const Symbol& rhs);
-bool operator<(const Symbol& lhs, const Symbol& rhs);
 
 }  // namespace fundot
 

@@ -25,11 +25,9 @@
 #ifndef FUNDOT_SET_H
 #define FUNDOT_SET_H
 
-#include <iostream>
+#include <cstddef>
 #include <iterator>
 #include <unordered_set>
-
-#include "fundot-pair.h"
 
 namespace fundot {
 template<typename T, typename Hash = std::hash<T>>
@@ -40,8 +38,8 @@ public:
         using iterator_category = std::forward_iterator_tag;
         using value_type = T;
         using difference_type = std::ptrdiff_t;
-        using pointer = T*;
-        using reference = T&;
+        using pointer = value_type*;
+        using reference = value_type&;
 
         Iterator(typename std::unordered_set<T, Hash>::iterator set_iter)
             : set_iter_(set_iter)
@@ -83,8 +81,8 @@ public:
         using iterator_category = std::forward_iterator_tag;
         using value_type = T;
         using difference_type = std::ptrdiff_t;
-        using pointer = const T*;
-        using reference = const T&;
+        using pointer = const value_type*;
+        using reference = const value_type&;
 
         ConstIterator(typename std::unordered_set<T, Hash>::iterator set_iter)
             : set_iter_(set_iter)
@@ -142,6 +140,8 @@ public:
         }
         return T();
     }
+
+    bool contains(const T& key) { return set_.find(key) != set_.end; }
 
 private:
     std::unordered_set<T, Hash> set_;

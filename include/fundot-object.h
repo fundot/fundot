@@ -26,19 +26,20 @@
 #define FUNDOT_OBJECT_H
 
 #include <any>
-
-#include "fundot-io.h"
-#include "fundot-pair.h"
-#include "fundot-string.h"
-#include "fundot-symbol.h"
-#include "fundot-unordered-set.h"
+#include <cstddef>
 
 namespace fundot {
 class Object {
 public:
-    struct Hash {
-        std::size_t operator()(const Object& obj) const;
-    };
+    Object() = default;
+
+    Object(const Object& other) = default;
+
+    template<typename T>
+    Object(const T& other)
+    {
+        obj_ = other;
+    }
 
     Object& operator=(const Object& other) = default;
 
@@ -50,7 +51,7 @@ public:
     }
 
     template<typename T>
-    T cast() const
+    explicit operator T() const
     {
         return std::any_cast<T>(obj_);
     }
@@ -66,15 +67,6 @@ public:
 private:
     std::any obj_;
 };
-
-std::istream& operator>>(std::istream& in, Object& obj);
-std::ostream& operator<<(std::ostream& out, const Object& obj);
-
-bool operator==(const Object& lhs, const Object& rhs);
-bool operator<(const Object& lhs, const Object& rhs);
-
-using FunPair = Pair<Object, Object>;
-using FunSet = UnorderedSet<Object, Object::Hash>;
 
 }  // namespace fundot
 

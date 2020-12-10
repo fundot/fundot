@@ -22,33 +22,55 @@
  * SOFTWARE.
  */
 
-#include "../include/fundot-string.h"
+#include "fundot-utility.h"
 
 namespace fundot {
 bool operator==(const String& lhs, const String& rhs)
 {
-    if (lhs.size() != rhs.size()) {
-        return false;
-    }
-    for (std::size_t i = 0; i < lhs.size(); ++i) {
-        if (lhs[i] != rhs[i]) {
-            return false;
-        }
-    }
-    return true;
+    return static_cast<std::string>(lhs) == static_cast<std::string>(rhs);
 }
 
 bool operator<(const String& lhs, const String& rhs)
 {
-    for (std::size_t i = 0; i < lhs.size() && i < rhs.size(); ++i) {
-        if (lhs[i] < rhs[i]) {
-            return true;
+    return static_cast<std::string>(lhs) < static_cast<std::string>(rhs);
+}
+
+bool operator==(const Symbol& lhs, const Symbol& rhs)
+{
+    return static_cast<std::string>(lhs) == static_cast<std::string>(rhs);
+}
+
+bool operator<(const Symbol& lhs, const Symbol& rhs)
+{
+    return static_cast<std::string>(lhs) < static_cast<std::string>(rhs);
+}
+
+bool operator==(const Object& lhs, const Object& rhs)
+{
+    if (lhs.type() == rhs.type()) {
+        if (lhs.hasType<Symbol>()) {
+            return static_cast<Symbol>(lhs) == static_cast<Symbol>(rhs);
         }
-        if (lhs[i] > rhs[i]) {
-            return false;
+        if (lhs.hasType<String>()) {
+            return static_cast<String>(lhs) == static_cast<String>(rhs);
         }
+        return false;
     }
-    return lhs.size() < rhs.size();
+    return false;
+}
+
+bool operator<(const Object& lhs, const Object& rhs)
+{
+    if (lhs.type() == rhs.type()) {
+        if (lhs.hasType<Symbol>()) {
+            return static_cast<Symbol>(lhs) < static_cast<Symbol>(rhs);
+        }
+        if (lhs.hasType<String>()) {
+            return static_cast<String>(lhs) < static_cast<String>(rhs);
+        }
+        return false;
+    }
+    return lhs.type().hash_code() < rhs.type().hash_code();
 }
 
 }  // namespace fundot

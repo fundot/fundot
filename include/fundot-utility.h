@@ -22,33 +22,52 @@
  * SOFTWARE.
  */
 
-#include "../include/fundot-symbol.h"
+#ifndef FUNDOT_UTILITY_H
+#define FUNDOT_UTILITY_H
+
+#include <cstddef>
+#include <string>
+
+#include "fundot-list.h"
+#include "fundot-object.h"
+#include "fundot-string.h"
+#include "fundot-symbol.h"
+#include "fundot-unordered-set.h"
+#include "fundot-vector.h"
 
 namespace fundot {
-bool operator==(const Symbol& lhs, const Symbol& rhs)
-{
-    if (lhs.size() != rhs.size()) {
-        return false;
-    }
-    for (std::size_t i = 0; i < lhs.size(); ++i) {
-        if (lhs[i] != rhs[i]) {
-            return false;
-        }
-    }
-    return true;
-}
+template<typename K, typename V>
+struct Getter {
+    K key;
+    V value;
+};
 
-bool operator<(const Symbol& lhs, const Symbol& rhs)
-{
-    for (std::size_t i = 0; i < lhs.size() && i < rhs.size(); ++i) {
-        if (lhs[i] < rhs[i]) {
-            return true;
-        }
-        if (lhs[i] > rhs[i]) {
-            return false;
-        }
-    }
-    return lhs.size() < rhs.size();
-}
+template<typename K, typename V>
+struct Setter {
+    K key;
+    V value;
+};
+
+template<typename T>
+struct Hash;
+
+using FunGetter = Getter<Object, Object>;
+using FunList = List<Object>;
+using FunSet = UnorderedSet<Object, Hash<Object>>;
+using FunSetter = Setter<Object, Object>;
+using FunVector = Vector<Object>;
+
+bool operator==(const String& lhs, const String& rhs);
+bool operator<(const String& lhs, const String& rhs);
+
+bool operator==(const Symbol& lhs, const Symbol& rhs);
+bool operator<(const Symbol& lhs, const Symbol& rhs);
+
+bool operator==(const Object& lhs, const Object& rhs);
+bool operator<(const Object& lhs, const Object& rhs);
 
 }  // namespace fundot
+
+#include "fundot-utility.hpp"
+
+#endif

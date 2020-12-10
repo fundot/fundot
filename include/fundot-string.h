@@ -25,28 +25,24 @@
 #ifndef FUNDOT_STRING_H
 #define FUNDOT_STRING_H
 
-#include <iostream>
+#include <cstddef>
 #include <string>
 
 namespace fundot {
 class String {
 public:
-    struct Hash {
-        std::size_t operator()(const String& str) const
-        {
-            return std::hash<std::string>()(str.str_);
-        }
-    };
-
     String() = default;
-    String(const std::string& str) : str_(str) {}
+    String(std::string&& str) : str_(std::move(str)) {}
+
+    explicit operator std::string() const { return str_; }
 
     char& operator[](std::size_t idx) { return str_[idx]; }
     char operator[](std::size_t idx) const { return str_[idx]; }
 
-    char& back() { return str_[size() - 1]; }
-    char back() const { return str_[size() - 1]; }
+    char& back() { return str_.back(); }
+    char back() const { return str_.back(); }
 
+    bool empty() const { return str_.empty(); }
     std::size_t size() const { return str_.size(); }
 
     void clear() { str_.clear(); }
@@ -56,9 +52,6 @@ public:
 private:
     std::string str_;
 };
-
-bool operator==(const String& lhs, const String& rhs);
-bool operator<(const String& lhs, const String& rhs);
 
 }  // namespace fundot
 

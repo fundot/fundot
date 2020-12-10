@@ -22,9 +22,45 @@
  * SOFTWARE.
  */
 
-#include "../include/fundot-io.h"
+#include "fundot-io.h"
 
 namespace fundot {
+std::ostream& operator<<(std::ostream& out, const FunGetter& getter)
+{
+    out << getter.key << "." << getter.value;
+    return out;
+}
+
+std::istream& operator>>(std::istream& in, FunList& fun_list)
+{
+    fun_list.clear();
+    char delimiter;
+    Object elem;
+    while (in >> elem) {
+        fun_list.pushBack(elem);
+        in >> delimiter;
+        if (delimiter == ')') {
+            return in;
+        }
+        in.putback(delimiter);
+    }
+    return in;
+}
+
+std::ostream& operator<<(std::ostream& out, const FunList& fun_list)
+{
+    out << "( ";
+    for (const Object& elem : fun_list) { out << elem << " "; }
+    out << ")";
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, const FunSetter& setter)
+{
+    out << setter.key << ": " << setter.value;
+    return out;
+}
+
 std::istream& operator>>(std::istream& in, String& str)
 {
     str.clear();
@@ -51,14 +87,21 @@ std::ostream& operator<<(std::ostream& out, const String& str)
 
 std::istream& operator>>(std::istream& in, Symbol& symbol)
 {
-    static const std::unordered_set<char> delimiters = {':', '}', ','};
+    static const std::unordered_set<char> delimiters = {
+        ':', '}', ',', ')', ']', ';', '.'};
     symbol.clear();
-    std::string ident;
-    in >> ident;
-    symbol = ident;
-    if (delimiters.find(symbol.back()) != delimiters.end()) {
-        in.putback(symbol.back());
-        symbol.popBack();
+    char c;
+    while (in >> c) {
+        if (delimiters.find(c) != delimiters.end()) {
+            if (c != ',') {
+                in.putback(c);
+            }
+            break;
+        }
+        symbol.pushBack(c);
+    }
+    if (symbol.empty()) {
+        return in >> symbol;
     }
     return in;
 }
@@ -66,6 +109,141 @@ std::istream& operator>>(std::istream& in, Symbol& symbol)
 std::ostream& operator<<(std::ostream& out, const Symbol& symbol)
 {
     for (std::size_t i = 0; i < symbol.size(); ++i) { out << symbol[i]; }
+    return out;
+}
+
+std::istream& operator>>(std::istream& in, FunSet& fun_set)
+{
+    fun_set.clear();
+    char delimiter;
+    Object elem;
+    while (in >> elem) {
+        fun_set.emplace(elem);
+        in >> delimiter;
+        if (delimiter == '}') {
+            return in;
+        }
+        in.putback(delimiter);
+    }
+    return in;
+}
+
+std::ostream& operator<<(std::ostream& out, const FunSet& fun_set)
+{
+    out << "{ ";
+    for (const Object& elem : fun_set) { out << elem << ", "; }
+    out << "}";
+    return out;
+}
+
+std::istream& operator>>(std::istream& in, FunVector& fun_vector)
+{
+    fun_vector.clear();
+    char delimiter;
+    Object elem;
+    while (in >> elem) {
+        fun_vector.pushBack(elem);
+        in >> delimiter;
+        if (delimiter == ']') {
+            return in;
+        }
+        in.putback(delimiter);
+    }
+    return in;
+}
+
+std::ostream& operator<<(std::ostream& out, const FunVector& fun_vector)
+{
+    out << "[ ";
+    for (const Object& elem : fun_vector) { out << elem << ", "; }
+    out << "]";
+    return out;
+}
+
+std::istream& operator>>(std::istream& in, Object& obj)
+{
+    char delimiter;
+    in >> delimiter;
+    if (delimiter == '\'') {
+        FunList fun_list;
+        fun_list.pushBack(Symbol("quote"));
+        Object next;
+        in >> next;
+        fun_list.pushBack(next);
+        obj = fun_list;
+        return in;
+    }
+    if (delimiter == '"') {
+        String str;
+        in >> str;
+        obj = str;
+    }
+    else if (delimiter == '(') {
+        FunList fun_list;
+        in >> fun_list;
+        obj = fun_list;
+    }
+    else if (delimiter == '[') {
+        FunVector fun_vector;
+        in >> fun_vector;
+        obj = fun_vector;
+    }
+    else if (delimiter == '{') {
+        FunSet fun_set;
+        in >> fun_set;
+        obj = fun_set;
+    }
+    else {
+        in.putback(delimiter);
+        Symbol symbol;
+        in >> symbol;
+        obj = symbol;
+    }
+    in >> delimiter;
+    if (delimiter == ':') {
+        FunSetter fun_setter;
+        fun_setter.key = obj;
+        in >> fun_setter.value;
+        obj = fun_setter;
+        return in;
+    }
+    if (delimiter == '.') {
+        FunGetter fun_getter;
+        fun_getter.key = obj;
+        in >> fun_getter.value;
+        obj = fun_getter;
+        return in;
+    }
+    if (delimiter == ';') {
+        return in;
+    }
+    in.putback(delimiter);
+    return in;
+}
+
+std::ostream& operator<<(std::ostream& out, const Object& obj)
+{
+    if (obj.hasType<Symbol>()) {
+        out << static_cast<Symbol>(obj);
+    }
+    else if (obj.hasType<String>()) {
+        out << static_cast<String>(obj);
+    }
+    else if (obj.hasType<FunList>()) {
+        out << static_cast<FunList>(obj);
+    }
+    else if (obj.hasType<FunSetter>()) {
+        out << static_cast<FunSetter>(obj);
+    }
+    else if (obj.hasType<FunGetter>()) {
+        out << static_cast<FunGetter>(obj);
+    }
+    else if (obj.hasType<FunSet>()) {
+        out << static_cast<FunSet>(obj);
+    }
+    else if (obj.hasType<FunVector>()) {
+        out << static_cast<FunVector>(obj);
+    }
     return out;
 }
 
