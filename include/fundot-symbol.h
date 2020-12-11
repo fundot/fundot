@@ -35,6 +35,7 @@ public:
     Symbol(std::string&& str) : ident_(std::move(str)) {}
 
     explicit operator std::string() const { return ident_; }
+    explicit operator const std::string&() const { return ident_; }
 
     char& operator[](std::size_t idx) { return ident_[idx]; }
     char operator[](std::size_t idx) const { return ident_[idx]; }

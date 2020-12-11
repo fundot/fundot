@@ -38,8 +38,8 @@ public:
         using iterator_category = std::forward_iterator_tag;
         using value_type = T;
         using difference_type = std::ptrdiff_t;
-        using pointer = value_type*;
-        using reference = value_type&;
+        using pointer = const value_type*;
+        using reference = const value_type&;
 
         Iterator(typename std::unordered_set<T, Hash>::iterator set_iter)
             : set_iter_(set_iter)
@@ -100,7 +100,7 @@ public:
 
         ConstIterator operator++(int)
         {
-            Iterator temp = *this;
+            ConstIterator temp = *this;
             ++(*this);
             return temp;
         }
@@ -132,16 +132,13 @@ public:
 
     void emplace(const T& elem) { set_.emplace(elem); }
 
-    T& operator[](const T& key)
+    Iterator find(const T& key) { return Iterator(set_.find(key)); }
+    ConstIterator find(const T& key) const
     {
-        typename std::unordered_set<T, Hash>::iterator it = set_.find(key);
-        if (it != set_.end()) {
-            return *it;
-        }
-        return T();
+        return ConstIterator(set_.find(key));
     }
 
-    bool contains(const T& key) { return set_.find(key) != set_.end; }
+    bool contains(const T& key) { return set_.find(key) != set_.end(); }
 
 private:
     std::unordered_set<T, Hash> set_;

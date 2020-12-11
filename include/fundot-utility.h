@@ -39,18 +39,20 @@ namespace fundot {
 template<typename K, typename V>
 struct Getter {
     K key;
-    V value;
+    mutable V value;
 };
 
 template<typename K, typename V>
 struct Setter {
     K key;
-    V value;
+    mutable V value;
 };
 
 template<typename T>
 struct Hash;
 
+using Float = double;
+using Integer = std::int32_t;
 using FunGetter = Getter<Object, Object>;
 using FunList = List<Object>;
 using FunSet = UnorderedSet<Object, Hash<Object>>;

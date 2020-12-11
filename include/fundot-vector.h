@@ -99,7 +99,7 @@ public:
 
         ConstIterator operator++(int)
         {
-            Iterator temp = *this;
+            ConstIterator temp = *this;
             ++(*this);
             return temp;
         }
@@ -130,8 +130,11 @@ public:
     T& operator[](std::size_t idx) { return vect_[idx]; }
     T operator[](std::size_t idx) const { return vect_[idx]; }
 
-    T& back() { return vect_[size() - 1]; }
-    T back() const { return vect_[size() - 1]; }
+    T& front() { return vect_.front(); }
+    T front() const { return vect_.front(); }
+
+    T& back() { return vect_.back(); }
+    T back() const { return vect_.back(); }
 
     std::size_t size() const { return vect_.size(); }
 

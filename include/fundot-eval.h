@@ -22,38 +22,20 @@
  * SOFTWARE.
  */
 
-#ifndef FUNDOT_STRING_H
-#define FUNDOT_STRING_H
+#ifndef FUNDOT_EVAL_H
+#define FUNDOT_EVAL_H
 
-#include <cstddef>
-#include <string>
+#include "fundot-utility.h"
 
 namespace fundot {
-class String {
-public:
-    String() = default;
-    String(std::string&& str) : str_(std::move(str)) {}
+Object eval(const FunSetter& fun_setter, FunSet& scope);
 
-    explicit operator std::string() const { return str_; }
-    explicit operator const std::string&() const { return str_; }
+Object eval(const Symbol& symbol, FunSet& scope);
 
-    char& operator[](std::size_t idx) { return str_[idx]; }
-    char operator[](std::size_t idx) const { return str_[idx]; }
+Object eval(const FunList& fun_list, FunSet& scope);
 
-    char& back() { return str_.back(); }
-    char back() const { return str_.back(); }
+Object eval(const Object& obj, FunSet& scope);
 
-    bool empty() const { return str_.empty(); }
-    std::size_t size() const { return str_.size(); }
-
-    void clear() { str_.clear(); }
-    void pushBack(char c) { str_.push_back(c); }
-    void popBack() { str_.pop_back(); }
-
-private:
-    std::string str_;
-};
-
-}  // namespace fundot
+}
 
 #endif

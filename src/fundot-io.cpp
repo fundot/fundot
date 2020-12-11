@@ -88,18 +88,20 @@ std::ostream& operator<<(std::ostream& out, const String& str)
 std::istream& operator>>(std::istream& in, Symbol& symbol)
 {
     static const std::unordered_set<char> delimiters = {
-        ':', '}', ',', ')', ']', ';', '.'};
+        ':', '}', ',', ')', ']', ';', '.', ' '};
     symbol.clear();
     char c;
+    in >> std::noskipws;
     while (in >> c) {
         if (delimiters.find(c) != delimiters.end()) {
-            if (c != ',') {
+            if (c != ',' && c != ' ') {
                 in.putback(c);
             }
             break;
         }
         symbol.pushBack(c);
     }
+    in >> std::skipws;
     if (symbol.empty()) {
         return in >> symbol;
     }
@@ -194,10 +196,23 @@ std::istream& operator>>(std::istream& in, Object& obj)
         obj = fun_set;
     }
     else {
-        in.putback(delimiter);
-        Symbol symbol;
-        in >> symbol;
-        obj = symbol;
+        if (std::isdigit(delimiter) || delimiter == '-' || delimiter == '+') {
+            in.putback(delimiter);
+            Float num;
+            in >> num;
+            if (static_cast<Integer>(num) == num) {
+                obj = static_cast<Integer>(num);
+            }
+            else {
+                obj = num;
+            }
+        }
+        else {
+            in.putback(delimiter);
+            Symbol symbol;
+            in >> symbol;
+            obj = symbol;
+        }
     }
     in >> delimiter;
     if (delimiter == ':') {
@@ -243,6 +258,12 @@ std::ostream& operator<<(std::ostream& out, const Object& obj)
     }
     else if (obj.hasType<FunVector>()) {
         out << static_cast<FunVector>(obj);
+    }
+    else if (obj.hasType<Float>()) {
+        out << static_cast<Float>(obj);
+    }
+    else if (obj.hasType<Integer>()) {
+        out << static_cast<Integer>(obj);
     }
     return out;
 }

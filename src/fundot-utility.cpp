@@ -54,6 +54,10 @@ bool operator==(const Object& lhs, const Object& rhs)
         if (lhs.hasType<String>()) {
             return static_cast<String>(lhs) == static_cast<String>(rhs);
         }
+        if (lhs.hasType<FunSetter>()) {
+            return static_cast<FunSetter>(lhs).key
+                   == static_cast<FunSetter>(rhs).key;
+        }
         return false;
     }
     return false;

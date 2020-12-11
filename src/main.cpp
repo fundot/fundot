@@ -23,16 +23,18 @@
  */
 
 #include "fundot-io.h"
+#include "fundot-eval.h"
 
 using namespace fundot;
 
 int main()
 {
+    FunSet global;
     for (;;) {
         std::cout << ">>> ";
         Object obj;
         std::cin >> obj;
-        std::cout << obj << "\n";
+        std::cout << eval(obj, global) << "\n";
     }
     return 0;
 }
