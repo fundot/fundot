@@ -155,8 +155,7 @@ Object Evaluator::eval(const FunList& fun_list)
 {
     static std::unordered_map<
         Object, std::function<Object(Evaluator*, const FunList&)>, Hash<Object>>
-        built_in_macros = {{Symbol("quote"), &Evaluator::builtInQuote},
-                           {Symbol("quit"), &Evaluator::builtInQuit},
+        built_in_macros = {{Symbol("quit"), &Evaluator::builtInQuit},
                            {Symbol("if"), &Evaluator::builtInIf},
                            {Symbol("cond"), &Evaluator::builtInCond},
                            {Symbol("while"), &Evaluator::builtInWhile}};
@@ -170,7 +169,8 @@ Object Evaluator::eval(const FunList& fun_list)
     }
     static std::unordered_map<
         Object, std::function<Object(Evaluator*, const FunList&)>, Hash<Object>>
-        built_in_functions = {{Symbol("add"), &Evaluator::builtInAdd},
+        built_in_functions = {{Symbol("quote"), &Evaluator::builtInQuote},
+                              {Symbol("add"), &Evaluator::builtInAdd},
                               {Symbol("mul"), &Evaluator::builtInMul}};
     if (built_in_functions.find(fun_list.front()) != built_in_functions.end()) {
         return built_in_functions[fun_list.front()](this, fun_list);
