@@ -172,8 +172,9 @@ Object Evaluator::eval(const FunList& fun_list)
         built_in_functions = {{Symbol("quote"), &Evaluator::builtInQuote},
                               {Symbol("add"), &Evaluator::builtInAdd},
                               {Symbol("mul"), &Evaluator::builtInMul}};
-    if (built_in_functions.find(fun_list.front()) != built_in_functions.end()) {
-        return built_in_functions[fun_list.front()](this, fun_list);
+    if (built_in_functions.find(after_eval.front())
+        != built_in_functions.end()) {
+        return built_in_functions[after_eval.front()](this, after_eval);
     }
     return after_eval;
 }
