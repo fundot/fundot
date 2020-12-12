@@ -25,7 +25,7 @@
 #ifndef FUNDOT_UTILITY_H
 #define FUNDOT_UTILITY_H
 
-#include <cstddef>
+#include <cstdlib>
 #include <string>
 
 #include "fundot-list.h"
@@ -51,6 +51,8 @@ struct Setter {
 template<typename T>
 struct Hash;
 
+struct Null {};
+using Boolean = bool;
 using Float = double;
 using Integer = std::int32_t;
 using FunGetter = Getter<Object, Object>;

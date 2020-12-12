@@ -25,8 +25,36 @@
 #include "fundot-eval.h"
 
 namespace fundot {
+Object quit(const FunList& fun_list)
+{
+    exit(EXIT_SUCCESS);
+    return fun_list;
+}
+
+Object add(const FunList& fun_list)
+{
+    FunList::ConstIterator iter = fun_list.begin();
+    Float first = 0;
+    if ((++iter)->hasType<Float>()) {
+        first = static_cast<Float>(*iter);
+    }
+    else if (iter->hasType<Integer>()) {
+        first = static_cast<Integer>(*iter);
+    }
+    Float second = 0;
+    if ((++iter)->hasType<Float>()) {
+        second = static_cast<Float>(*iter);
+    }
+    else if (iter->hasType<Integer>()) {
+        second = static_cast<Integer>(*iter);
+    }
+    return first + second;
+}
+
 Object eval(const FunSetter& fun_setter, FunSet& scope)
 {
+    fun_setter.value = eval(fun_setter.value, scope);
+    scope.erase(fun_setter);
     scope.emplace(fun_setter);
     return fun_setter;
 }
@@ -37,36 +65,44 @@ Object eval(const Symbol& symbol, FunSet& scope)
     to_find.key = symbol;
     FunSet::Iterator it = scope.find(to_find);
     if (it != scope.end() && it->hasType<FunSetter>()) {
-        return static_cast<FunSetter>(*it).value;
+        return eval(static_cast<FunSetter>(*it).value, scope);
     }
     return symbol;
 }
 
+Object eval(const FunGetter& fun_getter, FunSet& scope)
+{
+    Object key_after_eval = eval(fun_getter.key, scope);
+    if (key_after_eval.hasType<FunSet>()) {
+        FunSet next_set = static_cast<FunSet>(key_after_eval);
+        return eval(fun_getter.value, next_set);
+    }
+    return fun_getter;
+}
+
 Object eval(const FunList& fun_list, FunSet& scope)
 {
+    if (fun_list.front() == Symbol("quote")) {
+        return *(++fun_list.begin());
+    }
     FunList after_eval;
     FunList::ConstIterator it = fun_list.begin();
-    while (it != fun_list.end()) {
-        after_eval.pushBack(eval(*it, scope));
-        ++it;
+    while (it != fun_list.end()) { after_eval.pushBack(eval(*it++, scope)); }
+    static std::unordered_map<Object,
+                              std::function<Object(const FunList&)>,
+                              Hash<Object>>
+        built_in_functions = {{Symbol("quit"), quit}, {Symbol("add"), add}};
+    if (built_in_functions.find(fun_list.front()) != built_in_functions.end()) {
+        return built_in_functions[fun_list.front()](fun_list);
     }
-    it = fun_list.begin();
-    if (*it++ == Symbol("add")) {
-        Float first = 0;
-        if (it->hasType<Float>()) {
-            first = static_cast<Float>(*it++);
-        }
-        else if (it->hasType<Integer>()) {
-            first = static_cast<Integer>(*it++);
-        }
-        Float second = 0;
-        if (it->hasType<Float>()) {
-            second = static_cast<Float>(*it);
-        }
-        else if (it->hasType<Integer>()) {
-            second = static_cast<Integer>(*it);
-        }
-        return first + second;
+    return after_eval;
+}
+
+Object eval(const FunVector& fun_vector, FunSet& scope)
+{
+    FunVector after_eval;
+    for (const Object& obj : fun_vector) {
+        after_eval.pushBack(eval(obj, scope));
     }
     return after_eval;
 }
@@ -79,8 +115,14 @@ Object eval(const Object& obj, FunSet& scope)
     if (obj.hasType<Symbol>()) {
         return eval(static_cast<Symbol>(obj), scope);
     }
+    if (obj.hasType<FunGetter>()) {
+        return eval(static_cast<FunGetter>(obj), scope);
+    }
     if (obj.hasType<FunList>()) {
         return eval(static_cast<FunList>(obj), scope);
+    }
+    if (obj.hasType<FunVector>()) {
+        return eval(static_cast<FunVector>(obj), scope);
     }
     return obj;
 }

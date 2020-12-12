@@ -35,6 +35,11 @@ std::istream& operator>>(std::istream& in, FunList& fun_list)
 {
     fun_list.clear();
     char delimiter;
+    in >> delimiter;
+    if (delimiter == ')') {
+        return in;
+    }
+    in.putback(delimiter);
     Object elem;
     while (in >> elem) {
         fun_list.pushBack(elem);
@@ -88,23 +93,18 @@ std::ostream& operator<<(std::ostream& out, const String& str)
 std::istream& operator>>(std::istream& in, Symbol& symbol)
 {
     static const std::unordered_set<char> delimiters = {
-        ':', '}', ',', ')', ']', ';', '.', ' '};
+        ':', '}', ',', ')', ']', ';', '.', ' ', '\n', '\t', '\v', '\f', '\r'};
     symbol.clear();
     char c;
     in >> std::noskipws;
     while (in >> c) {
         if (delimiters.find(c) != delimiters.end()) {
-            if (c != ',' && c != ' ') {
-                in.putback(c);
-            }
+            in.putback(c);
             break;
         }
         symbol.pushBack(c);
     }
     in >> std::skipws;
-    if (symbol.empty()) {
-        return in >> symbol;
-    }
     return in;
 }
 
@@ -118,6 +118,11 @@ std::istream& operator>>(std::istream& in, FunSet& fun_set)
 {
     fun_set.clear();
     char delimiter;
+    in >> delimiter;
+    if (delimiter == '}') {
+        return in;
+    }
+    in.putback(delimiter);
     Object elem;
     while (in >> elem) {
         fun_set.emplace(elem);
@@ -142,6 +147,11 @@ std::istream& operator>>(std::istream& in, FunVector& fun_vector)
 {
     fun_vector.clear();
     char delimiter;
+    in >> delimiter;
+    if (delimiter == ']') {
+        return in;
+    }
+    in.putback(delimiter);
     Object elem;
     while (in >> elem) {
         fun_vector.pushBack(elem);
@@ -195,6 +205,9 @@ std::istream& operator>>(std::istream& in, Object& obj)
         in >> fun_set;
         obj = fun_set;
     }
+    else if (delimiter == ',') {
+        obj = Null();
+    }
     else {
         if (std::isdigit(delimiter) || delimiter == '-' || delimiter == '+') {
             in.putback(delimiter);
@@ -211,10 +224,30 @@ std::istream& operator>>(std::istream& in, Object& obj)
             in.putback(delimiter);
             Symbol symbol;
             in >> symbol;
-            obj = symbol;
+            if (symbol == Symbol("true")) {
+                obj = true;
+            }
+            else if (symbol == Symbol("false")) {
+                obj = false;
+            }
+            else if (symbol == Symbol("null")) {
+                obj = Null();
+            }
+            else {
+                obj = symbol;
+            }
         }
     }
-    in >> delimiter;
+    in >> std::noskipws >> delimiter >> std::skipws;
+    if (delimiter == '\n') {
+        return in;
+    }
+    if (std::isspace(delimiter)) {
+        in >> delimiter;
+    }
+    if (delimiter == ',') {
+        return in;
+    }
     if (delimiter == ':') {
         FunSetter fun_setter;
         fun_setter.key = obj;
@@ -229,9 +262,6 @@ std::istream& operator>>(std::istream& in, Object& obj)
         obj = fun_getter;
         return in;
     }
-    if (delimiter == ';') {
-        return in;
-    }
     in.putback(delimiter);
     return in;
 }
@@ -243,6 +273,18 @@ std::ostream& operator<<(std::ostream& out, const Object& obj)
     }
     else if (obj.hasType<String>()) {
         out << static_cast<String>(obj);
+    }
+    else if (obj.hasType<Float>()) {
+        out << static_cast<Float>(obj);
+    }
+    else if (obj.hasType<Integer>()) {
+        out << static_cast<Integer>(obj);
+    }
+    else if (obj.hasType<Null>()) {
+        out << "null";
+    }
+    else if (obj.hasType<Boolean>()) {
+        out << std::boolalpha << static_cast<Boolean>(obj) << std::noboolalpha;
     }
     else if (obj.hasType<FunList>()) {
         out << static_cast<FunList>(obj);
@@ -258,12 +300,6 @@ std::ostream& operator<<(std::ostream& out, const Object& obj)
     }
     else if (obj.hasType<FunVector>()) {
         out << static_cast<FunVector>(obj);
-    }
-    else if (obj.hasType<Float>()) {
-        out << static_cast<Float>(obj);
-    }
-    else if (obj.hasType<Integer>()) {
-        out << static_cast<Integer>(obj);
     }
     return out;
 }

@@ -33,8 +33,12 @@ int main()
     for (;;) {
         std::cout << ">>> ";
         Object obj;
-        std::cin >> obj;
-        std::cout << eval(obj, global) << "\n";
+        if (std::cin >> obj) {
+            std::cout << eval(obj, global) << "\n";
+        }
+        else {
+            return 0;
+        }
     }
     return 0;
 }

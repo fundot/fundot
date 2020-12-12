@@ -132,6 +132,8 @@ public:
 
     void emplace(const T& elem) { set_.emplace(elem); }
 
+    void erase(const T& elem) { set_.erase(elem); }
+
     Iterator find(const T& key) { return Iterator(set_.find(key)); }
     ConstIterator find(const T& key) const
     {

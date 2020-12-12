@@ -25,6 +25,9 @@
 #ifndef FUNDOT_EVAL_H
 #define FUNDOT_EVAL_H
 
+#include <functional>
+#include <unordered_map>
+
 #include "fundot-utility.h"
 
 namespace fundot {
@@ -32,10 +35,14 @@ Object eval(const FunSetter& fun_setter, FunSet& scope);
 
 Object eval(const Symbol& symbol, FunSet& scope);
 
+Object eval(const FunGetter& fun_getter, FunSet& scope);
+
 Object eval(const FunList& fun_list, FunSet& scope);
+
+Object eval(const FunVector& fun_vector, FunSet& scope);
 
 Object eval(const Object& obj, FunSet& scope);
 
-}
+}  // namespace fundot
 
 #endif
