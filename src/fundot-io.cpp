@@ -55,7 +55,9 @@ std::istream& operator>>(std::istream& in, FunList& fun_list)
 std::ostream& operator<<(std::ostream& out, const FunList& fun_list)
 {
     out << "( ";
-    for (const Object& elem : fun_list) { out << elem << " "; }
+    for (const Object& elem : fun_list) {
+        out << elem << " ";
+    }
     out << ")";
     return out;
 }
@@ -85,7 +87,9 @@ std::istream& operator>>(std::istream& in, String& str)
 std::ostream& operator<<(std::ostream& out, const String& str)
 {
     out << '"';
-    for (std::size_t i = 0; i < str.size(); ++i) { out << str[i]; }
+    for (std::size_t i = 0; i < str.size(); ++i) {
+        out << str[i];
+    }
     out << '"';
     return out;
 }
@@ -93,7 +97,8 @@ std::ostream& operator<<(std::ostream& out, const String& str)
 std::istream& operator>>(std::istream& in, Symbol& symbol)
 {
     static const std::unordered_set<char> delimiters = {
-        ':', '}', ',', ')', ']', ';', '.', ' ', '\n', '\t', '\v', '\f', '\r'};
+        ':',  '}',  ',',  ')',  ']',  ';', '.', ' ',
+        '\n', '\t', '\v', '\f', '\r', '(', '[', '{'};
     symbol.clear();
     char c;
     in >> std::noskipws;
@@ -110,7 +115,9 @@ std::istream& operator>>(std::istream& in, Symbol& symbol)
 
 std::ostream& operator<<(std::ostream& out, const Symbol& symbol)
 {
-    for (std::size_t i = 0; i < symbol.size(); ++i) { out << symbol[i]; }
+    for (std::size_t i = 0; i < symbol.size(); ++i) {
+        out << symbol[i];
+    }
     return out;
 }
 
@@ -138,7 +145,9 @@ std::istream& operator>>(std::istream& in, FunSet& fun_set)
 std::ostream& operator<<(std::ostream& out, const FunSet& fun_set)
 {
     out << "{ ";
-    for (const Object& elem : fun_set) { out << elem << ", "; }
+    for (const Object& elem : fun_set) {
+        out << elem << ", ";
+    }
     out << "}";
     return out;
 }
@@ -167,7 +176,9 @@ std::istream& operator>>(std::istream& in, FunVector& fun_vector)
 std::ostream& operator<<(std::ostream& out, const FunVector& fun_vector)
 {
     out << "[ ";
-    for (const Object& elem : fun_vector) { out << elem << ", "; }
+    for (const Object& elem : fun_vector) {
+        out << elem << ", ";
+    }
     out << "]";
     return out;
 }

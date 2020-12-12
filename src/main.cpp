@@ -22,19 +22,19 @@
  * SOFTWARE.
  */
 
-#include "fundot-io.h"
 #include "fundot-eval.h"
+#include "fundot-io.h"
 
 using namespace fundot;
 
 int main()
 {
-    FunSet global;
+    Evaluator eval;
     for (;;) {
         std::cout << ">>> ";
         Object obj;
         if (std::cin >> obj) {
-            std::cout << eval(obj, global) << "\n";
+            std::cout << eval(obj) << "\n";
         }
         else {
             return 0;

@@ -48,6 +48,9 @@ bool operator<(const Symbol& lhs, const Symbol& rhs)
 bool operator==(const Object& lhs, const Object& rhs)
 {
     if (lhs.type() == rhs.type()) {
+        if (lhs.hasType<Boolean>()) {
+            return static_cast<Boolean>(lhs) == static_cast<Boolean>(rhs);
+        }
         if (lhs.hasType<Symbol>()) {
             return static_cast<Symbol>(lhs) == static_cast<Symbol>(rhs);
         }

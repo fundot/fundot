@@ -25,13 +25,49 @@
 #include "fundot-eval.h"
 
 namespace fundot {
-Object quit(const FunList& fun_list)
+Object builtInQuote(const FunList& fun_list)
+{
+    return *(++fun_list.begin());
+}
+
+Object builtInQuit(const FunList& fun_list)
 {
     exit(EXIT_SUCCESS);
     return fun_list;
 }
 
-Object add(const FunList& fun_list)
+Object builtInIf(const FunList& fun_list)
+{
+    FunList::ConstIterator iter = fun_list.begin();
+    if ((++iter)->hasType<Null>() || *iter == Boolean(false)) {
+        if (++iter != fun_list.end() && ++iter != fun_list.end()) {
+            return *iter;
+        }
+        return Null();
+    }
+    if (++iter != fun_list.end()) {
+        return *iter;
+    }
+    return fun_list;
+}
+
+Object builtInCond(const FunList& fun_list)
+{
+    FunList::ConstIterator iter = fun_list.begin();
+    while (++iter != fun_list.end()) {}
+    if ((++iter)->hasType<Null>() || *iter == Boolean(false)) {
+        if (++iter != fun_list.end() && ++iter != fun_list.end()) {
+            return *iter;
+        }
+        return Null();
+    }
+    if (++iter != fun_list.end()) {
+        return *iter;
+    }
+    return fun_list;
+}
+
+Object builtInAdd(const FunList& fun_list)
 {
     FunList::ConstIterator iter = fun_list.begin();
     Float first = 0;
@@ -51,78 +87,110 @@ Object add(const FunList& fun_list)
     return first + second;
 }
 
-Object eval(const FunSetter& fun_setter, FunSet& scope)
+Object builtInMul(const FunList& fun_list)
 {
-    fun_setter.value = eval(fun_setter.value, scope);
-    scope.erase(fun_setter);
-    scope.emplace(fun_setter);
+    FunList::ConstIterator iter = fun_list.begin();
+    Float first = 0;
+    if ((++iter)->hasType<Float>()) {
+        first = static_cast<Float>(*iter);
+    }
+    else if (iter->hasType<Integer>()) {
+        first = static_cast<Integer>(*iter);
+    }
+    Float second = 0;
+    if ((++iter)->hasType<Float>()) {
+        second = static_cast<Float>(*iter);
+    }
+    else if (iter->hasType<Integer>()) {
+        second = static_cast<Integer>(*iter);
+    }
+    return first * second;
+}
+
+Object Evaluator::operator()(const Object& obj)
+{
+    return eval(obj);
+}
+
+Object Evaluator::eval(const FunSetter& fun_setter)
+{
+    fun_setter.value = eval(fun_setter.value);
+    scope_.erase(fun_setter);
+    scope_.emplace(fun_setter);
     return fun_setter;
 }
 
-Object eval(const Symbol& symbol, FunSet& scope)
+Object Evaluator::eval(const Symbol& symbol)
 {
     FunSetter to_find;
     to_find.key = symbol;
-    FunSet::Iterator it = scope.find(to_find);
-    if (it != scope.end() && it->hasType<FunSetter>()) {
-        return eval(static_cast<FunSetter>(*it).value, scope);
+    FunSet::Iterator it = scope_.find(to_find);
+    if (it != scope_.end() && it->hasType<FunSetter>()) {
+        return eval(static_cast<FunSetter>(*it).value);
     }
     return symbol;
 }
 
-Object eval(const FunGetter& fun_getter, FunSet& scope)
+Object Evaluator::eval(const FunGetter& fun_getter)
 {
-    Object key_after_eval = eval(fun_getter.key, scope);
+    Object key_after_eval = eval(fun_getter.key);
     if (key_after_eval.hasType<FunSet>()) {
-        FunSet next_set = static_cast<FunSet>(key_after_eval);
-        return eval(fun_getter.value, next_set);
+        Evaluator next_eval(static_cast<FunSet>(key_after_eval));
+        return next_eval(fun_getter.value);
     }
     return fun_getter;
 }
 
-Object eval(const FunList& fun_list, FunSet& scope)
+Object Evaluator::eval(const FunList& fun_list)
 {
-    if (fun_list.front() == Symbol("quote")) {
-        return *(++fun_list.begin());
+    static std::unordered_map<Object, std::function<Object(const FunList&)>,
+                              Hash<Object>>
+        built_in_macros = {{Symbol("quote"), builtInQuote},
+                           {Symbol("quit"), builtInQuit},
+                           {Symbol("if"), builtInIf}};
+    if (built_in_macros.find(fun_list.front()) != built_in_macros.end()) {
+        return eval(built_in_macros[fun_list.front()](fun_list));
     }
     FunList after_eval;
     FunList::ConstIterator it = fun_list.begin();
-    while (it != fun_list.end()) { after_eval.pushBack(eval(*it++, scope)); }
-    static std::unordered_map<Object,
-                              std::function<Object(const FunList&)>,
+    while (it != fun_list.end()) {
+        after_eval.pushBack(eval(*it++));
+    }
+    static std::unordered_map<Object, std::function<Object(const FunList&)>,
                               Hash<Object>>
-        built_in_functions = {{Symbol("quit"), quit}, {Symbol("add"), add}};
+        built_in_functions = {{Symbol("add"), builtInAdd},
+                              {Symbol("mul"), builtInMul}};
     if (built_in_functions.find(fun_list.front()) != built_in_functions.end()) {
         return built_in_functions[fun_list.front()](fun_list);
     }
     return after_eval;
 }
 
-Object eval(const FunVector& fun_vector, FunSet& scope)
+Object Evaluator::eval(const FunVector& fun_vector)
 {
     FunVector after_eval;
     for (const Object& obj : fun_vector) {
-        after_eval.pushBack(eval(obj, scope));
+        after_eval.pushBack(eval(obj));
     }
     return after_eval;
 }
 
-Object eval(const Object& obj, FunSet& scope)
+Object Evaluator::eval(const Object& obj)
 {
     if (obj.hasType<FunSetter>()) {
-        return eval(static_cast<FunSetter>(obj), scope);
+        return eval(static_cast<FunSetter>(obj));
     }
     if (obj.hasType<Symbol>()) {
-        return eval(static_cast<Symbol>(obj), scope);
+        return eval(static_cast<Symbol>(obj));
     }
     if (obj.hasType<FunGetter>()) {
-        return eval(static_cast<FunGetter>(obj), scope);
+        return eval(static_cast<FunGetter>(obj));
     }
     if (obj.hasType<FunList>()) {
-        return eval(static_cast<FunList>(obj), scope);
+        return eval(static_cast<FunList>(obj));
     }
     if (obj.hasType<FunVector>()) {
-        return eval(static_cast<FunVector>(obj), scope);
+        return eval(static_cast<FunVector>(obj));
     }
     return obj;
 }

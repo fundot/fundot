@@ -51,7 +51,9 @@ struct Setter {
 template<typename T>
 struct Hash;
 
-struct Null {};
+struct Null {
+};
+
 using Boolean = bool;
 using Float = double;
 using Integer = std::int32_t;

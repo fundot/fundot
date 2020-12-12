@@ -31,17 +31,28 @@
 #include "fundot-utility.h"
 
 namespace fundot {
-Object eval(const FunSetter& fun_setter, FunSet& scope);
+class Evaluator {
+public:
+    Evaluator() = default;
+    Evaluator(FunSet&& fun_set) : scope_(std::move(fun_set)) {}
 
-Object eval(const Symbol& symbol, FunSet& scope);
+    Object operator()(const Object& obj);
 
-Object eval(const FunGetter& fun_getter, FunSet& scope);
+private:
+    FunSet scope_;
 
-Object eval(const FunList& fun_list, FunSet& scope);
+    Object eval(const FunSetter& fun_setter);
 
-Object eval(const FunVector& fun_vector, FunSet& scope);
+    Object eval(const Symbol& symbol);
 
-Object eval(const Object& obj, FunSet& scope);
+    Object eval(const FunGetter& fun_getter);
+
+    Object eval(const FunList& fun_list);
+
+    Object eval(const FunVector& fun_vector);
+
+    Object eval(const Object& obj);
+};
 
 }  // namespace fundot
 
