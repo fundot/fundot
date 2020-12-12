@@ -25,21 +25,22 @@
 #include "fundot-eval.h"
 
 namespace fundot {
-Object builtInQuote(const FunList& fun_list)
+Object Evaluator::builtInQuote(const FunList& fun_list)
 {
     return *(++fun_list.begin());
 }
 
-Object builtInQuit(const FunList& fun_list)
+Object Evaluator::builtInQuit(const FunList& fun_list)
 {
     exit(EXIT_SUCCESS);
     return fun_list;
 }
 
-Object builtInIf(const FunList& fun_list)
+Object Evaluator::builtInIf(const FunList& fun_list)
 {
-    FunList::ConstIterator iter = fun_list.begin();
-    if ((++iter)->hasType<Null>() || *iter == Boolean(false)) {
+    FunList::ConstIterator iter = ++fun_list.begin();
+    Object predicate = eval(*iter);
+    if (predicate.hasType<Null>() || predicate == Boolean(false)) {
         if (++iter != fun_list.end() && ++iter != fun_list.end()) {
             return *iter;
         }
@@ -51,23 +52,32 @@ Object builtInIf(const FunList& fun_list)
     return fun_list;
 }
 
-Object builtInCond(const FunList& fun_list)
+Object Evaluator::builtInCond(const FunList& fun_list)
 {
     FunList::ConstIterator iter = fun_list.begin();
-    while (++iter != fun_list.end()) {}
-    if ((++iter)->hasType<Null>() || *iter == Boolean(false)) {
-        if (++iter != fun_list.end() && ++iter != fun_list.end()) {
+    while (++iter != fun_list.end()) {
+        Object predicate = eval(*iter++);
+        if (predicate.hasType<Null>() == false && predicate != Boolean(false)) {
             return *iter;
         }
-        return Null();
     }
-    if (++iter != fun_list.end()) {
-        return *iter;
-    }
-    return fun_list;
+    return Null();
 }
 
-Object builtInAdd(const FunList& fun_list)
+Object Evaluator::builtInWhile(const FunList& fun_list)
+{
+    FunList::ConstIterator iter = ++fun_list.begin();
+    FunList::ConstIterator predicate_iter = iter;
+    Object predicate = eval(*iter++);
+    Object to_eval = *iter;
+    while (predicate.hasType<Null>() == false && predicate != Boolean(false)) {
+        eval(to_eval);
+        predicate = eval(*predicate_iter);
+    }
+    return Null();
+}
+
+Object Evaluator::builtInAdd(const FunList& fun_list)
 {
     FunList::ConstIterator iter = fun_list.begin();
     Float first = 0;
@@ -87,7 +97,7 @@ Object builtInAdd(const FunList& fun_list)
     return first + second;
 }
 
-Object builtInMul(const FunList& fun_list)
+Object Evaluator::builtInMul(const FunList& fun_list)
 {
     FunList::ConstIterator iter = fun_list.begin();
     Float first = 0;
@@ -143,25 +153,27 @@ Object Evaluator::eval(const FunGetter& fun_getter)
 
 Object Evaluator::eval(const FunList& fun_list)
 {
-    static std::unordered_map<Object, std::function<Object(const FunList&)>,
-                              Hash<Object>>
-        built_in_macros = {{Symbol("quote"), builtInQuote},
-                           {Symbol("quit"), builtInQuit},
-                           {Symbol("if"), builtInIf}};
+    static std::unordered_map<
+        Object, std::function<Object(Evaluator*, const FunList&)>, Hash<Object>>
+        built_in_macros = {{Symbol("quote"), &Evaluator::builtInQuote},
+                           {Symbol("quit"), &Evaluator::builtInQuit},
+                           {Symbol("if"), &Evaluator::builtInIf},
+                           {Symbol("cond"), &Evaluator::builtInCond},
+                           {Symbol("while"), &Evaluator::builtInWhile}};
     if (built_in_macros.find(fun_list.front()) != built_in_macros.end()) {
-        return eval(built_in_macros[fun_list.front()](fun_list));
+        return eval(built_in_macros[fun_list.front()](this, fun_list));
     }
     FunList after_eval;
     FunList::ConstIterator it = fun_list.begin();
     while (it != fun_list.end()) {
         after_eval.pushBack(eval(*it++));
     }
-    static std::unordered_map<Object, std::function<Object(const FunList&)>,
-                              Hash<Object>>
-        built_in_functions = {{Symbol("add"), builtInAdd},
-                              {Symbol("mul"), builtInMul}};
+    static std::unordered_map<
+        Object, std::function<Object(Evaluator*, const FunList&)>, Hash<Object>>
+        built_in_functions = {{Symbol("add"), &Evaluator::builtInAdd},
+                              {Symbol("mul"), &Evaluator::builtInMul}};
     if (built_in_functions.find(fun_list.front()) != built_in_functions.end()) {
-        return built_in_functions[fun_list.front()](fun_list);
+        return built_in_functions[fun_list.front()](this, fun_list);
     }
     return after_eval;
 }

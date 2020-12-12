@@ -66,6 +66,11 @@ bool operator==(const Object& lhs, const Object& rhs)
     return false;
 }
 
+bool operator!=(const Object& lhs, const Object& rhs)
+{
+    return !(lhs == rhs);
+}
+
 bool operator<(const Object& lhs, const Object& rhs)
 {
     if (lhs.type() == rhs.type()) {

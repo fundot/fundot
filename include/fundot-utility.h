@@ -70,6 +70,7 @@ bool operator==(const Symbol& lhs, const Symbol& rhs);
 bool operator<(const Symbol& lhs, const Symbol& rhs);
 
 bool operator==(const Object& lhs, const Object& rhs);
+bool operator!=(const Object& lhs, const Object& rhs);
 bool operator<(const Object& lhs, const Object& rhs);
 
 }  // namespace fundot
