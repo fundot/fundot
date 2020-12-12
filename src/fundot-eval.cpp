@@ -25,11 +25,6 @@
 #include "fundot-eval.h"
 
 namespace fundot {
-Object Evaluator::builtInQuote(const FunList& fun_list)
-{
-    return *(++fun_list.begin());
-}
-
 Object Evaluator::builtInQuit(const FunList& fun_list)
 {
     exit(EXIT_SUCCESS);
@@ -122,6 +117,11 @@ Object Evaluator::operator()(const Object& obj)
     return eval(obj);
 }
 
+Object Evaluator::eval(const FunQuote& fun_quote)
+{
+    return fun_quote.value;
+}
+
 Object Evaluator::eval(const FunSetter& fun_setter)
 {
     fun_setter.value = eval(fun_setter.value);
@@ -169,8 +169,7 @@ Object Evaluator::eval(const FunList& fun_list)
     }
     static std::unordered_map<
         Object, std::function<Object(Evaluator*, const FunList&)>, Hash<Object>>
-        built_in_functions = {{Symbol("quote"), &Evaluator::builtInQuote},
-                              {Symbol("add"), &Evaluator::builtInAdd},
+        built_in_functions = {{Symbol("add"), &Evaluator::builtInAdd},
                               {Symbol("mul"), &Evaluator::builtInMul}};
     if (built_in_functions.find(after_eval.front())
         != built_in_functions.end()) {
@@ -190,6 +189,9 @@ Object Evaluator::eval(const FunVector& fun_vector)
 
 Object Evaluator::eval(const Object& obj)
 {
+    if (obj.hasType<FunQuote>()) {
+        return eval(static_cast<FunQuote>(obj));
+    }
     if (obj.hasType<FunSetter>()) {
         return eval(static_cast<FunSetter>(obj));
     }

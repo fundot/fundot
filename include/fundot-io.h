@@ -37,6 +37,8 @@ std::ostream& operator<<(std::ostream& out, const FunGetter& getter);
 std::istream& operator>>(std::istream& in, FunList& fun_list);
 std::ostream& operator<<(std::ostream& out, const FunList& fun_list);
 
+std::ostream& operator<<(std::ostream& out, const FunQuote& fun_quote);
+
 std::ostream& operator<<(std::ostream& out, const FunSetter& setter);
 
 std::istream& operator>>(std::istream& in, String& str);

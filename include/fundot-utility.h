@@ -49,6 +49,11 @@ struct Setter {
 };
 
 template<typename T>
+struct Quote {
+    T value;
+};
+
+template<typename T>
 struct Hash;
 
 struct Null {
@@ -59,6 +64,7 @@ using Float = double;
 using Integer = std::int32_t;
 using FunGetter = Getter<Object, Object>;
 using FunList = List<Object>;
+using FunQuote = Quote<Object>;
 using FunSet = UnorderedSet<Object, Hash<Object>>;
 using FunSetter = Setter<Object, Object>;
 using FunVector = Vector<Object>;

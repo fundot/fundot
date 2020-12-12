@@ -41,8 +41,6 @@ public:
 private:
     FunSet scope_;
 
-    Object builtInQuote(const FunList& fun_list);
-
     Object builtInQuit(const FunList& fun_list);
 
     Object builtInIf(const FunList& fun_list);
@@ -54,6 +52,8 @@ private:
     Object builtInAdd(const FunList& fun_list);
 
     Object builtInMul(const FunList& fun_list);
+
+    Object eval(const FunQuote& fun_quote);
 
     Object eval(const FunSetter& fun_setter);
 

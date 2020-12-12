@@ -62,6 +62,12 @@ std::ostream& operator<<(std::ostream& out, const FunList& fun_list)
     return out;
 }
 
+std::ostream& operator<<(std::ostream& out, const FunQuote& fun_quote)
+{
+    out << '\'' << fun_quote.value;
+    return out;
+}
+
 std::ostream& operator<<(std::ostream& out, const FunSetter& setter)
 {
     out << setter.key << ": " << setter.value;
@@ -188,12 +194,9 @@ std::istream& operator>>(std::istream& in, Object& obj)
     char delimiter;
     in >> delimiter;
     if (delimiter == '\'') {
-        FunList fun_list;
-        fun_list.pushBack(Symbol("quote"));
-        Object next;
-        in >> next;
-        fun_list.pushBack(next);
-        obj = fun_list;
+        FunQuote fun_quote;
+        in >> fun_quote.value;
+        obj = fun_quote;
         return in;
     }
     if (delimiter == '"') {
@@ -296,6 +299,9 @@ std::ostream& operator<<(std::ostream& out, const Object& obj)
     }
     else if (obj.hasType<Boolean>()) {
         out << std::boolalpha << static_cast<Boolean>(obj) << std::noboolalpha;
+    }
+    else if (obj.hasType<FunQuote>()) {
+        out << static_cast<FunQuote>(obj);
     }
     else if (obj.hasType<FunList>()) {
         out << static_cast<FunList>(obj);
