@@ -47,10 +47,10 @@ struct Hash<Object> {
     std::size_t operator()(const Object& obj) const
     {
         if (obj.hasType<Symbol>()) {
-            return Hash<Symbol>{}(static_cast<Symbol>(obj));
+            return Hash<Symbol>{}(get<const Symbol&>(obj));
         }
         if (obj.hasType<String>()) {
-            return Hash<String>{}(static_cast<String>(obj));
+            return Hash<String>{}(get<const String&>(obj));
         }
         return 0;
     }

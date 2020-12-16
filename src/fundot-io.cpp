@@ -283,40 +283,40 @@ std::istream& operator>>(std::istream& in, Object& obj)
 std::ostream& operator<<(std::ostream& out, const Object& obj)
 {
     if (obj.hasType<Symbol>()) {
-        out << static_cast<Symbol>(obj);
+        out << get<const Symbol&>(obj);
     }
     else if (obj.hasType<String>()) {
-        out << static_cast<String>(obj);
+        out << get<const String&>(obj);
     }
     else if (obj.hasType<Float>()) {
-        out << static_cast<Float>(obj);
+        out << get<const Float&>(obj);
     }
     else if (obj.hasType<Integer>()) {
-        out << static_cast<Integer>(obj);
+        out << get<const Integer&>(obj);
     }
     else if (obj.hasType<Null>()) {
         out << "null";
     }
     else if (obj.hasType<Boolean>()) {
-        out << std::boolalpha << static_cast<Boolean>(obj) << std::noboolalpha;
+        out << std::boolalpha << get<const Boolean&>(obj) << std::noboolalpha;
     }
     else if (obj.hasType<FunQuote>()) {
-        out << static_cast<FunQuote>(obj);
+        out << get<const FunQuote&>(obj);
     }
     else if (obj.hasType<FunList>()) {
-        out << static_cast<FunList>(obj);
+        out << get<const FunList&>(obj);
     }
     else if (obj.hasType<FunSetter>()) {
-        out << static_cast<FunSetter>(obj);
+        out << get<const FunSetter&>(obj);
     }
     else if (obj.hasType<FunGetter>()) {
-        out << static_cast<FunGetter>(obj);
+        out << get<const FunGetter&>(obj);
     }
     else if (obj.hasType<FunSet>()) {
-        out << static_cast<FunSet>(obj);
+        out << get<const FunSet&>(obj);
     }
     else if (obj.hasType<FunVector>()) {
-        out << static_cast<FunVector>(obj);
+        out << get<const FunVector&>(obj);
     }
     return out;
 }

@@ -77,17 +77,17 @@ Object Evaluator::builtInAdd(const FunList& fun_list)
     FunList::ConstIterator iter = fun_list.begin();
     Float first = 0;
     if ((++iter)->hasType<Float>()) {
-        first = static_cast<Float>(*iter);
+        first = get<Float>(*iter);
     }
     else if (iter->hasType<Integer>()) {
-        first = static_cast<Integer>(*iter);
+        first = get<Integer>(*iter);
     }
     Float second = 0;
     if ((++iter)->hasType<Float>()) {
-        second = static_cast<Float>(*iter);
+        second = get<Float>(*iter);
     }
     else if (iter->hasType<Integer>()) {
-        second = static_cast<Integer>(*iter);
+        second = get<Integer>(*iter);
     }
     return first + second;
 }
@@ -97,17 +97,17 @@ Object Evaluator::builtInMul(const FunList& fun_list)
     FunList::ConstIterator iter = fun_list.begin();
     Float first = 0;
     if ((++iter)->hasType<Float>()) {
-        first = static_cast<Float>(*iter);
+        first = get<Float>(*iter);
     }
     else if (iter->hasType<Integer>()) {
-        first = static_cast<Integer>(*iter);
+        first = get<Integer>(*iter);
     }
     Float second = 0;
     if ((++iter)->hasType<Float>()) {
-        second = static_cast<Float>(*iter);
+        second = get<Float>(*iter);
     }
     else if (iter->hasType<Integer>()) {
-        second = static_cast<Integer>(*iter);
+        second = get<Integer>(*iter);
     }
     return first * second;
 }
@@ -136,7 +136,7 @@ Object Evaluator::eval(const Symbol& symbol)
     to_find.key = symbol;
     FunSet::Iterator it = scope_.find(to_find);
     if (it != scope_.end() && it->hasType<FunSetter>()) {
-        return eval(static_cast<FunSetter>(*it).value);
+        return eval(get<FunSetter>(*it).value);
     }
     return symbol;
 }
@@ -145,7 +145,7 @@ Object Evaluator::eval(const FunGetter& fun_getter)
 {
     Object key_after_eval = eval(fun_getter.key);
     if (key_after_eval.hasType<FunSet>()) {
-        Evaluator next_eval(static_cast<FunSet>(key_after_eval));
+        Evaluator next_eval(get<FunSet>(key_after_eval));
         return next_eval(fun_getter.value);
     }
     return fun_getter;
@@ -190,22 +190,22 @@ Object Evaluator::eval(const FunVector& fun_vector)
 Object Evaluator::eval(const Object& obj)
 {
     if (obj.hasType<FunQuote>()) {
-        return eval(static_cast<FunQuote>(obj));
+        return eval(get<const FunQuote&>(obj));
     }
     if (obj.hasType<FunSetter>()) {
-        return eval(static_cast<FunSetter>(obj));
+        return eval(get<const FunSetter&>(obj));
     }
     if (obj.hasType<Symbol>()) {
-        return eval(static_cast<Symbol>(obj));
+        return eval(get<const Symbol&>(obj));
     }
     if (obj.hasType<FunGetter>()) {
-        return eval(static_cast<FunGetter>(obj));
+        return eval(get<const FunGetter&>(obj));
     }
     if (obj.hasType<FunList>()) {
-        return eval(static_cast<FunList>(obj));
+        return eval(get<const FunList&>(obj));
     }
     if (obj.hasType<FunVector>()) {
-        return eval(static_cast<FunVector>(obj));
+        return eval(get<const FunVector&>(obj));
     }
     return obj;
 }

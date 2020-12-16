@@ -50,6 +50,10 @@ public:
         return *this;
     }
 
+    explicit operator std::any&() { return obj_; }
+
+    explicit operator const std::any&() const { return obj_; }
+
     template<typename T>
     explicit operator T() const
     {
@@ -67,6 +71,32 @@ public:
 private:
     std::any obj_;
 };
+
+template<typename T>
+T* get(Object* obj)
+{
+    return std::any_cast<T>(&static_cast<std::any&>(*obj));
+}
+
+template<typename T>
+const T* get(const Object* obj)
+{
+    return std::any_cast<T>(&static_cast<const std::any&>(*obj));
+}
+
+template<typename T>
+T get(Object& obj)
+{
+    using U = std::remove_cv_t<std::remove_reference_t<T>>;
+    return static_cast<T>(*get<U>(&obj));
+}
+
+template<typename T>
+T get(const Object& obj)
+{
+    using U = std::remove_cv_t<std::remove_reference_t<T>>;
+    return static_cast<T>(*get<U>(&obj));
+}
 
 }  // namespace fundot
 

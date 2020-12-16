@@ -49,17 +49,17 @@ bool operator==(const Object& lhs, const Object& rhs)
 {
     if (lhs.type() == rhs.type()) {
         if (lhs.hasType<Boolean>()) {
-            return static_cast<Boolean>(lhs) == static_cast<Boolean>(rhs);
+            return get<const Boolean&>(lhs) == get<const Boolean&>(rhs);
         }
         if (lhs.hasType<Symbol>()) {
-            return static_cast<Symbol>(lhs) == static_cast<Symbol>(rhs);
+            return get<const Symbol&>(lhs) == get<const Symbol&>(rhs);
         }
         if (lhs.hasType<String>()) {
-            return static_cast<String>(lhs) == static_cast<String>(rhs);
+            return get<const String&>(lhs) == get<const String&>(rhs);
         }
         if (lhs.hasType<FunSetter>()) {
-            return static_cast<FunSetter>(lhs).key
-                   == static_cast<FunSetter>(rhs).key;
+            return get<const FunSetter&>(lhs).key
+                   == get<const FunSetter&>(rhs).key;
         }
         return false;
     }
@@ -75,10 +75,10 @@ bool operator<(const Object& lhs, const Object& rhs)
 {
     if (lhs.type() == rhs.type()) {
         if (lhs.hasType<Symbol>()) {
-            return static_cast<Symbol>(lhs) < static_cast<Symbol>(rhs);
+            return get<const Symbol&>(lhs) < get<const Symbol&>(rhs);
         }
         if (lhs.hasType<String>()) {
-            return static_cast<String>(lhs) < static_cast<String>(rhs);
+            return get<const String&>(lhs) < get<const String&>(rhs);
         }
         return false;
     }
