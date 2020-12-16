@@ -29,7 +29,8 @@ using namespace fundot;
 
 int main()
 {
-    Evaluator eval;
+    FunSet global;
+    Evaluator eval(global);
     for (;;) {
         std::cout << ">>> ";
         Object obj;

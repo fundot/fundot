@@ -38,12 +38,22 @@
 namespace fundot {
 template<typename K, typename V>
 struct Getter {
+    Getter(const K& init_key = K(), const V& init_value = V())
+        : key(init_key), value(init_value)
+    {
+    }
+    
     K key;
     mutable V value;
 };
 
 template<typename K, typename V>
 struct Setter {
+    Setter(const K& init_key = K(), const V& init_value = V())
+        : key(init_key), value(init_value)
+    {
+    }
+    
     K key;
     mutable V value;
 };

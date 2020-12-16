@@ -33,39 +33,40 @@
 namespace fundot {
 class Evaluator {
 public:
-    Evaluator() = default;
-    Evaluator(FunSet&& fun_set) : scope_(std::move(fun_set)) {}
+    Evaluator(FunSet& scope) : scope_(scope) {}
 
-    Object operator()(const Object& obj);
+    Object& operator()(Object& obj);
 
 private:
-    FunSet scope_;
+    FunSet& scope_;
 
-    Object builtInQuit(const FunList& fun_list);
+    Object& builtInQuit(FunList& fun_list);
 
-    Object builtInIf(const FunList& fun_list);
+    Object& builtInIf(FunList& fun_list);
 
-    Object builtInCond(const FunList& fun_list);
+    Object& builtInCond(FunList& fun_list);
 
-    Object builtInWhile(const FunList& fun_list);
+    Object& builtInWhile(FunList& fun_list);
 
-    Object builtInAdd(const FunList& fun_list);
+    Object& builtInAdd(FunList& fun_list);
 
-    Object builtInMul(const FunList& fun_list);
+    Object& builtInMul(FunList& fun_list);
 
-    Object eval(const FunQuote& fun_quote);
+    Object& eval(FunQuote& fun_quote);
 
-    Object eval(const FunSetter& fun_setter);
+    Object& eval(FunSetter& fun_setter);
 
-    Object eval(const Symbol& symbol);
+    Object& eval(Symbol& symbol);
 
-    Object eval(const FunGetter& fun_getter);
+    Object& eval(FunGetter& fun_getter);
 
-    Object eval(const FunList& fun_list);
+    Object& eval(FunList& fun_list);
 
-    Object eval(const FunVector& fun_vector);
+    Object& eval(FunVector& fun_vector);
 
-    Object eval(const Object& obj);
+    Object& eval(Object& obj);
+
+    Object& eval(const Object& obj);
 };
 
 }  // namespace fundot
