@@ -25,10 +25,20 @@
 #include "fundot-eval.h"
 
 namespace fundot {
+Evaluator::~Evaluator()
+{
+    scope_.erase(FunSetter(Symbol("__temp__")));
+}
+
+Object& Evaluator::temp(Object&& obj)
+{
+    return eval(FunSetter(Symbol("__temp__"), FunQuote(obj)));
+}
+
 Object& Evaluator::builtInQuit(FunList& fun_list)
 {
     exit(EXIT_SUCCESS);
-    return eval(FunSetter(Symbol("__temp__"), fun_list));
+    return temp(fun_list);
 }
 
 Object& Evaluator::builtInIf(FunList& fun_list)
@@ -39,12 +49,12 @@ Object& Evaluator::builtInIf(FunList& fun_list)
         if (++iter != fun_list.end() && ++iter != fun_list.end()) {
             return *iter;
         }
-        return eval(FunSetter(Symbol("__temp__"), Null()));
+        return temp(Null());
     }
     if (++iter != fun_list.end()) {
         return *iter;
     }
-    return eval(FunSetter(Symbol("__temp__"), fun_list));
+    return temp(fun_list);
 }
 
 Object& Evaluator::builtInCond(FunList& fun_list)
@@ -56,7 +66,7 @@ Object& Evaluator::builtInCond(FunList& fun_list)
             return *iter;
         }
     }
-    return eval(FunSetter(Symbol("__temp__"), Null()));
+    return temp(Null());
 }
 
 Object& Evaluator::builtInWhile(FunList& fun_list)
@@ -69,7 +79,7 @@ Object& Evaluator::builtInWhile(FunList& fun_list)
         eval(to_eval);
         predicate = eval(*predicate_iter);
     }
-    return eval(FunSetter(Symbol("__temp__"), Null()));
+    return temp(Null());
 }
 
 Object& Evaluator::builtInAdd(FunList& fun_list)
@@ -89,7 +99,7 @@ Object& Evaluator::builtInAdd(FunList& fun_list)
     else if (iter->hasType<Integer>()) {
         second = get<Integer>(*iter);
     }
-    return eval(FunSetter(Symbol("__temp__"), first + second));
+    return temp(first + second);
 }
 
 Object& Evaluator::builtInMul(FunList& fun_list)
@@ -109,7 +119,7 @@ Object& Evaluator::builtInMul(FunList& fun_list)
     else if (iter->hasType<Integer>()) {
         second = get<Integer>(*iter);
     }
-    return eval(FunSetter(Symbol("__temp__"), first * second));
+    return temp(first * second);
 }
 
 Object& Evaluator::operator()(Object& obj)
@@ -137,7 +147,7 @@ Object& Evaluator::eval(Symbol& symbol)
     if (it != scope_.end()) {
         return eval(get<const FunSetter&>(*it).value);
     }
-    return eval(FunSetter(Symbol("__temp__"), symbol));
+    return temp(symbol);
 }
 
 Object& Evaluator::eval(FunGetter& fun_getter)
@@ -147,7 +157,7 @@ Object& Evaluator::eval(FunGetter& fun_getter)
         Evaluator next_eval(get<FunSet&>(key_after_eval));
         return next_eval(fun_getter.value);
     }
-    return eval(FunSetter(Symbol("__temp__"), fun_getter));
+    return temp(fun_getter);
 }
 
 Object& Evaluator::eval(FunList& fun_list)
@@ -174,7 +184,7 @@ Object& Evaluator::eval(FunList& fun_list)
         != built_in_functions.end()) {
         return built_in_functions[after_eval.front()](this, after_eval);
     }
-    return eval(FunSetter(Symbol("__temp__"), after_eval));
+    return temp(after_eval);
 }
 
 Object& Evaluator::eval(FunVector& fun_vector)
@@ -183,7 +193,7 @@ Object& Evaluator::eval(FunVector& fun_vector)
     for (Object& obj : fun_vector) {
         after_eval.pushBack(eval(obj));
     }
-    return eval(FunSetter(Symbol("__temp__"), after_eval));
+    return temp(after_eval);
 }
 
 Object& Evaluator::eval(Object& obj)
@@ -209,9 +219,9 @@ Object& Evaluator::eval(Object& obj)
     return obj;
 }
 
-Object& Evaluator::eval(const Object& obj)
+Object& Evaluator::eval(Object&& obj)
 {
-    Object to_eval = obj;
+    Object to_eval(obj);
     return eval(to_eval);
 }
 

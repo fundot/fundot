@@ -35,10 +35,14 @@ class Evaluator {
 public:
     Evaluator(FunSet& scope) : scope_(scope) {}
 
+    ~Evaluator();
+
     Object& operator()(Object& obj);
 
 private:
     FunSet& scope_;
+
+    Object& temp(Object&& obj);
 
     Object& builtInQuit(FunList& fun_list);
 
@@ -66,7 +70,7 @@ private:
 
     Object& eval(Object& obj);
 
-    Object& eval(const Object& obj);
+    Object& eval(Object&& obj);
 };
 
 }  // namespace fundot

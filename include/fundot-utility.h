@@ -42,7 +42,7 @@ struct Getter {
         : key(init_key), value(init_value)
     {
     }
-    
+
     K key;
     mutable V value;
 };
@@ -53,13 +53,15 @@ struct Setter {
         : key(init_key), value(init_value)
     {
     }
-    
+
     K key;
     mutable V value;
 };
 
 template<typename T>
 struct Quote {
+    Quote(const T& init_value) : value(init_value) {}
+
     T value;
 };
 
