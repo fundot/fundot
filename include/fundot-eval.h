@@ -35,50 +35,47 @@ class Evaluator {
 public:
     Evaluator(FunSet& scope) : scope_(scope) {}
 
-    Object& operator()(Object& obj);
-
-    Object& operator()(Object&& obj);
+    Object operator()(const Object& obj);
 
 private:
     FunSet& scope_;
 
-    Object& temp(Object& obj);
+    Object builtInQuit(const FunList& fun_list);
 
-    Object& temp(Object&& obj);
+    Object builtInIf(const FunList& fun_list);
 
-    Object& builtInQuit(FunList& fun_list);
+    Object builtInCond(const FunList& fun_list);
 
-    Object& builtInIf(FunList& fun_list);
+    Object builtInWhile(const FunList& fun_list);
 
-    Object& builtInCond(FunList& fun_list);
+    Object builtInGlobal(const FunList& fun_list);
 
-    Object& builtInWhile(FunList& fun_list);
+    Object builtInGet(const FunList& fun_list);
 
-    Object& builtInGet(FunList& fun_list);
+    Object builtInAdd(const FunList& fun_list);
 
-    Object& builtInAdd(FunList& fun_list);
+    Object builtInSub(const FunList& fun_list);
 
-    Object& builtInMul(FunList& fun_list);
+    Object builtInMul(const FunList& fun_list);
 
-    Object& setValue(FunSet& fun_set, FunSetter& fun_setter);
+    Object builtInDiv(const FunList& fun_list);
 
-    Object& getValue(FunSet& fun_set, const Object& key);
+    Object builtInMod(const FunList& fun_list);
 
-    Object& eval(FunQuote& fun_quote);
+    Object eval(const FunQuote& fun_quote);
 
-    Object& eval(FunSetter& fun_setter);
+    Object eval(const FunSetter& fun_setter);
 
-    Object& eval(Symbol& symbol);
+    Object eval(const Symbol& symbol);
 
-    Object& eval(FunGetter& fun_getter);
+    Object eval(const FunGetter& fun_getter);
 
-    Object& eval(FunList& fun_list);
+    Object eval(const FunList& fun_list);
 
-    Object& eval(FunVector& fun_vector);
+    Object eval(const FunVector& fun_vector);
 
-    Object& eval(Object& obj);
+    Object eval(const Object& obj);
 
-    Object& eval(Object&& obj);
 };
 
 }  // namespace fundot
