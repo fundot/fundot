@@ -35,12 +35,14 @@ class Evaluator {
 public:
     Evaluator(FunSet& scope) : scope_(scope) {}
 
-    ~Evaluator();
-
     Object& operator()(Object& obj);
+
+    Object& operator()(Object&& obj);
 
 private:
     FunSet& scope_;
+
+    Object& temp(Object& obj);
 
     Object& temp(Object&& obj);
 
@@ -52,9 +54,15 @@ private:
 
     Object& builtInWhile(FunList& fun_list);
 
+    Object& builtInGet(FunList& fun_list);
+
     Object& builtInAdd(FunList& fun_list);
 
     Object& builtInMul(FunList& fun_list);
+
+    Object& setValue(FunSet& fun_set, FunSetter& fun_setter);
+
+    Object& getValue(FunSet& fun_set, const Object& key);
 
     Object& eval(FunQuote& fun_quote);
 

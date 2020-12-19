@@ -60,7 +60,7 @@ struct Setter {
 
 template<typename T>
 struct Quote {
-    Quote(const T& init_value) : value(init_value) {}
+    Quote(const T& init_value = T()) : value(init_value) {}
 
     T value;
 };

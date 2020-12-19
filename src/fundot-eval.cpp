@@ -25,9 +25,9 @@
 #include "fundot-eval.h"
 
 namespace fundot {
-Evaluator::~Evaluator()
+Object& Evaluator::temp(Object& obj)
 {
-    scope_.erase(FunSetter(Symbol("__temp__")));
+    return eval(FunSetter(Symbol("__temp__"), FunQuote(obj)));
 }
 
 Object& Evaluator::temp(Object&& obj)
@@ -82,6 +82,28 @@ Object& Evaluator::builtInWhile(FunList& fun_list)
     return temp(Null());
 }
 
+Object& Evaluator::builtInGet(FunList& fun_list)
+{
+    FunList::Iterator iter = ++fun_list.begin();
+    if (iter->hasType<FunSet>()) {
+        FunSet& fun_set = get<FunSet&>(*iter);
+        FunSet::Iterator it = fun_set.find(FunSetter(*(++iter)));
+        if (it != fun_set.end() && it->hasType<FunSetter>()) {
+            return temp(get<FunSetter>(*it).value);
+        }
+    }
+    if (iter->hasType<FunVector>()) {
+        const FunVector& fun_vector = get<FunVector&>(*iter++);
+        if (iter->hasType<Integer>()
+            && static_cast<std::size_t>(get<Integer&>(*iter))
+                   < fun_vector.size()) {
+            return temp(fun_vector[get<Integer&>(*iter)]);
+        }
+        return temp(Null());
+    }
+    return temp(fun_list);
+}
+
 Object& Evaluator::builtInAdd(FunList& fun_list)
 {
     FunList::Iterator iter = fun_list.begin();
@@ -122,7 +144,29 @@ Object& Evaluator::builtInMul(FunList& fun_list)
     return temp(first * second);
 }
 
+Object& Evaluator::setValue(FunSet& fun_set, FunSetter& fun_setter)
+{
+    fun_setter.value = eval(fun_setter.value);
+    fun_set.erase(fun_setter);
+    fun_set.emplace(fun_setter);
+    return get<const FunSetter&>(*fun_set.find(fun_setter)).value;
+}
+
+Object& Evaluator::getValue(FunSet& fun_set, const Object& key)
+{
+    FunSet::Iterator it = fun_set.find(FunSetter(key));
+    if (it != fun_set.end() && it->hasType<FunSetter>()) {
+        return get<const FunSetter&>(*it).value;
+    }
+    return temp(Null());
+}
+
 Object& Evaluator::operator()(Object& obj)
+{
+    return eval(obj);
+}
+
+Object& Evaluator::operator()(Object&& obj)
 {
     return eval(obj);
 }
@@ -142,9 +186,8 @@ Object& Evaluator::eval(FunSetter& fun_setter)
 
 Object& Evaluator::eval(Symbol& symbol)
 {
-    FunSetter to_find(symbol);
-    FunSet::Iterator it = scope_.find(to_find);
-    if (it != scope_.end()) {
+    FunSet::Iterator it = scope_.find(FunSetter(symbol));
+    if (it != scope_.end() && it->hasType<FunSetter>()) {
         return eval(get<const FunSetter&>(*it).value);
     }
     return temp(symbol);
@@ -152,10 +195,26 @@ Object& Evaluator::eval(Symbol& symbol)
 
 Object& Evaluator::eval(FunGetter& fun_getter)
 {
-    Object& key_after_eval = eval(fun_getter.key);
-    if (key_after_eval.hasType<FunSet>()) {
-        Evaluator next_eval(get<FunSet&>(key_after_eval));
-        return next_eval(fun_getter.value);
+    Object scope_ptr = &scope_;
+    while (scope_ptr.hasType<FunSet*>()) {
+        if (fun_getter.key.hasType<Symbol>()) {
+            Object& value = getValue(*get<FunSet*>(scope_ptr), fun_getter.key);
+            if (value.hasType<FunSet>() == false) {
+                return temp(value);
+            }
+            scope_ptr = get<FunSet>(&value);
+            if (fun_getter.value.hasType<Symbol>()) {
+                return temp(
+                    getValue(*get<FunSet*>(scope_ptr), fun_getter.value));
+            }
+            if (fun_getter.value.hasType<FunGetter>()) {
+                fun_getter = fun_getter.value;
+            }
+            if (fun_getter.value.hasType<FunSetter>()) {
+                return setValue(*get<FunSet*>(scope_ptr),
+                                get<FunSetter&>(fun_getter.value));
+            }
+        }
     }
     return temp(fun_getter);
 }
@@ -178,7 +237,8 @@ Object& Evaluator::eval(FunList& fun_list)
     }
     static std::unordered_map<
         Object, std::function<Object&(Evaluator*, FunList&)>, Hash<Object>>
-        built_in_functions = {{Symbol("add"), &Evaluator::builtInAdd},
+        built_in_functions = {{Symbol("get"), &Evaluator::builtInGet},
+                              {Symbol("add"), &Evaluator::builtInAdd},
                               {Symbol("mul"), &Evaluator::builtInMul}};
     if (built_in_functions.find(after_eval.front())
         != built_in_functions.end()) {
