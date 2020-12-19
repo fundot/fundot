@@ -28,17 +28,26 @@
 #include <functional>
 #include <unordered_map>
 
+#include "fundot-io.h"
 #include "fundot-utility.h"
 
 namespace fundot {
 class Evaluator {
 public:
-    Evaluator(FunSet& scope) : scope_(scope) {}
+    Evaluator(FunSet& scope, std::istream& in = std::cin,
+              std::ostream& out = std::cout)
+        : scope_(scope), in_(in), out_(out)
+    {
+    }
 
     Object operator()(const Object& obj);
 
 private:
     FunSet& scope_;
+
+    std::istream& in_;
+
+    std::ostream& out_;
 
     Object builtInQuit(const FunList& fun_list);
 
@@ -49,6 +58,10 @@ private:
     Object builtInWhile(const FunList& fun_list);
 
     Object builtInGlobal(const FunList& fun_list);
+
+    Object builtInScan(const FunList& fun_list);
+
+    Object builtInPrint(const FunList& fun_list);
 
     Object builtInGet(const FunList& fun_list);
 
@@ -61,6 +74,18 @@ private:
     Object builtInDiv(const FunList& fun_list);
 
     Object builtInMod(const FunList& fun_list);
+
+    Object builtInEqual(const FunList& fun_list);
+
+    Object builtInNotEqual(const FunList& fun_list);
+
+    Object builtInLessThan(const FunList& fun_list);
+
+    Object builtInGreaterThan(const FunList& fun_list);
+
+    Object builtInLessThanOrEqual(const FunList& fun_list);
+
+    Object builtInGreaterThanOrEqual(const FunList& fun_list);
 
     Object eval(const FunQuote& fun_quote);
 
@@ -75,7 +100,6 @@ private:
     Object eval(const FunVector& fun_vector);
 
     Object eval(const Object& obj);
-
 };
 
 }  // namespace fundot

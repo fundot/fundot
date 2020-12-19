@@ -34,8 +34,8 @@ Object Evaluator::builtInQuit(const FunList& fun_list)
 Object Evaluator::builtInIf(const FunList& fun_list)
 {
     FunList::ConstIterator iter = ++fun_list.begin();
-    Object predicate = eval(*iter);
-    if (predicate.hasType<Null>() || predicate == Boolean(false)) {
+    Object result = eval(*iter);
+    if (result.hasType<Null>() || result == Boolean(false)) {
         if (++iter != fun_list.end() && ++iter != fun_list.end()) {
             return *iter;
         }
@@ -51,8 +51,9 @@ Object Evaluator::builtInCond(const FunList& fun_list)
 {
     FunList::ConstIterator iter = fun_list.begin();
     while (++iter != fun_list.end()) {
-        Object predicate = eval(*iter++);
-        if (predicate.hasType<Null>() == false && predicate != Boolean(false)) {
+        Object result = eval(*iter);
+        ++iter;
+        if (result.hasType<Null>() == false && result != Boolean(false)) {
             return *iter;
         }
     }
@@ -62,20 +63,38 @@ Object Evaluator::builtInCond(const FunList& fun_list)
 Object Evaluator::builtInWhile(const FunList& fun_list)
 {
     FunList::ConstIterator iter = ++fun_list.begin();
-    FunList::ConstIterator predicate_iter = iter;
-    Object predicate = eval(*iter++);
-    Object to_eval = *iter;
-    while (predicate.hasType<Null>() == false && predicate != Boolean(false)) {
-        eval(to_eval);
-        predicate = eval(*predicate_iter);
+    Object predicate = *iter;
+    Object to_eval = *(++iter);
+    Object result = eval(predicate);
+    Object ret = Null();
+    while (result.hasType<Null>() == false && result != Boolean(false)) {
+        ret = eval(to_eval);
+        result = eval(predicate);
     }
-    return Null();
+    return ret;
 }
 
 Object Evaluator::builtInGlobal(const FunList& fun_list)
 {
     return scope_;
     return fun_list;
+}
+
+Object Evaluator::builtInScan(const FunList& fun_list)
+{
+    Object ret;
+    in_ >> ret;
+    return ret;
+    return fun_list;
+}
+
+Object Evaluator::builtInPrint(const FunList& fun_list)
+{
+    FunList::ConstIterator iter = ++fun_list.begin();
+    if (iter != fun_list.end()) {
+        out_ << *iter << "\n";
+    }
+    return *iter;
 }
 
 Object Evaluator::builtInGet(const FunList& fun_list)
@@ -89,8 +108,8 @@ Object Evaluator::builtInGet(const FunList& fun_list)
         }
     }
     if (iter->hasType<FunVector>()) {
-        const FunVector& fun_vector = get<const FunVector&>(*iter++);
-        if (iter->hasType<Integer>()
+        const FunVector& fun_vector = get<const FunVector&>(*iter);
+        if ((++iter)->hasType<Integer>()
             && static_cast<std::size_t>(get<const Integer&>(*iter))
                    < fun_vector.size()) {
             return fun_vector[get<const Integer&>(*iter)];
@@ -130,6 +149,42 @@ Object Evaluator::builtInMod(const FunList& fun_list)
     return *iter % *(++iter);
 }
 
+Object Evaluator::builtInEqual(const FunList& fun_list)
+{
+    FunList::ConstIterator iter = ++fun_list.begin();
+    return *iter == *(++iter);
+}
+
+Object Evaluator::builtInNotEqual(const FunList& fun_list)
+{
+    FunList::ConstIterator iter = ++fun_list.begin();
+    return *iter != *(++iter);
+}
+
+Object Evaluator::builtInLessThan(const FunList& fun_list)
+{
+    FunList::ConstIterator iter = ++fun_list.begin();
+    return *iter < *(++iter);
+}
+
+Object Evaluator::builtInGreaterThan(const FunList& fun_list)
+{
+    FunList::ConstIterator iter = ++fun_list.begin();
+    return *iter > *(++iter);
+}
+
+Object Evaluator::builtInLessThanOrEqual(const FunList& fun_list)
+{
+    FunList::ConstIterator iter = ++fun_list.begin();
+    return *iter <= *(++iter);
+}
+
+Object Evaluator::builtInGreaterThanOrEqual(const FunList& fun_list)
+{
+    FunList::ConstIterator iter = ++fun_list.begin();
+    return *iter >= *(++iter);
+}
+
 Object Evaluator::operator()(const Object& obj)
 {
     return eval(obj);
@@ -142,9 +197,9 @@ Object Evaluator::eval(const FunQuote& fun_quote)
 
 Object Evaluator::eval(const FunSetter& fun_setter)
 {
-    fun_setter.value = eval(fun_setter.value);
-    scope_.erase(fun_setter);
-    scope_.emplace(fun_setter);
+    FunSetter setter(fun_setter.key, eval(fun_setter.value));
+    scope_.erase(setter);
+    scope_.emplace(setter);
     return get<const FunSetter&>(*scope_.find(fun_setter)).value;
 }
 
@@ -164,7 +219,7 @@ Object Evaluator::eval(const FunGetter& fun_getter)
     while (scope_ptr != nullptr) {
         if (getter.key.hasType<Symbol>()) {
             FunSet::Iterator it = scope_ptr->find(FunSetter(getter.key));
-            if (it->hasType<FunSetter>() == false) {
+            if (it == scope_ptr->end() || it->hasType<FunSetter>() == false) {
                 return Null();
             }
             Object& value = get<const FunSetter&>(*it).value;
@@ -206,19 +261,29 @@ Object Evaluator::eval(const FunList& fun_list)
         return eval(built_in_macros[fun_list.front()](this, fun_list));
     }
     FunList after_eval;
-    FunList::ConstIterator it = fun_list.begin();
-    while (it != fun_list.end()) {
-        after_eval.pushBack(eval(*it++));
+    FunList::ConstIterator iter = fun_list.begin();
+    while (iter != fun_list.end()) {
+        after_eval.pushBack(eval(*iter));
+        ++iter;
     }
     static std::unordered_map<
         Object, std::function<Object(Evaluator*, const FunList&)>, Hash<Object>>
-        built_in_functions = {{Symbol("global"), &Evaluator::builtInGlobal},
-                              {Symbol("get"), &Evaluator::builtInGet},
-                              {Symbol("add"), &Evaluator::builtInAdd},
-                              {Symbol("sub"), &Evaluator::builtInSub},
-                              {Symbol("mul"), &Evaluator::builtInMul},
-                              {Symbol("div"), &Evaluator::builtInDiv},
-                              {Symbol("mod"), &Evaluator::builtInMod}};
+        built_in_functions = {
+            {Symbol("global"), &Evaluator::builtInGlobal},
+            {Symbol("scan"), &Evaluator::builtInScan},
+            {Symbol("print"), &Evaluator::builtInPrint},
+            {Symbol("get"), &Evaluator::builtInGet},
+            {Symbol("add"), &Evaluator::builtInAdd},
+            {Symbol("sub"), &Evaluator::builtInSub},
+            {Symbol("mul"), &Evaluator::builtInMul},
+            {Symbol("div"), &Evaluator::builtInDiv},
+            {Symbol("mod"), &Evaluator::builtInMod},
+            {Symbol("comp="), &Evaluator::builtInEqual},
+            {Symbol("comp!="), &Evaluator::builtInNotEqual},
+            {Symbol("comp<"), &Evaluator::builtInLessThan},
+            {Symbol("comp>"), &Evaluator::builtInGreaterThan},
+            {Symbol("comp<="), &Evaluator::builtInLessThanOrEqual},
+            {Symbol("comp>="), &Evaluator::builtInGreaterThanOrEqual}};
     if (built_in_functions.find(after_eval.front())
         != built_in_functions.end()) {
         return built_in_functions[after_eval.front()](this, after_eval);
