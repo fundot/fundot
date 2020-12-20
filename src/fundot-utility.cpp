@@ -218,7 +218,7 @@ Object operator+(const Object& lhs, const Object& rhs)
         return get<const Integer&>(lhs) + get<const Float&>(rhs);
     }
     if (lhs.hasType<Float>() && rhs.hasType<Integer>()) {
-        return rhs + lhs;
+        return get<const Float&>(lhs) + get<const Integer&>(rhs);
     }
     return Null();
 }
@@ -237,7 +237,7 @@ Object operator-(const Object& lhs, const Object& rhs)
         return get<const Integer&>(lhs) - get<const Float&>(rhs);
     }
     if (lhs.hasType<Float>() && rhs.hasType<Integer>()) {
-        return rhs - lhs;
+        return get<const Float&>(lhs) - get<const Integer&>(rhs);
     }
     return Null();
 }
@@ -256,7 +256,7 @@ Object operator*(const Object& lhs, const Object& rhs)
         return get<const Integer&>(lhs) * get<const Float&>(rhs);
     }
     if (lhs.hasType<Float>() && rhs.hasType<Integer>()) {
-        return rhs * lhs;
+        return get<const Float&>(lhs) * get<const Integer&>(rhs);
     }
     return Null();
 }
@@ -265,7 +265,8 @@ Object operator/(const Object& lhs, const Object& rhs)
 {
     if (lhs.type() == rhs.type()) {
         if (lhs.hasType<Integer>()) {
-            return get<const Integer&>(lhs) / get<const Integer&>(rhs);
+            return static_cast<Float>(get<const Integer&>(lhs))
+                   / get<const Integer&>(rhs);
         }
         if (lhs.hasType<Float>()) {
             return get<const Float&>(lhs) / get<const Float&>(rhs);
@@ -275,7 +276,7 @@ Object operator/(const Object& lhs, const Object& rhs)
         return get<const Integer&>(lhs) / get<const Float&>(rhs);
     }
     if (lhs.hasType<Float>() && rhs.hasType<Integer>()) {
-        return rhs / lhs;
+        return get<const Float&>(lhs) / get<const Integer&>(rhs);
     }
     return Null();
 }
