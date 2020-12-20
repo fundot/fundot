@@ -1,5 +1,12 @@
+*~
 .DS_Store
 .vscode
+.clang-format
+.clangd
+compile_commands.json
 fundot.dSYM
 obj
 test
+main
+*.fd
+fundot

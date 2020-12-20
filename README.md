@@ -1,76 +1,82 @@
 # Fundot
 
-Fundot Programming Language
+Fundot is a  programming language that treats "code as data". Inspired by both Lisp and JSON, Fundot aims to provide homoiconicity, but with more readability and functionality.
 
-## Background
+## Installation
 
-This project was initially my personl project called Jia, in which I want to realize my dream of creating a new programming language. After rewritting in C++, this project was renamed Fundot and placed into this organization. Recently inspired by LISP and JSON, I found a new way to combine code and data to make code-as-data programming much more readable.
+### Linux, macOS, and other Unix-like systems
 
-## Install
+Go to the directory where you want to build Fundot, and enter the following commands. Fundot will be built and then moved to `/usr/local/bin`, where local programs are normally installed. However, if you want to run Fundot only in the cloned directory, then please ignore the last line of commands.
 
-### Linux, macOS, and any other Unix-like systems
-
-Download the archive from release or simply clone from this repository. Enter make under the file you extracted.
-
+    git clone https://github.com/Fundot/fundot.git
+    cd fundot
     make
-Fundot will be installed to /usr/local/bin by the above command. However, if you want to simply install it under the file extracted, then enter the following command.
-
-    make build
-After build, if you want to remove the object files generated, enter the following command.
-
-    make clean
-
+    sudo mv fundot /usr/local/bin
 ### Windows
 
-Download the archive from release and add the extracted file to your PATH environment variable so that you can access it anywhere.
+Fundot should be able to run on Windows, but we have not tested the new versions yet. If you are interested, feel free to git clone the repository and compile the source. We will try to provide a new way to build Fundot by CMake so that Windows users are able to install Fundot easily.
 
 **Note: Any following code in this README assumes that the binary has already been added to PATH.**
 
 ## Usage
 
-This program is a interpreter of Fundot programming language that contains the REPL (read-eval-print loop) mode and the file execution mode.
+This project is an evaluator of Fundot programming language, which contains the REPL (Read-Eval-Print Loop) mode and the file execution mode.
 
-For REPL mode, simply enter fundot in the terminal.
+For REPL mode, simply enter `fundot` in the terminal.
 
-    $ fundot
-    Fundot> 
-After displaying `Fundot>`, you can enter expressions and enjoy Fundot until you call exit function.
+    fundot
+After displaying `>>> `, you may enjoy Fundot until you call `quit`.
 
-    $ fundot
-    Fundot> x: 1
-    x: 1
-    Fundot> pi: 3.14
-    pi: 3.14
-    Fundot> (+ x pi)
-    4.14
-For file execution mode, access Fundot from terminal following a name or path of a .fd file. For example, assume you have a file named test.fd that contains the following content:
+```Fundot
+>>> mike: {name: "Mike", age: 19}
+{ name: "Mike", age: 19, }
+>>> mike.age
+19
+>>> (defun square (x) (mul x x))
+{ type: function, params: ( x ), body: ( mul x x ), }
+>>> (square 4)
+16
+>>> mike.age: (add mike.age 16)
+35
+>>> (quit)
+```
+For file execution mode, enter `fundot` followed by the name of the source file. Suppose we have a source file named `example.fd` that contains the following code.
 
-    [
-        x: 0,
-        (while (< x 10) [
-            x: (+ x 1),
-            (print x)
-        ])
-    ]
-Then if you enter the following code in terminal under the directory that conatins test.fd, Fundot will output as below.
+```Fundot
+(defun square (x) (mul x x))
 
-    $ fundot test.fd
+(defun abs (x)
+  (if (comp< x 0)
+    (sub 0 x)
+    x))
+
+(defun sqrt (x) [
+  root: x,
+  precision: 1e-9,
+  (while (comp> (abs (sub x (square root))) precision)
+    root: (div (add root (div x root)) 2)),
+  root])
+
+(print (sqrt 1))
+(print (sqrt 2))
+(print (sqrt 3))
+(print (sqrt 4))
+(print (sqrt 65536))
+```
+Then if we enter `fundot example.fd` in the terminal, we will get the output shown below.
+
     1
+    1.41421
+    1.73205
     2
-    3
-    4
-    5
-    6
-    7
-    8
-    9
-    10
-**Note: So far, this interpreter has not been stable, and huge changes may occur in each new commit.**
+    256
+**Note: So far, Fundot has not been stable, and huge changes may occur in each new commit.**
 
 ## Contributing
 
-Contributions are welcome.
+Contributions are welcome. The guideline is coming soon.
 
 ## License
 
 MIT License © Jiacheng Huang
+

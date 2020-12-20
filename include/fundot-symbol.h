@@ -22,41 +22,38 @@
  * SOFTWARE.
  */
 
-#include <fstream>
+#ifndef FUNDOT_SYMBOL_H
+#define FUNDOT_SYMBOL_H
 
-#include "fundot-eval.h"
-#include "fundot-io.h"
+#include <cstddef>
+#include <string>
 
-using namespace fundot;
+namespace fundot {
+class Symbol {
+public:
+    Symbol() = default;
+    Symbol(std::string&& str) : ident_(std::move(str)) {}
 
-int main(int argc, char* argv[])
-{
-    if (argc == 1) {
-        FunSet global;
-        Evaluator eval(global);
-        std::cout << ">>> ";
-        for(Object to_eval; std::cin >> to_eval; std::cout << ">>> ") {
-            std::cout << eval(to_eval) << "\n";
-        }
-        std::cout << "\n";
-        return 0;
-    }
-    if (argc == 2) {
-        std::fstream file(argv[1], std::ios_base::in | std::ios_base::app);
-        if (file.is_open()) {
-            file.seekg(-1, std::ios_base::end);
-            char last_char;
-            file >> last_char;
-            if (std::isspace(last_char) == false) {
-                file << "\n";
-            }
-            file.clear();
-            file.seekg(0);
-            FunSet global;
-            Evaluator eval(global);
-            for (Object to_eval; file >> to_eval; eval(to_eval)) {}
-        }
-        return 0;
-    }
-    return 0;
-}
+    explicit operator std::string() const { return ident_; }
+    explicit operator const std::string&() const { return ident_; }
+
+    char& operator[](std::size_t idx) { return ident_[idx]; }
+    char operator[](std::size_t idx) const { return ident_[idx]; }
+
+    char& back() { return ident_.back(); }
+    char back() const { return ident_.back(); }
+
+    bool empty() const { return ident_.empty(); }
+    std::size_t size() const { return ident_.size(); }
+
+    void clear() { ident_.clear(); }
+    void pushBack(char c) { ident_.push_back(c); }
+    void popBack() { ident_.pop_back(); }
+
+private:
+    std::string ident_;
+};
+
+}  // namespace fundot
+
+#endif
