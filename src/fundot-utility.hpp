@@ -22,41 +22,46 @@
  * SOFTWARE.
  */
 
-#include <fstream>
+#include "fundot-utility.h"
 
-#include "fundot-eval.h"
-#include "fundot-io.h"
+namespace fundot {
 
-using namespace fundot;
-
-int main(int argc, char* argv[])
-{
-    if (argc == 1) {
-        FunSet global;
-        Evaluator eval(global);
-        std::cout << ">>> ";
-        for(Object to_eval; std::cin >> to_eval; std::cout << ">>> ") {
-            std::cout << eval(to_eval) << "\n";
-        }
-        std::cout << "\n";
-        return 0;
+template<>
+struct Hash<String> {
+    std::size_t operator()(const String& str) const
+    {
+        return std::hash<std::string>{}(static_cast<std::string>(str));
     }
-    if (argc == 2) {
-        std::fstream file(argv[1], std::ios_base::in | std::ios_base::app);
-        if (file.is_open()) {
-            file.seekg(-1, std::ios_base::end);
-            char last_char;
-            file >> last_char;
-            if (std::isspace(last_char) == false) {
-                file << "\n";
-            }
-            file.clear();
-            file.seekg(0);
-            FunSet global;
-            Evaluator eval(global);
-            for (Object to_eval; file >> to_eval; eval(to_eval)) {}
+};
+
+template<>
+struct Hash<Symbol> {
+    std::size_t operator()(const Symbol& symbol) const
+    {
+        return std::hash<std::string>{}(static_cast<std::string>(symbol));
+    }
+};
+
+template<>
+struct Hash<Object> {
+    std::size_t operator()(const Object& obj) const
+    {
+        if (obj.hasType<Symbol>()) {
+            return Hash<Symbol>{}(get<const Symbol&>(obj));
+        }
+        if (obj.hasType<String>()) {
+            return Hash<String>{}(get<const String&>(obj));
         }
         return 0;
     }
-    return 0;
-}
+};
+
+template<>
+struct Hash<FunSetter> {
+    std::size_t operator()(const FunSetter& setter) const
+    {
+        return Hash<Object>{}(setter.key);
+    }
+};
+
+}  // namespace fundot

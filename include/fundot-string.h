@@ -22,41 +22,38 @@
  * SOFTWARE.
  */
 
-#include <fstream>
+#ifndef FUNDOT_STRING_H
+#define FUNDOT_STRING_H
 
-#include "fundot-eval.h"
-#include "fundot-io.h"
+#include <cstddef>
+#include <string>
 
-using namespace fundot;
+namespace fundot {
+class String {
+public:
+    String() = default;
+    String(std::string&& str) : str_(std::move(str)) {}
 
-int main(int argc, char* argv[])
-{
-    if (argc == 1) {
-        FunSet global;
-        Evaluator eval(global);
-        std::cout << ">>> ";
-        for(Object to_eval; std::cin >> to_eval; std::cout << ">>> ") {
-            std::cout << eval(to_eval) << "\n";
-        }
-        std::cout << "\n";
-        return 0;
-    }
-    if (argc == 2) {
-        std::fstream file(argv[1], std::ios_base::in | std::ios_base::app);
-        if (file.is_open()) {
-            file.seekg(-1, std::ios_base::end);
-            char last_char;
-            file >> last_char;
-            if (std::isspace(last_char) == false) {
-                file << "\n";
-            }
-            file.clear();
-            file.seekg(0);
-            FunSet global;
-            Evaluator eval(global);
-            for (Object to_eval; file >> to_eval; eval(to_eval)) {}
-        }
-        return 0;
-    }
-    return 0;
-}
+    explicit operator std::string() const { return str_; }
+    explicit operator const std::string&() const { return str_; }
+
+    char& operator[](std::size_t idx) { return str_[idx]; }
+    char operator[](std::size_t idx) const { return str_[idx]; }
+
+    char& back() { return str_.back(); }
+    char back() const { return str_.back(); }
+
+    bool empty() const { return str_.empty(); }
+    std::size_t size() const { return str_.size(); }
+
+    void clear() { str_.clear(); }
+    void pushBack(char c) { str_.push_back(c); }
+    void popBack() { str_.pop_back(); }
+
+private:
+    std::string str_;
+};
+
+}  // namespace fundot
+
+#endif
