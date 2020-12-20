@@ -22,24 +22,33 @@
  * SOFTWARE.
  */
 
+#include <fstream>
+
 #include "fundot-eval.h"
 #include "fundot-io.h"
 
 using namespace fundot;
 
-int main()
+int main(int argc, char* argv[])
 {
-    FunSet global;
-    Evaluator eval(global);
-    for (;;) {
+    if (argc == 1) {
+        FunSet global;
+        Evaluator eval(global);
         std::cout << ">>> ";
-        Object obj;
-        if (std::cin >> obj) {
-            std::cout << eval(obj) << "\n";
+        for(Object to_eval; std::cin >> to_eval; std::cout << ">>> ") {
+            std::cout << eval(to_eval) << "\n";
         }
-        else {
-            return 0;
+        std::cout << "\n";
+        return 0;
+    }
+    if (argc == 2) {
+        std::fstream file(argv[1]);
+        if (file.is_open()) {
+            FunSet global;
+            Evaluator eval(global);
+            for (Object to_eval; file >> to_eval; eval(to_eval)) {}
         }
+        return 0;
     }
     return 0;
 }

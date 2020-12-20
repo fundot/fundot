@@ -253,11 +253,8 @@ std::istream& operator>>(std::istream& in, Object& obj)
         }
     }
     in >> std::noskipws >> delimiter >> std::skipws;
-    if (delimiter == '\n') {
-        return in;
-    }
     if (std::isspace(delimiter)) {
-        in >> delimiter;
+        return in;
     }
     if (delimiter == ',') {
         return in;

@@ -8,3 +8,4 @@ fundot.dSYM
 obj
 test
 main
+*.fd
