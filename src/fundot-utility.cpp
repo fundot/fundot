@@ -55,6 +55,11 @@ bool operator>=(const String& lhs, const String& rhs)
     return !(lhs < rhs);
 }
 
+String operator+(const String& lhs, const String& rhs)
+{
+    return static_cast<std::string>(lhs) + static_cast<std::string>(rhs);
+}
+
 bool operator==(const Symbol& lhs, const Symbol& rhs)
 {
     return static_cast<std::string>(lhs) == static_cast<std::string>(rhs);
@@ -83,6 +88,11 @@ bool operator<=(const Symbol& lhs, const Symbol& rhs)
 bool operator>=(const Symbol& lhs, const Symbol& rhs)
 {
     return !(lhs < rhs);
+}
+
+Symbol operator+(const Symbol& lhs, const Symbol& rhs)
+{
+    return static_cast<std::string>(lhs) + static_cast<std::string>(rhs);
 }
 
 bool operator==(const Object& lhs, const Object& rhs)

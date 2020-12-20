@@ -88,12 +88,16 @@ bool operator>(const String& lhs, const String& rhs);
 bool operator<=(const String& lhs, const String& rhs);
 bool operator>=(const String& lhs, const String& rhs);
 
+String operator+(const String& lhs, const String& rhs);
+
 bool operator==(const Symbol& lhs, const Symbol& rhs);
 bool operator!=(const Symbol& lhs, const Symbol& rhs);
 bool operator<(const Symbol& lhs, const Symbol& rhs);
 bool operator>(const Symbol& lhs, const Symbol& rhs);
 bool operator<=(const Symbol& lhs, const Symbol& rhs);
 bool operator>=(const Symbol& lhs, const Symbol& rhs);
+
+Symbol operator+(const Symbol& lhs, const Symbol& rhs);
 
 bool operator==(const Object& lhs, const Object& rhs);
 bool operator!=(const Object& lhs, const Object& rhs);

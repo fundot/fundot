@@ -51,6 +51,10 @@ private:
 
     Object builtInQuit(const FunList& fun_list);
 
+    Object builtInLambda(const FunList& fun_list);
+
+    Object builtInDefun(const FunList& fun_list);
+
     Object builtInIf(const FunList& fun_list);
 
     Object builtInCond(const FunList& fun_list);

@@ -31,6 +31,28 @@ Object Evaluator::builtInQuit(const FunList& fun_list)
     return fun_list;
 }
 
+Object Evaluator::builtInLambda(const FunList& fun_list)
+{
+    FunList::ConstIterator iter = ++fun_list.begin();
+    FunSet function;
+    function.emplace(FunSetter(Symbol("type"), Symbol("function")));
+    function.emplace(FunSetter(Symbol("params"), *iter));
+    function.emplace(FunSetter(Symbol("body"), *(++iter)));
+    return function;
+}
+
+Object Evaluator::builtInDefun(const FunList& fun_list)
+{
+    FunList::ConstIterator iter = ++fun_list.begin();
+    Symbol name(*iter);
+    FunList lambda;
+    lambda.pushBack(Symbol("lambda"));
+    while (++iter != fun_list.end()) {
+        lambda.pushBack(*iter);
+    }
+    return eval(FunSetter(name, eval(lambda)));
+}
+
 Object Evaluator::builtInIf(const FunList& fun_list)
 {
     FunList::ConstIterator iter = ++fun_list.begin();
@@ -254,6 +276,8 @@ Object Evaluator::eval(const FunList& fun_list)
     static std::unordered_map<
         Object, std::function<Object(Evaluator*, const FunList&)>, Hash<Object>>
         built_in_macros = {{Symbol("quit"), &Evaluator::builtInQuit},
+                           {Symbol("lambda"), &Evaluator::builtInLambda},
+                           {Symbol("defun"), &Evaluator::builtInDefun},
                            {Symbol("if"), &Evaluator::builtInIf},
                            {Symbol("cond"), &Evaluator::builtInCond},
                            {Symbol("while"), &Evaluator::builtInWhile}};
@@ -288,6 +312,39 @@ Object Evaluator::eval(const FunList& fun_list)
         != built_in_functions.end()) {
         return built_in_functions[after_eval.front()](this, after_eval);
     }
+    if (after_eval.front().hasType<FunSet>()) {
+        const FunSet& function = get<const FunSet&>(after_eval.front());
+        FunSet::ConstIterator it = function.find(FunSetter(Symbol("type")));
+        if (it != function.end()
+            && get<const FunSetter&>(*it).value == Symbol("function")) {
+            FunSet local = scope_;
+            Evaluator local_eval(local, in_, out_);
+            it = function.find(FunSetter(Symbol("params")));
+            if (it != function.end()) {
+                const Object& body = get<const FunSetter&>(*it).value;
+                if (body.hasType<FunList>()) {
+                    const FunList& params = get<const FunList&>(body);
+                    FunList::ConstIterator param_iter = params.begin();
+                    FunList::Iterator arg_iter = ++after_eval.begin();
+                    while (param_iter != params.end()
+                           && arg_iter != after_eval.end()) {
+                        local_eval(FunSetter(*param_iter, *arg_iter));
+                        ++param_iter;
+                        ++arg_iter;
+                    }
+                }
+            }
+            Object to_eval;
+            it = function.find(FunSetter(Symbol("body")));
+            if (it != function.end()) {
+                to_eval = get<const FunSetter&>(*it).value;
+            }
+            else {
+                to_eval = Null();
+            }
+            return local_eval(to_eval);
+        }
+    }
     return after_eval;
 }
 
@@ -297,7 +354,7 @@ Object Evaluator::eval(const FunVector& fun_vector)
     for (const Object& obj : fun_vector) {
         after_eval.pushBack(eval(obj));
     }
-    return after_eval;
+    return after_eval.back();
 }
 
 Object Evaluator::eval(const Object& obj)
