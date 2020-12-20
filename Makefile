@@ -26,7 +26,7 @@ CXXFLAGS := -std=c++17 -O0 -g -Wall -Wextra -Werror
 LD := g++
 LDFLAGS := -std=c++17
 
-TARGETS := main
+TARGETS := fundot
 
 SRC_DIR := src
 INC_DIR := include
