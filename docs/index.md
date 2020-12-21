@@ -14,6 +14,10 @@ Follow the README in the above link to install Fundot.
 
 Currently not available.
 
+* [Cheatsheet](cheatsheet.md)
+
+A cheatsheet that describes how Fundot reads "code as data".
+
 ## References
 
 * Language Specification
