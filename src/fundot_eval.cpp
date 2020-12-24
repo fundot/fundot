@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include "fundot-eval.h"
+#include "fundot_eval.h"
 
 namespace fundot {
 Object Evaluator::builtInQuit(const FunList& fun_list)

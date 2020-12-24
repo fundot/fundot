@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include "fundot-utility.h"
+#include "fundot_utility.h"
 
 namespace fundot {
 bool operator==(const String& lhs, const String& rhs)

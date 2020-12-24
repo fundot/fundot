@@ -28,8 +28,8 @@
 #include <functional>
 #include <unordered_map>
 
-#include "fundot-io.h"
-#include "fundot-utility.h"
+#include "fundot_io.h"
+#include "fundot_utility.h"
 
 namespace fundot {
 class Evaluator {

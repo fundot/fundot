@@ -22,46 +22,41 @@
  * SOFTWARE.
  */
 
-#include "fundot-utility.h"
+#ifndef FUNDOT_IO_H
+#define FUNDOT_IO_H
+
+#include <cstddef>
+#include <iostream>
+#include <unordered_set>
+
+#include "fundot_utility.h"
 
 namespace fundot {
+std::ostream& operator<<(std::ostream& out, const FunGetter& getter);
 
-template<>
-struct Hash<String> {
-    std::size_t operator()(const String& str) const
-    {
-        return std::hash<std::string>{}(static_cast<std::string>(str));
-    }
-};
+std::istream& operator>>(std::istream& in, FunList& fun_list);
+std::ostream& operator<<(std::ostream& out, const FunList& fun_list);
 
-template<>
-struct Hash<Symbol> {
-    std::size_t operator()(const Symbol& symbol) const
-    {
-        return std::hash<std::string>{}(static_cast<std::string>(symbol));
-    }
-};
+std::ostream& operator<<(std::ostream& out, const FunQuote& fun_quote);
 
-template<>
-struct Hash<Object> {
-    std::size_t operator()(const Object& obj) const
-    {
-        if (obj.hasType<Symbol>()) {
-            return Hash<Symbol>{}(get<const Symbol&>(obj));
-        }
-        if (obj.hasType<String>()) {
-            return Hash<String>{}(get<const String&>(obj));
-        }
-        return 0;
-    }
-};
+std::ostream& operator<<(std::ostream& out, const FunSetter& setter);
 
-template<>
-struct Hash<FunSetter> {
-    std::size_t operator()(const FunSetter& setter) const
-    {
-        return Hash<Object>{}(setter.key);
-    }
-};
+std::istream& operator>>(std::istream& in, String& str);
+std::ostream& operator<<(std::ostream& out, const String& str);
+
+std::istream& operator>>(std::istream& in, Symbol& symbol);
+std::ostream& operator<<(std::ostream& out, const Symbol& symbol);
+
+std::istream& operator>>(std::istream& in, FunSet& fun_set);
+std::ostream& operator<<(std::ostream& out, const FunSet& fun_set);
+
+std::istream& operator>>(std::istream& in, FunVector& fun_vector);
+
+std::ostream& operator<<(std::ostream& out, const FunVector& fun_vector);
+
+std::istream& operator>>(std::istream& in, Object& obj);
+std::ostream& operator<<(std::ostream& out, const Object& obj);
 
 }  // namespace fundot
+
+#endif

@@ -28,12 +28,12 @@
 #include <cstdlib>
 #include <string>
 
-#include "fundot-list.h"
-#include "fundot-object.h"
-#include "fundot-string.h"
-#include "fundot-symbol.h"
-#include "fundot-unordered-set.h"
-#include "fundot-vector.h"
+#include "fundot_list.h"
+#include "fundot_object.h"
+#include "fundot_string.h"
+#include "fundot_symbol.h"
+#include "fundot_unordered_set.h"
+#include "fundot_vector.h"
 
 namespace fundot {
 template<typename K, typename V>
@@ -114,6 +114,6 @@ Object operator%(const Object& lhs, const Object& rhs);
 
 }  // namespace fundot
 
-#include "fundot-utility.hpp"
+#include "fundot_utility.hpp"
 
 #endif

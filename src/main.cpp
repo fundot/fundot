@@ -24,8 +24,8 @@
 
 #include <fstream>
 
-#include "fundot-eval.h"
-#include "fundot-io.h"
+#include "fundot_eval.h"
+#include "fundot_io.h"
 
 using namespace fundot;
 

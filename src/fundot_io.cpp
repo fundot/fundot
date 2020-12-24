@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include "fundot-io.h"
+#include "fundot_io.h"
 
 namespace fundot {
 std::ostream& operator<<(std::ostream& out, const FunGetter& getter)
