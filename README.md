@@ -78,5 +78,5 @@ Contributions are welcome. The guideline is coming soon.
 
 ## License
 
-MIT License © Jiacheng Huang
+MIT License © Fundot Community
 
