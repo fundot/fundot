@@ -40,7 +40,7 @@ After displaying `>>> `, you may enjoy Fundot until you call `quit`.
 35
 >>> (quit)
 ```
-For file execution mode, enter `fundot` followed by the name of the source file. Suppose we have a source file named `example.fd` that contains the following code.
+For file execution mode, enter `fundot` followed by the name of the source file. Suppose we have a source file named `example.fun` that contains the following code.
 
 ```Fundot
 (defun abs [x]
@@ -58,7 +58,7 @@ For file execution mode, enter `fundot` followed by the name of the source file.
 (print (sqrt 4))
 (print (sqrt 65536))
 ```
-Then if we enter `fundot example.fd` in the terminal, we will get the output shown below.
+Then if we enter `fundot example.fun` in the terminal, we will get the output shown below.
 
     1
     1.41421
