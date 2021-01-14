@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
         while (scan(std::cin, to_eval)) {
             after_eval = eval(to_eval);
             if (after_eval.value.type() != typeid(Void)) {
-                std::cout << eval(to_eval) << '\n';
+                std::cout << after_eval << '\n';
             }
             std::cout << ">>> ";
         }
@@ -39,4 +39,5 @@ int main(int argc, char* argv[])
         }
         return 0;
     }
+    return 0;
 }

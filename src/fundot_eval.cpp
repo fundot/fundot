@@ -258,7 +258,7 @@ Object Evaluator::eval(const Symbol& symbol)
 {
     Object* obj_ptr = get(scope_, {symbol});
     if (obj_ptr != nullptr) {
-        return *obj_ptr;
+        return eval(*obj_ptr);
     }
     return {symbol};
 }
@@ -267,7 +267,7 @@ Object Evaluator::eval(const Getter& getter)
 {
     Object* obj_ptr = get(scope_, getter);
     if (obj_ptr != nullptr) {
-        return *obj_ptr;
+        return eval(*obj_ptr);
     }
     return {Null()};
 }
@@ -281,7 +281,7 @@ Object Evaluator::eval(const Setter& setter)
         const Getter& getter =
             std::any_cast<const Getter&>(setter.value.first.value);
         scope_ptr = get(scope_, getter.value.first);
-        if (getter.value.first.value.type() == typeid(getter)) {
+        if (getter.value.first.value.type() == typeid(Getter)) {
             scope_ptr = get(
                 scope_, std::any_cast<const Getter&>(getter.value.first.value));
         }
@@ -294,11 +294,11 @@ Object Evaluator::eval(const Setter& setter)
                 local.value.insert({setter_copy});
             }
         }
-        return {setter.value.second};
+        return setter_copy.value.second;
     }
     scope_.value.erase({setter_copy});
     scope_.value.insert({setter_copy});
-    return {setter.value.second};
+    return setter_copy.value.second;
 }
 
 Object Evaluator::eval(const List& list)
@@ -342,6 +342,11 @@ Object Evaluator::eval(const List& list)
         return local_eval(function.body);
     }
     return {after_eval.value.back()};
+}
+
+Object Evaluator::eval(const Quote& quote)
+{
+    return quote.value;
 }
 
 Object Evaluator::eval(const Object& object)
@@ -420,6 +425,9 @@ Object Evaluator::eval(const Object& object)
     }
     if (object.value.type() == typeid(List)) {
         return eval(std::any_cast<const List&>(object.value));
+    }
+    if (object.value.type() == typeid(Quote)) {
+        return eval(std::any_cast<const Quote&>(object.value));
     }
     return object;
 }

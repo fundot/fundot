@@ -568,6 +568,22 @@ std::ostream& operator<<(std::ostream& os, const RightShift& right_shift)
     return os << right_shift.value.first << " >> " << right_shift.value.second;
 }
 
+std::ostream& operator<<(std::ostream& os, const Function& function)
+{
+    UnorderedSet set;
+    Setter setter;
+    setter.value.first.value = Symbol({"type"});
+    setter.value.second.value = Symbol({"function"});
+    set.value.insert({setter});
+    setter.value.first.value = Symbol({"params"});
+    setter.value.second.value = function.params;
+    set.value.insert({setter});
+    setter.value.first.value = Symbol({"body"});
+    setter.value.second = function.body;
+    set.value.insert({setter});
+    return os << set;
+}
+
 std::ostream& operator<<(std::ostream& os, const Object& object)
 {
     const auto& value = object.value;
@@ -667,6 +683,9 @@ std::ostream& operator<<(std::ostream& os, const Object& object)
     if (value.type() == typeid(BitwiseNot)) {
         return os << std::any_cast<const BitwiseNot&>(value);
     }
+    if (value.type() == typeid(Function)) {
+        return os << std::any_cast<const Function&>(value);
+    }
     return os;
 }
 
@@ -684,7 +703,7 @@ std::istream& Scanner::operator()(std::istream& is, Object& object) const
         is >> std::skipws;
         if (c == '\n') {
             parse(list);
-            object.value = List({list});
+            object = list.back();
             return is;
         }
         is.putback(c);
