@@ -40,6 +40,24 @@ private:
 
     Object eval(const NotEqualTo& not_equal_to);
 
+    Object eval(const And& logical_and);
+
+    Object eval(const Or& logical_or);
+
+    Object eval(const Not& logical_not);
+
+    Object eval(const BitwiseAnd& bitwise_and);
+
+    Object eval(const BitwiseOr& bitwise_or);
+
+    Object eval(const BitwiseXor& bitwise_xor);
+
+    Object eval(const BitwiseNot& bitwise_not);
+
+    Object eval(const LeftShift& left_shift);
+
+    Object eval(const RightShift& right_shift);
+
     Object eval(const Symbol& symbol);
 
     Object eval(const Getter& getter);

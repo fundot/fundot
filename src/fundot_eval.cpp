@@ -209,6 +209,51 @@ Object Evaluator::eval(const NotEqualTo& not_equal_to)
         {eval(not_equal_to.value.first) != eval(not_equal_to.value.second)})};
 }
 
+Object Evaluator::eval(const And& logical_and)
+{
+    return eval(logical_and.value.first) && eval(logical_and.value.second);
+}
+
+Object Evaluator::eval(const Or& logical_or)
+{
+    return eval(logical_or.value.first) || eval(logical_or.value.second);
+}
+
+Object Evaluator::eval(const Not& logical_not)
+{
+    return !eval(logical_not.value);
+}
+
+Object Evaluator::eval(const BitwiseAnd& bitwise_and)
+{
+    return eval(bitwise_and.value.first) & eval(bitwise_and.value.second);
+}
+
+Object Evaluator::eval(const BitwiseOr& bitwise_or)
+{
+    return eval(bitwise_or.value.first) | eval(bitwise_or.value.second);
+}
+
+Object Evaluator::eval(const BitwiseXor& bitwise_xor)
+{
+    return eval(bitwise_xor.value.first) ^ eval(bitwise_xor.value.second);
+}
+
+Object Evaluator::eval(const BitwiseNot& bitwise_not)
+{
+    return ~eval(bitwise_not.value);
+}
+
+Object Evaluator::eval(const LeftShift& left_shift)
+{
+    return eval(left_shift.value.first) << eval(left_shift.value.second);
+}
+
+Object Evaluator::eval(const RightShift& right_shift)
+{
+    return eval(right_shift.value.first) >> eval(right_shift.value.second);
+}
+
 Object Evaluator::eval(const Symbol& symbol)
 {
     Object* obj_ptr = get(scope_, {symbol});
@@ -336,6 +381,33 @@ Object Evaluator::eval(const Object& object)
     }
     if (object.value.type() == typeid(NotEqualTo)) {
         return eval(std::any_cast<const NotEqualTo&>(object.value));
+    }
+    if (object.value.type() == typeid(And)) {
+        return eval(std::any_cast<const And&>(object.value));
+    }
+    if (object.value.type() == typeid(Or)) {
+        return eval(std::any_cast<const Or&>(object.value));
+    }
+    if (object.value.type() == typeid(Not)) {
+        return eval(std::any_cast<const Not&>(object.value));
+    }
+    if (object.value.type() == typeid(BitwiseAnd)) {
+        return eval(std::any_cast<const BitwiseAnd&>(object.value));
+    }
+    if (object.value.type() == typeid(BitwiseOr)) {
+        return eval(std::any_cast<const BitwiseOr&>(object.value));
+    }
+    if (object.value.type() == typeid(BitwiseXor)) {
+        return eval(std::any_cast<const BitwiseXor&>(object.value));
+    }
+    if (object.value.type() == typeid(BitwiseNot)) {
+        return eval(std::any_cast<const BitwiseNot&>(object.value));
+    }
+    if (object.value.type() == typeid(LeftShift)) {
+        return eval(std::any_cast<const LeftShift&>(object.value));
+    }
+    if (object.value.type() == typeid(RightShift)) {
+        return eval(std::any_cast<const RightShift&>(object.value));
     }
     if (object.value.type() == typeid(Symbol)) {
         return eval(std::any_cast<const Symbol&>(object.value));

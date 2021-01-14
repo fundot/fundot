@@ -89,6 +89,42 @@ struct Negator {
     Object value;
 };
 
+struct And {
+    std::pair<Object, Object> value;
+};
+
+struct Or {
+    std::pair<Object, Object> value;
+};
+
+struct Not {
+    Object value;
+};
+
+struct BitwiseAnd {
+    std::pair<Object, Object> value;
+};
+
+struct BitwiseOr {
+    std::pair<Object, Object> value;
+};
+
+struct BitwiseXor {
+    std::pair<Object, Object> value;
+};
+
+struct LeftShift {
+    std::pair<Object, Object> value;
+};
+
+struct RightShift {
+    std::pair<Object, Object> value;
+};
+
+struct BitwiseNot {
+    Object value;
+};
+
 struct Quote {
     Object value;
 };
@@ -172,6 +208,24 @@ Object operator/(const Object& lhs, const Object& rhs);
 Object operator%(const Object& lhs, const Object& rhs);
 
 Object operator-(const Object& object);
+
+Object operator&&(const Object& lhs, const Object& rhs);
+
+Object operator||(const Object& lhs, const Object& rhs);
+
+Object operator!(const Object& object);
+
+Object operator&(const Object& lhs, const Object& rhs);
+
+Object operator|(const Object& lhs, const Object& rhs);
+
+Object operator^(const Object& lhs, const Object& rhs);
+
+Object operator~(const Object& object);
+
+Object operator<<(const Object& lhs, const Object& rhs);
+
+Object operator>>(const Object& lhs, const Object& rhs);
 
 struct UnorderedSet {
     std::unordered_set<Object, Hash<Object>> value;

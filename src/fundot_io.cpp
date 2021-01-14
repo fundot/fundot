@@ -6,9 +6,12 @@ std::list<Object>::iterator findUnaryOperator(std::list<Object>& list)
 {
     static std::unordered_set<Object, Hash<Object>> binary_operators = {
         {Symbol({"."})},  {Symbol({"*"})},  {Symbol({"/"})},  {Symbol({"%"})},
-        {Symbol({"+"})},  {Symbol({"-"})},  {Symbol({"<"})},  {Symbol({">"})},
-        {Symbol({"<="})}, {Symbol({">="})}, {Symbol({"=="})}, {Symbol({"."})}};
-    static std::list<Symbol> unary_operators = {{"+"}, {"-"}};
+        {Symbol({"+"})},  {Symbol({"-"})},  {Symbol({"<<"})}, {Symbol({">>"})},
+        {Symbol({"<"})},  {Symbol({">"})},  {Symbol({"<="})}, {Symbol({">="})},
+        {Symbol({"=="})}, {Symbol({"!="})}, {Symbol({"&"})},  {Symbol({"^"})},
+        {Symbol({"|"})},  {Symbol({"&&"})}, {Symbol({"||"})}, {Symbol({"="})},
+        {Symbol({":"})}};
+    static std::list<Symbol> unary_operators = {{"+"}, {"-"}, {"!"}, {"~"}};
     for (const auto& symbol : unary_operators) {
         auto iter = std::find(list.begin(), list.end(), Object({symbol}));
         if (iter != list.end()) {
@@ -36,6 +39,18 @@ void parseUnaryOperator(std::list<Object>& list)
             *iter = {Negator({*next})};
             list.erase(next);
         }
+        else if (*iter == Object({Symbol({"!"})})) {
+            auto next = iter;
+            ++next;
+            *iter = {Not({*next})};
+            list.erase(next);
+        }
+        else if (*iter == Object({Symbol({"~"})})) {
+            auto next = iter;
+            ++next;
+            *iter = {BitwiseNot({*next})};
+            list.erase(next);
+        }
         iter = findUnaryOperator(list);
     }
 }
@@ -44,6 +59,9 @@ Object buildBinaryOperator(const Symbol& symbol,
                            const std::pair<Object, Object>& pair)
 {
     if (symbol.value == ":") {
+        return {Setter({pair})};
+    }
+    if (symbol.value == "=") {
         return {Setter({pair})};
     }
     if (symbol.value == ".") {
@@ -79,14 +97,39 @@ Object buildBinaryOperator(const Symbol& symbol,
     if (symbol.value == "==") {
         return {EqualTo({pair})};
     }
+    if (symbol.value == "!=") {
+        return {NotEqualTo({pair})};
+    }
+    if (symbol.value == "&&") {
+        return {And({pair})};
+    }
+    if (symbol.value == "||") {
+        return {Or({pair})};
+    }
+    if (symbol.value == "&") {
+        return {BitwiseAnd({pair})};
+    }
+    if (symbol.value == "|") {
+        return {BitwiseOr({pair})};
+    }
+    if (symbol.value == "^") {
+        return {BitwiseXor({pair})};
+    }
+    if (symbol.value == "<<") {
+        return {LeftShift({pair})};
+    }
+    if (symbol.value == ">>") {
+        return {RightShift({pair})};
+    }
     return {};
 }
 
 void parseBinaryOperator(std::list<Object>& list)
 {
-    static std::list<Symbol> operators = {{"."},  {"*"},  {"/"},  {"%"},
-                                          {"+"},  {"-"},  {"<"},  {">"},
-                                          {"<="}, {">="}, {"=="}, {":"}};
+    static std::list<Symbol> operators = {
+        {"."},  {"*"}, {"/"}, {"%"},  {"+"},  {"-"},  {"<<"},
+        {">>"}, {"<"}, {">"}, {"<="}, {">="}, {"=="}, {"!="},
+        {"&"},  {"^"}, {"|"}, {"&&"}, {"||"}, {"="},  {":"}};
     for (const auto& symbol : operators) {
         Object to_find({symbol});
         auto iter = std::find(list.begin(), list.end(), to_find);
@@ -129,13 +172,14 @@ std::istream& operator>>(std::istream& is, String& string)
 std::istream& operator>>(std::istream& is, Symbol& symbol)
 {
     static std::unordered_set<char> delimiters = {
-        ')',  ']',  '}',  ',', '"', '\'', ':', '.', ' ', '\n', '\t',
-        '\v', '\f', '\r', '(', '[', '{',  '+', '-', '*', '/',  '%'};
+        ')',  ']',  '}',  ',',  '"', '\'', ':', '.', ' ', '\n',
+        '\t', '\v', '\f', '\r', '(', '[',  '{', '+', '-', '*',
+        '/',  '%',  '<',  '>',  '=', '&',  '|', '^', '~', '!'};
     std::string& value = symbol.value;
     value.clear();
     char c;
     is >> c;
-    if (c == '<' || c == '>' || c == '=') {
+    if (c == '=' || c == '!') {
         value.push_back(c);
         is >> c;
         if (c == '=') {
@@ -143,6 +187,28 @@ std::istream& operator>>(std::istream& is, Symbol& symbol)
             return is;
         }
         is.putback(c);
+        return is;
+    }
+    if (c == '<' || c == '>') {
+        value.push_back(c);
+        char ch;
+        is >> ch;
+        if (ch == c || ch == '=') {
+            value.push_back(ch);
+            return is;
+        }
+        is.putback(ch);
+        return is;
+    }
+    if (c == '&' || c == '|') {
+        value.push_back(c);
+        char ch;
+        is >> ch;
+        if (ch == c) {
+            value.push_back(ch);
+            return is;
+        }
+        is.putback(ch);
         return is;
     }
     if (delimiters.find(c) != delimiters.end()) {
@@ -457,6 +523,51 @@ std::ostream& operator<<(std::ostream& os, const Negator& negator)
     return os << '-' << negator.value;
 }
 
+std::ostream& operator<<(std::ostream& os, const And& logical_and)
+{
+    return os << logical_and.value.first << " && " << logical_and.value.second;
+}
+
+std::ostream& operator<<(std::ostream& os, const Or& logical_or)
+{
+    return os << logical_or.value.first << " || " << logical_or.value.second;
+}
+
+std::ostream& operator<<(std::ostream& os, const Not& logical_not)
+{
+    return os << '!' << logical_not.value;
+}
+
+std::ostream& operator<<(std::ostream& os, const BitwiseAnd& bitwise_and)
+{
+    return os << bitwise_and.value.first << " & " << bitwise_and.value.second;
+}
+
+std::ostream& operator<<(std::ostream& os, const BitwiseOr& bitwise_or)
+{
+    return os << bitwise_or.value.first << " | " << bitwise_or.value.second;
+}
+
+std::ostream& operator<<(std::ostream& os, const BitwiseXor& bitwise_xor)
+{
+    return os << bitwise_xor.value.first << " ^ " << bitwise_xor.value.second;
+}
+
+std::ostream& operator<<(std::ostream& os, const BitwiseNot& bitwise_not)
+{
+    return os << '~' << bitwise_not.value;
+}
+
+std::ostream& operator<<(std::ostream& os, const LeftShift& left_shift)
+{
+    return os << left_shift.value.first << " << " << left_shift.value.second;
+}
+
+std::ostream& operator<<(std::ostream& os, const RightShift& right_shift)
+{
+    return os << right_shift.value.first << " >> " << right_shift.value.second;
+}
+
 std::ostream& operator<<(std::ostream& os, const Object& object)
 {
     const auto& value = object.value;
@@ -528,6 +639,33 @@ std::ostream& operator<<(std::ostream& os, const Object& object)
     }
     if (value.type() == typeid(Null)) {
         return os << "null";
+    }
+    if (value.type() == typeid(And)) {
+        return os << std::any_cast<const And&>(value);
+    }
+    if (value.type() == typeid(Or)) {
+        return os << std::any_cast<const Or&>(value);
+    }
+    if (value.type() == typeid(Not)) {
+        return os << std::any_cast<const Not&>(value);
+    }
+    if (value.type() == typeid(BitwiseAnd)) {
+        return os << std::any_cast<const BitwiseAnd&>(value);
+    }
+    if (value.type() == typeid(BitwiseOr)) {
+        return os << std::any_cast<const BitwiseOr&>(value);
+    }
+    if (value.type() == typeid(BitwiseXor)) {
+        return os << std::any_cast<const BitwiseXor&>(value);
+    }
+    if (value.type() == typeid(LeftShift)) {
+        return os << std::any_cast<const LeftShift&>(value);
+    }
+    if (value.type() == typeid(RightShift)) {
+        return os << std::any_cast<const RightShift&>(value);
+    }
+    if (value.type() == typeid(BitwiseNot)) {
+        return os << std::any_cast<const BitwiseNot&>(value);
     }
     return os;
 }

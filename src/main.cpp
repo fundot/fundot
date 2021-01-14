@@ -10,9 +10,13 @@ int main(int argc, char* argv[])
         Scanner scan;
         Object to_eval;
         Evaluator eval;
+        Object after_eval;
         std::cout << ">>> ";
         while (scan(std::cin, to_eval)) {
-            std::cout << eval(to_eval) << '\n';
+            after_eval = eval(to_eval);
+            if (after_eval.value.type() != typeid(Void)) {
+                std::cout << eval(to_eval) << '\n';
+            }
             std::cout << ">>> ";
         }
         std::cout << std::endl;

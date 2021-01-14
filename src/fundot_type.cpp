@@ -207,4 +207,86 @@ Object operator-(const Object& object)
     return object;
 }
 
+Object operator&&(const Object& lhs, const Object& rhs)
+{
+    bool first = !(lhs.value.type() == typeid(Null)
+                   || lhs == Object({Boolean({false})}));
+    bool second = !(rhs.value.type() == typeid(Null)
+                    || rhs == Object({Boolean({false})}));
+    return {Boolean({first && second})};
+}
+
+Object operator||(const Object& lhs, const Object& rhs)
+{
+    bool first = !(lhs.value.type() == typeid(Null)
+                   || lhs == Object({Boolean({false})}));
+    bool second = !(rhs.value.type() == typeid(Null)
+                    || rhs == Object({Boolean({false})}));
+    return {Boolean({first || second})};
+}
+
+Object operator!(const Object& object)
+{
+    return {Boolean({object.value.type() == typeid(Null)
+                     || object == Object({Boolean({false})})})};
+}
+
+Object operator&(const Object& lhs, const Object& rhs)
+{
+    if (lhs.value.type() == typeid(Integer)
+        && rhs.value.type() == typeid(Integer)) {
+        return {Integer({std::any_cast<const Integer&>(lhs.value).value
+                         & std::any_cast<const Integer&>(rhs.value).value})};
+    }
+    return {Null()};
+}
+
+Object operator|(const Object& lhs, const Object& rhs)
+{
+    if (lhs.value.type() == typeid(Integer)
+        && rhs.value.type() == typeid(Integer)) {
+        return {Integer({std::any_cast<const Integer&>(lhs.value).value
+                         | std::any_cast<const Integer&>(rhs.value).value})};
+    }
+    return {Null()};
+}
+
+Object operator^(const Object& lhs, const Object& rhs)
+{
+    if (lhs.value.type() == typeid(Integer)
+        && rhs.value.type() == typeid(Integer)) {
+        return {Integer({std::any_cast<const Integer&>(lhs.value).value
+                         ^ std::any_cast<const Integer&>(rhs.value).value})};
+    }
+    return {Null()};
+}
+
+Object operator~(const Object& object)
+{
+    if (object.value.type() == typeid(Integer)) {
+        return {Integer({~std::any_cast<const Integer&>(object.value).value})};
+    }
+    return {Null()};
+}
+
+Object operator<<(const Object& lhs, const Object& rhs)
+{
+    if (lhs.value.type() == typeid(Integer)
+        && rhs.value.type() == typeid(Integer)) {
+        return {Integer({std::any_cast<const Integer&>(lhs.value).value
+                         << std::any_cast<const Integer&>(rhs.value).value})};
+    }
+    return {Null()};
+}
+
+Object operator>>(const Object& lhs, const Object& rhs)
+{
+    if (lhs.value.type() == typeid(Integer)
+        && rhs.value.type() == typeid(Integer)) {
+        return {Integer({std::any_cast<const Integer&>(lhs.value).value
+                         >> std::any_cast<const Integer&>(rhs.value).value})};
+    }
+    return {Null()};
+}
+
 }  // namespace fundot
