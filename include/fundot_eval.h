@@ -64,6 +64,8 @@ private:
 
     Object eval(const Setter& setter);
 
+    Object eval(const Assignment& assignment);
+
     Object eval(const List& list);
 
     Object eval(const Quote& quote);

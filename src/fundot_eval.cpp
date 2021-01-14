@@ -86,6 +86,14 @@ Object quit(Evaluator*, const List&)
     exit(EXIT_SUCCESS);
 }
 
+Object eval_(Evaluator* eval, const List& list)
+{
+    if (list.value.size() < 2) {
+        return {Null()};
+    }
+    return (*eval)(*++list.value.begin());
+}
+
 Object scan(Evaluator*, const List&)
 {
     Object object;
@@ -301,6 +309,12 @@ Object Evaluator::eval(const Setter& setter)
     return setter_copy.value.second;
 }
 
+Object Evaluator::eval(const Assignment& assignment)
+{
+    return eval(
+        {Setter({{eval(assignment.value.first), assignment.value.second}})});
+}
+
 Object Evaluator::eval(const List& list)
 {
     static std::unordered_map<
@@ -320,7 +334,9 @@ Object Evaluator::eval(const List& list)
     static std::unordered_map<
         Object, std::function<Object(Evaluator*, const List&)>, Hash<Object>>
         built_in_functions = {{{Symbol({"global"})}, &Evaluator::global},
+
                               {{Symbol({"quit"})}, quit},
+                              {{Symbol({"eval"})}, eval_},
                               {{Symbol({"scan"})}, scan},
                               {{Symbol({"print"})}, print}};
     if (built_in_functions.find(list.value.front())
@@ -422,6 +438,9 @@ Object Evaluator::eval(const Object& object)
     }
     if (object.value.type() == typeid(Setter)) {
         return eval(std::any_cast<const Setter&>(object.value));
+    }
+    if (object.value.type() == typeid(Assignment)) {
+        return eval(std::any_cast<const Assignment&>(object.value));
     }
     if (object.value.type() == typeid(List)) {
         return eval(std::any_cast<const List&>(object.value));

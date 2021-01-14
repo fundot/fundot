@@ -62,7 +62,7 @@ Object buildBinaryOperator(const Symbol& symbol,
         return {Setter({pair})};
     }
     if (symbol.value == "=") {
-        return {Setter({pair})};
+        return {Assignment({pair})};
     }
     if (symbol.value == ".") {
         return {Getter({pair})};
@@ -462,6 +462,11 @@ std::ostream& operator<<(std::ostream& os, const Getter& getter)
     return os << getter.value.first << '.' << getter.value.second;
 }
 
+std::ostream& operator<<(std::ostream& os, const Assignment& assignment)
+{
+    return os << assignment.value.first << " = " << assignment.value.second;
+}
+
 std::ostream& operator<<(std::ostream& os, const Adder& adder)
 {
     return os << adder.value.first << " + " << adder.value.second;
@@ -616,6 +621,9 @@ std::ostream& operator<<(std::ostream& os, const Object& object)
     }
     if (value.type() == typeid(Getter)) {
         return os << std::any_cast<const Getter&>(value);
+    }
+    if (value.type() == typeid(Assignment)) {
+        return os << std::any_cast<const Assignment&>(value);
     }
     if (value.type() == typeid(Adder)) {
         return os << std::any_cast<const Adder&>(value);

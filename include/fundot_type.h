@@ -41,6 +41,10 @@ struct Getter {
     std::pair<Object, Object> value;
 };
 
+struct Assignment {
+    std::pair<Object, Object> value;
+};
+
 struct Adder {
     std::pair<Object, Object> value;
 };
