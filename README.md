@@ -28,34 +28,29 @@ For REPL mode, simply enter `fundot` in the terminal.
 After displaying `>>> `, you may enjoy Fundot until you call `quit`.
 
 ```Fundot
->>> mike: {name: "Mike", age: 19}
-{ name: "Mike", age: 19, }
+>>> mike : {name : "Mike", age : 19}
+{name : "Mike", age : 19}
 >>> mike.age
 19
->>> (defun square (x) (mul x x))
-{ type: function, params: ( x ), body: ( mul x x ), }
+>>> (defun square [x] x * x)
+{body : x * x, params : [x], type : function}
 >>> (square 4)
 16
->>> mike.age: (add mike.age 16)
+>>> mike.age : mike.age + 16
 35
 >>> (quit)
 ```
 For file execution mode, enter `fundot` followed by the name of the source file. Suppose we have a source file named `example.fd` that contains the following code.
 
 ```Fundot
-(defun square (x) (mul x x))
+(defun abs [x]
+  (if x < 0 (-x) x))
 
-(defun abs (x)
-  (if (comp< x 0)
-    (sub 0 x)
-    x))
-
-(defun sqrt (x) [
-  root: x,
-  precision: 1e-9,
-  (while (comp> (abs (sub x (square root))) precision)
-    root: (div (add root (div x root)) 2)),
-  root])
+(defun sqrt [x]
+  (root : x
+   precision : 1e-9
+   (while (abs x - root * root) > precision root : (root + x / root) / 2)
+   root))
 
 (print (sqrt 1))
 (print (sqrt 2))
@@ -78,5 +73,5 @@ Contributions are welcome. The guideline is coming soon.
 
 ## License
 
-MIT License © Jiacheng Huang
+MIT License © Fundot Community
 

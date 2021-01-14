@@ -1,109 +1,76 @@
-/**
- * MIT License
-
- * Copyright (c) 2020 Jiacheng Huang
-
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
-
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
-
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #ifndef FUNDOT_EVAL_H
 #define FUNDOT_EVAL_H
 
-#include <functional>
 #include <unordered_map>
 
 #include "fundot_io.h"
-#include "fundot_utility.h"
 
 namespace fundot {
+
 class Evaluator {
 public:
-    Evaluator(FunSet& scope, std::istream& in = std::cin,
-              std::ostream& out = std::cout)
-        : scope_(scope), in_(in), out_(out)
-    {
-    }
-
-    Object operator()(const Object& obj);
+    Object operator()(const Object& object);
 
 private:
-    FunSet& scope_;
+    UnorderedSet scope_;
 
-    std::istream& in_;
+    Object global(const List&);
 
-    std::ostream& out_;
+    Object eval(const Adder& adder);
 
-    Object builtInQuit(const FunList& fun_list);
+    Object eval(const Subtractor& subtractor);
 
-    Object builtInLambda(const FunList& fun_list);
+    Object eval(const Multiplier& multiplier);
 
-    Object builtInDefun(const FunList& fun_list);
+    Object eval(const Divisor& divisor);
 
-    Object builtInIf(const FunList& fun_list);
+    Object eval(const Modular& modular);
 
-    Object builtInCond(const FunList& fun_list);
+    Object eval(const Negator& negator);
 
-    Object builtInWhile(const FunList& fun_list);
+    Object eval(const Less& less);
 
-    Object builtInGlobal(const FunList& fun_list);
+    Object eval(const Greater& greater);
 
-    Object builtInScan(const FunList& fun_list);
+    Object eval(const LessEqual& less_equal);
 
-    Object builtInPrint(const FunList& fun_list);
+    Object eval(const GreaterEqual& greater_equal);
 
-    Object builtInGet(const FunList& fun_list);
+    Object eval(const EqualTo& equal_to);
 
-    Object builtInAdd(const FunList& fun_list);
+    Object eval(const NotEqualTo& not_equal_to);
 
-    Object builtInSub(const FunList& fun_list);
+    Object eval(const And& logical_and);
 
-    Object builtInMul(const FunList& fun_list);
+    Object eval(const Or& logical_or);
 
-    Object builtInDiv(const FunList& fun_list);
+    Object eval(const Not& logical_not);
 
-    Object builtInMod(const FunList& fun_list);
+    Object eval(const BitwiseAnd& bitwise_and);
 
-    Object builtInEqual(const FunList& fun_list);
+    Object eval(const BitwiseOr& bitwise_or);
 
-    Object builtInNotEqual(const FunList& fun_list);
+    Object eval(const BitwiseXor& bitwise_xor);
 
-    Object builtInLessThan(const FunList& fun_list);
+    Object eval(const BitwiseNot& bitwise_not);
 
-    Object builtInGreaterThan(const FunList& fun_list);
+    Object eval(const LeftShift& left_shift);
 
-    Object builtInLessThanOrEqual(const FunList& fun_list);
-
-    Object builtInGreaterThanOrEqual(const FunList& fun_list);
-
-    Object eval(const FunQuote& fun_quote);
-
-    Object eval(const FunSetter& fun_setter);
+    Object eval(const RightShift& right_shift);
 
     Object eval(const Symbol& symbol);
 
-    Object eval(const FunGetter& fun_getter);
+    Object eval(const Getter& getter);
 
-    Object eval(const FunList& fun_list);
+    Object eval(const Setter& setter);
 
-    Object eval(const FunVector& fun_vector);
+    Object eval(const Assignment& assignment);
 
-    Object eval(const Object& obj);
+    Object eval(const List& list);
+
+    Object eval(const Quote& quote);
+
+    Object eval(const Object& object);
 };
 
 }  // namespace fundot

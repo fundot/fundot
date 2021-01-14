@@ -1,44 +1,25 @@
-/**
- * MIT License
-
- * Copyright (c) 2020 Jiacheng Huang
-
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
-
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
-
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #include <fstream>
 
 #include "fundot_eval.h"
-#include "fundot_io.h"
 
 using namespace fundot;
 
 int main(int argc, char* argv[])
 {
     if (argc == 1) {
-        FunSet global;
-        Evaluator eval(global);
+        Scanner scan;
+        Object to_eval;
+        Evaluator eval;
+        Object after_eval;
         std::cout << ">>> ";
-        for(Object to_eval; std::cin >> to_eval; std::cout << ">>> ") {
-            std::cout << eval(to_eval) << "\n";
+        while (scan(std::cin, to_eval)) {
+            after_eval = eval(to_eval);
+            if (after_eval.value.type() != typeid(Void)) {
+                std::cout << after_eval << '\n';
+            }
+            std::cout << ">>> ";
         }
-        std::cout << "\n";
+        std::cout << std::endl;
         return 0;
     }
     if (argc == 2) {
@@ -52,9 +33,9 @@ int main(int argc, char* argv[])
             }
             file.clear();
             file.seekg(0);
-            FunSet global;
-            Evaluator eval(global);
-            for (Object to_eval; file >> to_eval; eval(to_eval)) {}
+            Scanner scan;
+            Evaluator eval;
+            for (Object to_eval; scan(file, to_eval); eval(to_eval)) {}
         }
         return 0;
     }

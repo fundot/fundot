@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 CXX := g++
-CXXFLAGS := -std=c++17 -O0 -g -Wall -Wextra -Werror
+CXXFLAGS := -std=c++17 -O2 -g -Wall -Wextra -Werror
 
 LD := g++
 LDFLAGS := -std=c++17
@@ -32,19 +32,12 @@ SRC_DIR := src
 INC_DIR := include
 OBJ_DIR := obj
 BIN_DIR := bin
-TEST_DIR := test
 
 SRCS := $(wildcard $(SRC_DIR)/*.cpp)
 OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 BINS := $(BIN_DIR)/$(TARGETS)
 
-TEST_SRCS := $(wildcard $(TEST_DIR)/*.cpp)
-TEST_OBJS_FROM_SRC := $(filter-out $(OBJ_DIR)/main.o,$(OBJS))
-TEST_OBJS_FROM_TEST := $(TEST_SRCS:$(TEST_DIR)/%.cpp=$(OBJ_DIR)/%.o)
-TEST_OBJS := $(TEST_OBJS_FROM_SRC) $(TEST_OBJS_FROM_TEST)
-TEST_BINS := $(BIN_DIR)/test
-
-.PHONY: all test clean
+.PHONY: all clean
 
 all: $(TARGETS)
 
@@ -52,20 +45,9 @@ $(TARGETS): $(OBJS)
 	$(LD) -o $@ $(LDFLAGS) $^
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
-	$(CXX) -o $@ $(CXXFLAGS) -c $< -I $(INC_DIR) -I $(SRC_DIR)
+	$(CXX) -o $@ $(CXXFLAGS) -c $< -I $(INC_DIR)
 
 $(OBJ_DIR):
-	mkdir $@
-
-test: $(TEST_BINS)
-
-$(TEST_BINS): $(TEST_OBJS) | $(BIN_DIR)
-	$(LD) -o $@ $(LDFLAGS) $^
-
-$(OBJ_DIR)/%.o: $(TEST_DIR)/%.cpp | $(OBJ_DIR)
-	$(CXX) -o $@ $(CXXFLAGS) -c $< -I $(INC_DIR) -I $(SRC_DIR)
-
-$(BIN_DIR):
 	mkdir $@
 
 clean:

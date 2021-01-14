@@ -1,383 +1,454 @@
-/**
- * MIT License
-
- * Copyright (c) 2020 Jiacheng Huang
-
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
-
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
-
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #include "fundot_eval.h"
 
 namespace fundot {
-Object Evaluator::builtInQuit(const FunList& fun_list)
+
+Object if_(Evaluator* eval, const List& list)
+{
+    auto iter = ++list.value.begin();
+    Object result = (*eval)(*iter);
+    if (result.value.type() == typeid(Null)
+        || result == Object({Boolean({false})})) {
+        if (++iter != list.value.end() && ++iter != list.value.end()) {
+            return (*eval)(*iter);
+        }
+        return {Null()};
+    }
+    if (++iter != list.value.end()) {
+        return (*eval)(*iter);
+    }
+    return {Null()};
+}
+
+Object cond(Evaluator* eval, const List& list)
+{
+    auto iter = list.value.begin();
+    while (++iter != list.value.end()) {
+        Object result = (*eval)(*iter);
+        ++iter;
+        if (result.value.type() != typeid(Null)
+            && result != Object({Boolean({false})})) {
+            return (*eval)(*iter);
+        }
+    }
+    return {Null()};
+}
+
+Object while_(Evaluator* eval, const List& list)
+{
+    auto iter = ++list.value.begin();
+    Object predicate = *iter;
+    Object to_eval = *++iter;
+    Object result = (*eval)(predicate);
+    Object ret({Null()});
+    while (result.value.type() != typeid(Null)
+           && result != Object({Boolean({false})})) {
+        ret = (*eval)(to_eval);
+        result = (*eval)(predicate);
+    }
+    return ret;
+}
+
+Object lambda(Evaluator*, const List& list)
+{
+    if (list.value.size() < 3) {
+        return {Null()};
+    }
+    auto iter = ++list.value.begin();
+    if (iter->value.type() != typeid(Vector)) {
+        return {Null()};
+    }
+    Function function;
+    function.params = std::any_cast<const Vector&>(iter->value);
+    function.body = *++iter;
+    return {function};
+}
+
+Object defun(Evaluator* eval, const List& list)
+{
+    if (list.value.size() < 4) {
+        return {Null()};
+    }
+    auto iter = ++list.value.begin();
+    Setter setter;
+    setter.value.first = *iter;
+    if ((++iter)->value.type() != typeid(Vector)) {
+        return {Null()};
+    }
+    Function function;
+    function.params = std::any_cast<const Vector&>(iter->value);
+    function.body = *++iter;
+    setter.value.second = {function};
+    return (*eval)({setter});
+}
+
+Object quit(Evaluator*, const List&)
 {
     exit(EXIT_SUCCESS);
-    return fun_list;
 }
 
-Object Evaluator::builtInLambda(const FunList& fun_list)
+Object eval_(Evaluator* eval, const List& list)
 {
-    FunList::ConstIterator iter = ++fun_list.begin();
-    FunSet function;
-    function.emplace(FunSetter(Symbol("type"), Symbol("function")));
-    function.emplace(FunSetter(Symbol("params"), *iter));
-    function.emplace(FunSetter(Symbol("body"), *(++iter)));
-    return function;
-}
-
-Object Evaluator::builtInDefun(const FunList& fun_list)
-{
-    FunList::ConstIterator iter = ++fun_list.begin();
-    Symbol name(*iter);
-    FunList lambda;
-    lambda.pushBack(Symbol("lambda"));
-    while (++iter != fun_list.end()) {
-        lambda.pushBack(*iter);
+    if (list.value.size() < 2) {
+        return {Null()};
     }
-    return eval(FunSetter(name, eval(lambda)));
+    return (*eval)(*++list.value.begin());
 }
 
-Object Evaluator::builtInIf(const FunList& fun_list)
+Object scan(Evaluator*, const List&)
 {
-    FunList::ConstIterator iter = ++fun_list.begin();
-    Object result = eval(*iter);
-    if (result.hasType<Null>() || result == Boolean(false)) {
-        if (++iter != fun_list.end() && ++iter != fun_list.end()) {
-            return *iter;
+    Object object;
+    std::cin >> object;
+    return object;
+}
+
+Object print(Evaluator*, const List& list)
+{
+    if (list.value.size() > 1) {
+        std::cout << *++list.value.begin() << '\n';
+    }
+    return {Void()};
+}
+
+Object* get(UnorderedSet& scope, const Object& object)
+{
+    auto iter = scope.value.find(object);
+    if (iter != scope.value.end()) {
+        if (iter->value.type() == typeid(Setter)) {
+            return const_cast<Object*>(
+                &std::any_cast<const Setter&>(iter->value).value.second);
         }
-        return Null();
+        return const_cast<Object*>(&*iter);
     }
-    if (++iter != fun_list.end()) {
-        return *iter;
+    return nullptr;
+}
+
+Object* get(Object& owner, const Object& object)
+{
+    if (owner.value.type() == typeid(UnorderedSet)) {
+        return get(std::any_cast<UnorderedSet&>(owner.value), object);
     }
-    return fun_list;
+    return nullptr;
 }
 
-Object Evaluator::builtInCond(const FunList& fun_list)
+Object* get(UnorderedSet& scope, const Getter& getter)
 {
-    FunList::ConstIterator iter = fun_list.begin();
-    while (++iter != fun_list.end()) {
-        Object result = eval(*iter);
-        ++iter;
-        if (result.hasType<Null>() == false && result != Boolean(false)) {
-            return *iter;
-        }
+    Object* scope_ptr = scope_ptr = get(scope, getter.value.first);
+    if (getter.value.first.value.type() == typeid(Getter)) {
+        scope_ptr =
+            get(scope, std::any_cast<const Getter&>(getter.value.first.value));
     }
-    return Null();
-}
-
-Object Evaluator::builtInWhile(const FunList& fun_list)
-{
-    FunList::ConstIterator iter = ++fun_list.begin();
-    Object predicate = *iter;
-    Object to_eval = *(++iter);
-    Object result = eval(predicate);
-    Object ret = Null();
-    while (result.hasType<Null>() == false && result != Boolean(false)) {
-        ret = eval(to_eval);
-        result = eval(predicate);
+    if (scope_ptr != nullptr) {
+        return get(*scope_ptr, getter.value.second);
     }
-    return ret;
+    return nullptr;
 }
 
-Object Evaluator::builtInGlobal(const FunList& fun_list)
+Object Evaluator::operator()(const Object& object)
 {
-    return scope_;
-    return fun_list;
+    return eval(object);
 }
 
-Object Evaluator::builtInScan(const FunList& fun_list)
+Object Evaluator::global(const List&)
 {
-    Object ret;
-    in_ >> ret;
-    return ret;
-    return fun_list;
+    return {scope_};
 }
 
-Object Evaluator::builtInPrint(const FunList& fun_list)
+Object Evaluator::eval(const Adder& adder)
 {
-    FunList::ConstIterator iter = ++fun_list.begin();
-    if (iter != fun_list.end()) {
-        out_ << *iter << "\n";
-    }
-    return *iter;
+    return eval(adder.value.first) + eval(adder.value.second);
 }
 
-Object Evaluator::builtInGet(const FunList& fun_list)
+Object Evaluator::eval(const Subtractor& subtractor)
 {
-    FunList::ConstIterator iter = ++fun_list.begin();
-    if (iter->hasType<FunSet>()) {
-        const FunSet& fun_set = get<const FunSet&>(*iter);
-        FunSet::ConstIterator it = fun_set.find(FunSetter(*(++iter)));
-        if (it != fun_set.end() && it->hasType<FunSetter>()) {
-            return get<const FunSetter&>(*it).value;
-        }
-    }
-    if (iter->hasType<FunVector>()) {
-        const FunVector& fun_vector = get<const FunVector&>(*iter);
-        if ((++iter)->hasType<Integer>()
-            && static_cast<std::size_t>(get<const Integer&>(*iter))
-                   < fun_vector.size()) {
-            return fun_vector[get<const Integer&>(*iter)];
-        }
-        return Null();
-    }
-    return fun_list;
+    return eval(subtractor.value.first) - eval(subtractor.value.second);
 }
 
-Object Evaluator::builtInAdd(const FunList& fun_list)
+Object Evaluator::eval(const Multiplier& multiplier)
 {
-    FunList::ConstIterator iter = ++fun_list.begin();
-    return *iter + *(++iter);
+    return eval(multiplier.value.first) * eval(multiplier.value.second);
 }
 
-Object Evaluator::builtInSub(const FunList& fun_list)
+Object Evaluator::eval(const Divisor& divisor)
 {
-    FunList::ConstIterator iter = ++fun_list.begin();
-    return *iter - *(++iter);
+    return eval(divisor.value.first) / eval(divisor.value.second);
 }
 
-Object Evaluator::builtInMul(const FunList& fun_list)
+Object Evaluator::eval(const Modular& modular)
 {
-    FunList::ConstIterator iter = ++fun_list.begin();
-    return *iter * *(++iter);
+    return eval(modular.value.first) % eval(modular.value.second);
 }
 
-Object Evaluator::builtInDiv(const FunList& fun_list)
+Object Evaluator::eval(const Negator& negator)
 {
-    FunList::ConstIterator iter = ++fun_list.begin();
-    return *iter / *(++iter);
+    return -eval(negator.value);
 }
 
-Object Evaluator::builtInMod(const FunList& fun_list)
+Object Evaluator::eval(const Less& less)
 {
-    FunList::ConstIterator iter = ++fun_list.begin();
-    return *iter % *(++iter);
+    return {Boolean({eval(less.value.first) < eval(less.value.second)})};
 }
 
-Object Evaluator::builtInEqual(const FunList& fun_list)
+Object Evaluator::eval(const Greater& greater)
 {
-    FunList::ConstIterator iter = ++fun_list.begin();
-    return *iter == *(++iter);
+    return {Boolean({eval(greater.value.first) > eval(greater.value.second)})};
 }
 
-Object Evaluator::builtInNotEqual(const FunList& fun_list)
+Object Evaluator::eval(const LessEqual& less_equal)
 {
-    FunList::ConstIterator iter = ++fun_list.begin();
-    return *iter != *(++iter);
+    return {Boolean(
+        {eval(less_equal.value.first) <= eval(less_equal.value.second)})};
 }
 
-Object Evaluator::builtInLessThan(const FunList& fun_list)
+Object Evaluator::eval(const GreaterEqual& greater_equal)
 {
-    FunList::ConstIterator iter = ++fun_list.begin();
-    return *iter < *(++iter);
+    return {Boolean(
+        {eval(greater_equal.value.first) >= eval(greater_equal.value.second)})};
 }
 
-Object Evaluator::builtInGreaterThan(const FunList& fun_list)
+Object Evaluator::eval(const EqualTo& equal_to)
 {
-    FunList::ConstIterator iter = ++fun_list.begin();
-    return *iter > *(++iter);
+    return {
+        Boolean({eval(equal_to.value.first) == eval(equal_to.value.second)})};
 }
 
-Object Evaluator::builtInLessThanOrEqual(const FunList& fun_list)
+Object Evaluator::eval(const NotEqualTo& not_equal_to)
 {
-    FunList::ConstIterator iter = ++fun_list.begin();
-    return *iter <= *(++iter);
+    return {Boolean(
+        {eval(not_equal_to.value.first) != eval(not_equal_to.value.second)})};
 }
 
-Object Evaluator::builtInGreaterThanOrEqual(const FunList& fun_list)
+Object Evaluator::eval(const And& logical_and)
 {
-    FunList::ConstIterator iter = ++fun_list.begin();
-    return *iter >= *(++iter);
+    return eval(logical_and.value.first) && eval(logical_and.value.second);
 }
 
-Object Evaluator::operator()(const Object& obj)
+Object Evaluator::eval(const Or& logical_or)
 {
-    return eval(obj);
+    return eval(logical_or.value.first) || eval(logical_or.value.second);
 }
 
-Object Evaluator::eval(const FunQuote& fun_quote)
+Object Evaluator::eval(const Not& logical_not)
 {
-    return fun_quote.value;
+    return !eval(logical_not.value);
 }
 
-Object Evaluator::eval(const FunSetter& fun_setter)
+Object Evaluator::eval(const BitwiseAnd& bitwise_and)
 {
-    FunSetter setter(fun_setter.key, eval(fun_setter.value));
-    scope_.erase(setter);
-    scope_.emplace(setter);
-    return get<const FunSetter&>(*scope_.find(fun_setter)).value;
+    return eval(bitwise_and.value.first) & eval(bitwise_and.value.second);
+}
+
+Object Evaluator::eval(const BitwiseOr& bitwise_or)
+{
+    return eval(bitwise_or.value.first) | eval(bitwise_or.value.second);
+}
+
+Object Evaluator::eval(const BitwiseXor& bitwise_xor)
+{
+    return eval(bitwise_xor.value.first) ^ eval(bitwise_xor.value.second);
+}
+
+Object Evaluator::eval(const BitwiseNot& bitwise_not)
+{
+    return ~eval(bitwise_not.value);
+}
+
+Object Evaluator::eval(const LeftShift& left_shift)
+{
+    return eval(left_shift.value.first) << eval(left_shift.value.second);
+}
+
+Object Evaluator::eval(const RightShift& right_shift)
+{
+    return eval(right_shift.value.first) >> eval(right_shift.value.second);
 }
 
 Object Evaluator::eval(const Symbol& symbol)
 {
-    FunSet::Iterator it = scope_.find(FunSetter(symbol));
-    if (it != scope_.end() && it->hasType<FunSetter>()) {
-        return eval(get<const FunSetter&>(*it).value);
+    Object* obj_ptr = get(scope_, {symbol});
+    if (obj_ptr != nullptr) {
+        return eval(*obj_ptr);
     }
-    return symbol;
+    return {symbol};
 }
 
-Object Evaluator::eval(const FunGetter& fun_getter)
+Object Evaluator::eval(const Getter& getter)
 {
-    FunSet* scope_ptr = &scope_;
-    FunGetter getter = fun_getter;
-    while (scope_ptr != nullptr) {
-        if (getter.key.hasType<Symbol>()) {
-            FunSet::Iterator it = scope_ptr->find(FunSetter(getter.key));
-            if (it == scope_ptr->end() || it->hasType<FunSetter>() == false) {
-                return Null();
-            }
-            Object& value = get<const FunSetter&>(*it).value;
-            if (value.hasType<FunSet>() == false) {
-                return Null();
-            }
-            scope_ptr = get<FunSet>(&value);
-            if (getter.value.hasType<Symbol>()) {
-                it = scope_ptr->find(FunSetter(getter.value));
-                if (it != scope_ptr->end() && it->hasType<FunSetter>()) {
-                    return eval(get<const FunSetter&>(*it).value);
-                }
-                return Null();
-            }
-            if (fun_getter.value.hasType<FunSetter>()) {
-                FunSetter setter = get<const FunSetter&>(fun_getter.value);
-                setter.value = eval(setter.value);
-                scope_ptr->erase(setter);
-                scope_ptr->emplace(setter);
-                return get<const FunSetter&>(*scope_ptr->find(setter)).value;
-            }
-            if (getter.value.hasType<FunGetter>()) {
-                getter = get<const FunGetter&>(fun_getter.value);
+    Object* obj_ptr = get(scope_, getter);
+    if (obj_ptr != nullptr) {
+        return eval(*obj_ptr);
+    }
+    return {Null()};
+}
+
+Object Evaluator::eval(const Setter& setter)
+{
+    Setter setter_copy = setter;
+    setter_copy.value.second = eval(setter.value.second);
+    if (setter.value.first.value.type() == typeid(Getter)) {
+        Object* scope_ptr = nullptr;
+        const Getter& getter =
+            std::any_cast<const Getter&>(setter.value.first.value);
+        scope_ptr = get(scope_, getter.value.first);
+        if (getter.value.first.value.type() == typeid(Getter)) {
+            scope_ptr = get(
+                scope_, std::any_cast<const Getter&>(getter.value.first.value));
+        }
+        setter_copy.value.first = getter.value.second;
+        if (scope_ptr != nullptr) {
+            if (scope_ptr->value.type() == typeid(UnorderedSet)) {
+                UnorderedSet& local =
+                    std::any_cast<UnorderedSet&>(scope_ptr->value);
+                local.value.erase({setter_copy});
+                local.value.insert({setter_copy});
             }
         }
+        return setter_copy.value.second;
     }
-    return fun_getter;
+    scope_.value.erase({setter_copy});
+    scope_.value.insert({setter_copy});
+    return setter_copy.value.second;
 }
 
-Object Evaluator::eval(const FunList& fun_list)
+Object Evaluator::eval(const Assignment& assignment)
+{
+    return eval(
+        {Setter({{eval(assignment.value.first), assignment.value.second}})});
+}
+
+Object Evaluator::eval(const List& list)
 {
     static std::unordered_map<
-        Object, std::function<Object(Evaluator*, const FunList&)>, Hash<Object>>
-        built_in_macros = {{Symbol("quit"), &Evaluator::builtInQuit},
-                           {Symbol("lambda"), &Evaluator::builtInLambda},
-                           {Symbol("defun"), &Evaluator::builtInDefun},
-                           {Symbol("if"), &Evaluator::builtInIf},
-                           {Symbol("cond"), &Evaluator::builtInCond},
-                           {Symbol("while"), &Evaluator::builtInWhile}};
-    if (built_in_macros.find(fun_list.front()) != built_in_macros.end()) {
-        return eval(built_in_macros[fun_list.front()](this, fun_list));
+        Object, std::function<Object(Evaluator*, const List&)>, Hash<Object>>
+        built_in_macros = {{{Symbol({"if"})}, if_},
+                           {{Symbol({"cond"})}, cond},
+                           {{Symbol({"while"})}, while_},
+                           {{Symbol({"lambda"})}, lambda},
+                           {{Symbol({"defun"})}, defun}};
+    if (built_in_macros.find(list.value.front()) != built_in_macros.end()) {
+        return built_in_macros[list.value.front()](this, list);
     }
-    FunList after_eval;
-    FunList::ConstIterator iter = fun_list.begin();
-    while (iter != fun_list.end()) {
-        after_eval.pushBack(eval(*iter));
-        ++iter;
+    List after_eval;
+    for (const auto& elem : list.value) {
+        after_eval.value.push_back(eval(elem));
     }
     static std::unordered_map<
-        Object, std::function<Object(Evaluator*, const FunList&)>, Hash<Object>>
-        built_in_functions = {
-            {Symbol("global"), &Evaluator::builtInGlobal},
-            {Symbol("scan"), &Evaluator::builtInScan},
-            {Symbol("print"), &Evaluator::builtInPrint},
-            {Symbol("get"), &Evaluator::builtInGet},
-            {Symbol("add"), &Evaluator::builtInAdd},
-            {Symbol("sub"), &Evaluator::builtInSub},
-            {Symbol("mul"), &Evaluator::builtInMul},
-            {Symbol("div"), &Evaluator::builtInDiv},
-            {Symbol("mod"), &Evaluator::builtInMod},
-            {Symbol("comp="), &Evaluator::builtInEqual},
-            {Symbol("comp!="), &Evaluator::builtInNotEqual},
-            {Symbol("comp<"), &Evaluator::builtInLessThan},
-            {Symbol("comp>"), &Evaluator::builtInGreaterThan},
-            {Symbol("comp<="), &Evaluator::builtInLessThanOrEqual},
-            {Symbol("comp>="), &Evaluator::builtInGreaterThanOrEqual}};
-    if (built_in_functions.find(after_eval.front())
+        Object, std::function<Object(Evaluator*, const List&)>, Hash<Object>>
+        built_in_functions = {{{Symbol({"global"})}, &Evaluator::global},
+
+                              {{Symbol({"quit"})}, quit},
+                              {{Symbol({"eval"})}, eval_},
+                              {{Symbol({"scan"})}, scan},
+                              {{Symbol({"print"})}, print}};
+    if (built_in_functions.find(list.value.front())
         != built_in_functions.end()) {
-        return built_in_functions[after_eval.front()](this, after_eval);
+        return built_in_functions[list.value.front()](this, after_eval);
     }
-    if (after_eval.front().hasType<FunSet>()) {
-        const FunSet& function = get<const FunSet&>(after_eval.front());
-        FunSet::ConstIterator it = function.find(FunSetter(Symbol("type")));
-        if (it != function.end()
-            && get<const FunSetter&>(*it).value == Symbol("function")) {
-            FunSet local = scope_;
-            Evaluator local_eval(local, in_, out_);
-            it = function.find(FunSetter(Symbol("params")));
-            if (it != function.end()) {
-                const Object& body = get<const FunSetter&>(*it).value;
-                if (body.hasType<FunList>()) {
-                    const FunList& params = get<const FunList&>(body);
-                    FunList::ConstIterator param_iter = params.begin();
-                    FunList::Iterator arg_iter = ++after_eval.begin();
-                    while (param_iter != params.end()
-                           && arg_iter != after_eval.end()) {
-                        local_eval(FunSetter(*param_iter, *arg_iter));
-                        ++param_iter;
-                        ++arg_iter;
-                    }
-                }
+    if (after_eval.value.front().value.type() == typeid(Function)) {
+        Function& function =
+            std::any_cast<Function&>(after_eval.value.front().value);
+        Evaluator local_eval;
+        local_eval.scope_ = scope_;
+        auto iter = after_eval.value.begin();
+        for (const auto& arg : function.params.value) {
+            if (++iter == after_eval.value.end()) {
+                break;
             }
-            Object to_eval;
-            it = function.find(FunSetter(Symbol("body")));
-            if (it != function.end()) {
-                to_eval = get<const FunSetter&>(*it).value;
-            }
-            else {
-                to_eval = Null();
-            }
-            return local_eval(to_eval);
+            local_eval.eval(Setter({{arg, *iter}}));
         }
+        return local_eval(function.body);
     }
-    return after_eval;
+    return {after_eval.value.back()};
 }
 
-Object Evaluator::eval(const FunVector& fun_vector)
+Object Evaluator::eval(const Quote& quote)
 {
-    FunVector after_eval;
-    for (const Object& obj : fun_vector) {
-        after_eval.pushBack(eval(obj));
-    }
-    return after_eval.back();
+    return quote.value;
 }
 
-Object Evaluator::eval(const Object& obj)
+Object Evaluator::eval(const Object& object)
 {
-    if (obj.hasType<FunQuote>()) {
-        return eval(get<const FunQuote&>(obj));
+    if (object.value.type() == typeid(Adder)) {
+        return eval(std::any_cast<const Adder&>(object.value));
     }
-    if (obj.hasType<FunSetter>()) {
-        return eval(get<const FunSetter&>(obj));
+    if (object.value.type() == typeid(Subtractor)) {
+        return eval(std::any_cast<const Subtractor&>(object.value));
     }
-    if (obj.hasType<Symbol>()) {
-        return eval(get<const Symbol&>(obj));
+    if (object.value.type() == typeid(Multiplier)) {
+        return eval(std::any_cast<const Multiplier&>(object.value));
     }
-    if (obj.hasType<FunGetter>()) {
-        return eval(get<const FunGetter&>(obj));
+    if (object.value.type() == typeid(Divisor)) {
+        return eval(std::any_cast<const Divisor&>(object.value));
     }
-    if (obj.hasType<FunList>()) {
-        return eval(get<const FunList&>(obj));
+    if (object.value.type() == typeid(Modular)) {
+        return eval(std::any_cast<const Modular&>(object.value));
     }
-    if (obj.hasType<FunVector>()) {
-        return eval(get<const FunVector&>(obj));
+    if (object.value.type() == typeid(Negator)) {
+        return eval(std::any_cast<const Negator&>(object.value));
     }
-    return obj;
+    if (object.value.type() == typeid(Less)) {
+        return eval(std::any_cast<const Less&>(object.value));
+    }
+    if (object.value.type() == typeid(Greater)) {
+        return eval(std::any_cast<const Greater&>(object.value));
+    }
+    if (object.value.type() == typeid(LessEqual)) {
+        return eval(std::any_cast<const LessEqual&>(object.value));
+    }
+    if (object.value.type() == typeid(GreaterEqual)) {
+        return eval(std::any_cast<const GreaterEqual&>(object.value));
+    }
+    if (object.value.type() == typeid(EqualTo)) {
+        return eval(std::any_cast<const EqualTo&>(object.value));
+    }
+    if (object.value.type() == typeid(NotEqualTo)) {
+        return eval(std::any_cast<const NotEqualTo&>(object.value));
+    }
+    if (object.value.type() == typeid(And)) {
+        return eval(std::any_cast<const And&>(object.value));
+    }
+    if (object.value.type() == typeid(Or)) {
+        return eval(std::any_cast<const Or&>(object.value));
+    }
+    if (object.value.type() == typeid(Not)) {
+        return eval(std::any_cast<const Not&>(object.value));
+    }
+    if (object.value.type() == typeid(BitwiseAnd)) {
+        return eval(std::any_cast<const BitwiseAnd&>(object.value));
+    }
+    if (object.value.type() == typeid(BitwiseOr)) {
+        return eval(std::any_cast<const BitwiseOr&>(object.value));
+    }
+    if (object.value.type() == typeid(BitwiseXor)) {
+        return eval(std::any_cast<const BitwiseXor&>(object.value));
+    }
+    if (object.value.type() == typeid(BitwiseNot)) {
+        return eval(std::any_cast<const BitwiseNot&>(object.value));
+    }
+    if (object.value.type() == typeid(LeftShift)) {
+        return eval(std::any_cast<const LeftShift&>(object.value));
+    }
+    if (object.value.type() == typeid(RightShift)) {
+        return eval(std::any_cast<const RightShift&>(object.value));
+    }
+    if (object.value.type() == typeid(Symbol)) {
+        return eval(std::any_cast<const Symbol&>(object.value));
+    }
+    if (object.value.type() == typeid(Getter)) {
+        return eval(std::any_cast<const Getter&>(object.value));
+    }
+    if (object.value.type() == typeid(Setter)) {
+        return eval(std::any_cast<const Setter&>(object.value));
+    }
+    if (object.value.type() == typeid(Assignment)) {
+        return eval(std::any_cast<const Assignment&>(object.value));
+    }
+    if (object.value.type() == typeid(List)) {
+        return eval(std::any_cast<const List&>(object.value));
+    }
+    if (object.value.type() == typeid(Quote)) {
+        return eval(std::any_cast<const Quote&>(object.value));
+    }
+    return object;
 }
 
 }  // namespace fundot
