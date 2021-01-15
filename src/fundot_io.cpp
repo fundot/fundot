@@ -709,7 +709,7 @@ std::istream& Scanner::operator()(std::istream& is, Object& object) const
             is >> c;
         }
         is >> std::skipws;
-        if (c == '\n') {
+        if (c == '\n' || is.eof()) {
             parse(list);
             object = list.back();
             return is;

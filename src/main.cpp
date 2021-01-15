@@ -23,19 +23,15 @@ int main(int argc, char* argv[])
         return 0;
     }
     if (argc == 2) {
-        std::fstream file(argv[1], std::ios_base::in | std::ios_base::app);
+        std::ifstream file(argv[1]);
         if (file.is_open()) {
-            file.seekg(-1, std::ios_base::end);
-            char last_char;
-            file >> last_char;
-            if (std::isspace(last_char) == false) {
-                file << "\n";
-            }
-            file.clear();
-            file.seekg(0);
             Scanner scan;
+            Object to_eval;
             Evaluator eval;
-            for (Object to_eval; scan(file, to_eval); eval(to_eval)) {}
+            while (file) {
+                scan(file, to_eval);
+                eval(to_eval);
+            }
         }
         return 0;
     }
