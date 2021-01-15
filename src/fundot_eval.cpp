@@ -54,13 +54,7 @@ Object lambda(Evaluator*, const List& list)
         return {Null()};
     }
     auto iter = ++list.value.begin();
-    if (iter->value.type() != typeid(Vector)) {
-        return {Null()};
-    }
-    Function function;
-    function.params = std::any_cast<const Vector&>(iter->value);
-    function.body = *++iter;
-    return {function};
+    return {Function({*iter, *++iter})};
 }
 
 Object defun(Evaluator* eval, const List& list)
@@ -71,13 +65,7 @@ Object defun(Evaluator* eval, const List& list)
     auto iter = ++list.value.begin();
     Setter setter;
     setter.value.first = *iter;
-    if ((++iter)->value.type() != typeid(Vector)) {
-        return {Null()};
-    }
-    Function function;
-    function.params = std::any_cast<const Vector&>(iter->value);
-    function.body = *++iter;
-    setter.value.second = {function};
+    setter.value.second = {Function({*++iter, *++iter})};
     return (*eval)({setter});
 }
 
@@ -248,12 +236,9 @@ Object Evaluator::eval(const Getter& getter)
 
 Object Evaluator::eval(const Setter& setter)
 {
-    set(scope_, setter.value.first, eval(setter.value.second));
-    Object* obj_ptr = get(scope_, setter.value.first);
-    if (obj_ptr != nullptr) {
-        return *obj_ptr;
-    }
-    return {Null()};
+    Object after_eval = eval(setter.value.second);
+    set(scope_, setter.value.first, after_eval);
+    return after_eval;
 }
 
 Object Evaluator::eval(const Assignment& assignment)
@@ -295,7 +280,11 @@ Object Evaluator::eval(const List& list)
         Evaluator local_eval;
         local_eval.scope_ = scope_;
         auto iter = after_eval.value.begin();
-        for (const auto& arg : function.params.value) {
+        if (function.params.value.type() != typeid(Vector)) {
+            return {function};
+        }
+        auto vector = std::any_cast<const Vector&>(function.params.value).value;
+        for (const auto& arg : vector) {
             if (++iter == after_eval.value.end()) {
                 break;
             }
@@ -304,6 +293,30 @@ Object Evaluator::eval(const List& list)
         return local_eval(function.body);
     }
     return {after_eval.value.back()};
+}
+
+Object Evaluator::eval(const UnorderedSet& set)
+{
+    Object set_copy = {set};
+    Object* obj_ptr = get(set_copy, {Symbol({"type"})});
+    if (obj_ptr == nullptr) {
+        return {set};
+    }
+    if (*obj_ptr == Object({Symbol({"function"})})) {
+        Function function;
+        obj_ptr = get(set_copy, {Symbol({"params"})});
+        if (obj_ptr == nullptr) {
+            return {set};
+        }
+        function.params = *obj_ptr;
+        obj_ptr = get(set_copy, {Symbol({"body"})});
+        if (obj_ptr == nullptr) {
+            return {set};
+        }
+        function.body = *obj_ptr;
+        return {function};
+    }
+    return {set};
 }
 
 Object Evaluator::eval(const Quote& quote)
@@ -390,6 +403,9 @@ Object Evaluator::eval(const Object& object)
     }
     if (object.value.type() == typeid(List)) {
         return eval(std::any_cast<const List&>(object.value));
+    }
+    if (object.value.type() == typeid(UnorderedSet)) {
+        return eval(std::any_cast<const UnorderedSet&>(object.value));
     }
     if (object.value.type() == typeid(Quote)) {
         return eval(std::any_cast<const Quote&>(object.value));

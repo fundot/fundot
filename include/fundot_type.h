@@ -148,7 +148,7 @@ struct Vector {
 };
 
 struct Function {
-    Vector params;
+    Object params;
     Object body;
 };
 

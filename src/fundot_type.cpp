@@ -318,6 +318,17 @@ Object* get(UnorderedSet& owner, const Object& index)
     return nullptr;
 }
 
+Object* get(Function& owner, const Object& index)
+{
+    if (index == Object({Symbol({"params"})})) {
+        return &owner.params;
+    }
+    if (index == Object({Symbol({"body"})})) {
+        return &owner.body;
+    }
+    return nullptr;
+}
+
 Object* get(Object& owner, const Getter& getter)
 {
     Object* obj_ptr = get(owner, getter.value.first);
@@ -337,6 +348,9 @@ Object* get(Object& owner, const Object& index)
     }
     if (owner.value.type() == typeid(Vector)) {
         return get(std::any_cast<Vector&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(Function)) {
+        return get(std::any_cast<Function&>(owner.value), index);
     }
     return nullptr;
 }
@@ -361,6 +375,16 @@ void set(UnorderedSet& owner, const Object& index, const Object& value)
     owner.value.insert({Setter({{index, value}})});
 }
 
+void set(Function& owner, const Object& index, const Object& value)
+{
+    if (index == Object({Symbol({"params"})})) {
+        owner.params = value;
+    }
+    if (index == Object({Symbol({"body"})})) {
+        owner.body = value;
+    }
+}
+
 void set(Object& owner, const Getter& index, const Object& value)
 {
     set(*get(owner, index.value.first), index.value.second, value);
@@ -376,6 +400,9 @@ void set(Object& owner, const Object& index, const Object& value)
     }
     if (owner.value.type() == typeid(Vector)) {
         set(std::any_cast<Vector&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(Function)) {
+        set(std::any_cast<Function&>(owner.value), index, value);
     }
 }
 

@@ -581,7 +581,7 @@ std::ostream& operator<<(std::ostream& os, const Function& function)
     setter.value.second.value = Symbol({"function"});
     set.value.insert({setter});
     setter.value.first.value = Symbol({"params"});
-    setter.value.second.value = function.params;
+    setter.value.second = function.params;
     set.value.insert({setter});
     setter.value.first.value = Symbol({"body"});
     setter.value.second = function.body;

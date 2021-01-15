@@ -68,6 +68,8 @@ private:
 
     Object eval(const List& list);
 
+    Object eval(const UnorderedSet& set);
+
     Object eval(const Quote& quote);
 
     Object eval(const Object& object);
