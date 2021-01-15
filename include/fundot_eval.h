@@ -12,7 +12,7 @@ public:
     Object operator()(const Object& object);
 
 private:
-    UnorderedSet scope_;
+    Object scope_ = {UnorderedSet()};
 
     Object global(const List&);
 

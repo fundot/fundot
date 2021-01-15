@@ -109,40 +109,6 @@ Object print(Evaluator*, const List& list)
     return {Void()};
 }
 
-Object* get(UnorderedSet& scope, const Object& object)
-{
-    auto iter = scope.value.find(object);
-    if (iter != scope.value.end()) {
-        if (iter->value.type() == typeid(Setter)) {
-            return const_cast<Object*>(
-                &std::any_cast<const Setter&>(iter->value).value.second);
-        }
-        return const_cast<Object*>(&*iter);
-    }
-    return nullptr;
-}
-
-Object* get(Object& owner, const Object& object)
-{
-    if (owner.value.type() == typeid(UnorderedSet)) {
-        return get(std::any_cast<UnorderedSet&>(owner.value), object);
-    }
-    return nullptr;
-}
-
-Object* get(UnorderedSet& scope, const Getter& getter)
-{
-    Object* scope_ptr = scope_ptr = get(scope, getter.value.first);
-    if (getter.value.first.value.type() == typeid(Getter)) {
-        scope_ptr =
-            get(scope, std::any_cast<const Getter&>(getter.value.first.value));
-    }
-    if (scope_ptr != nullptr) {
-        return get(*scope_ptr, getter.value.second);
-    }
-    return nullptr;
-}
-
 Object Evaluator::operator()(const Object& object)
 {
     return eval(object);
@@ -150,7 +116,7 @@ Object Evaluator::operator()(const Object& object)
 
 Object Evaluator::global(const List&)
 {
-    return {scope_};
+    return scope_;
 }
 
 Object Evaluator::eval(const Adder& adder)
@@ -273,7 +239,7 @@ Object Evaluator::eval(const Symbol& symbol)
 
 Object Evaluator::eval(const Getter& getter)
 {
-    Object* obj_ptr = get(scope_, getter);
+    Object* obj_ptr = get(scope_, {getter});
     if (obj_ptr != nullptr) {
         return eval(*obj_ptr);
     }
@@ -282,31 +248,12 @@ Object Evaluator::eval(const Getter& getter)
 
 Object Evaluator::eval(const Setter& setter)
 {
-    Setter setter_copy = setter;
-    setter_copy.value.second = eval(setter.value.second);
-    if (setter.value.first.value.type() == typeid(Getter)) {
-        Object* scope_ptr = nullptr;
-        const Getter& getter =
-            std::any_cast<const Getter&>(setter.value.first.value);
-        scope_ptr = get(scope_, getter.value.first);
-        if (getter.value.first.value.type() == typeid(Getter)) {
-            scope_ptr = get(
-                scope_, std::any_cast<const Getter&>(getter.value.first.value));
-        }
-        setter_copy.value.first = getter.value.second;
-        if (scope_ptr != nullptr) {
-            if (scope_ptr->value.type() == typeid(UnorderedSet)) {
-                UnorderedSet& local =
-                    std::any_cast<UnorderedSet&>(scope_ptr->value);
-                local.value.erase({setter_copy});
-                local.value.insert({setter_copy});
-            }
-        }
-        return setter_copy.value.second;
+    set(scope_, setter.value.first, eval(setter.value.second));
+    Object* obj_ptr = get(scope_, setter.value.first);
+    if (obj_ptr != nullptr) {
+        return *obj_ptr;
     }
-    scope_.value.erase({setter_copy});
-    scope_.value.insert({setter_copy});
-    return setter_copy.value.second;
+    return {Null()};
 }
 
 Object Evaluator::eval(const Assignment& assignment)
@@ -334,7 +281,6 @@ Object Evaluator::eval(const List& list)
     static std::unordered_map<
         Object, std::function<Object(Evaluator*, const List&)>, Hash<Object>>
         built_in_functions = {{{Symbol({"global"})}, &Evaluator::global},
-
                               {{Symbol({"quit"})}, quit},
                               {{Symbol({"eval"})}, eval_},
                               {{Symbol({"scan"})}, scan},

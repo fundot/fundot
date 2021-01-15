@@ -289,4 +289,94 @@ Object operator>>(const Object& lhs, const Object& rhs)
     return {Null()};
 }
 
+Object* get(Vector& owner, const Integer& integer)
+{
+    if (static_cast<std::size_t>(integer.value) < owner.value.size()) {
+        return &owner.value[integer.value];
+    }
+    return nullptr;
+}
+
+Object* get(Vector& owner, const Object& index)
+{
+    if (index.value.type() == typeid(Integer)) {
+        return get(owner, std::any_cast<const Integer&>(index.value));
+    }
+    return nullptr;
+}
+
+Object* get(UnorderedSet& owner, const Object& index)
+{
+    auto iter = owner.value.find(index);
+    if (iter != owner.value.end()) {
+        if (iter->value.type() == typeid(Setter)) {
+            return &const_cast<Object&>(
+                std::any_cast<const Setter&>(iter->value).value.second);
+        }
+        return &const_cast<Object&>(*iter);
+    }
+    return nullptr;
+}
+
+Object* get(Object& owner, const Getter& getter)
+{
+    Object* obj_ptr = get(owner, getter.value.first);
+    if (obj_ptr != nullptr) {
+        return get(*obj_ptr, getter.value.second);
+    }
+    return nullptr;
+}
+
+Object* get(Object& owner, const Object& index)
+{
+    if (index.value.type() == typeid(Getter)) {
+        return get(owner, std::any_cast<const Getter&>(index.value));
+    }
+    if (owner.value.type() == typeid(UnorderedSet)) {
+        return get(std::any_cast<UnorderedSet&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(Vector)) {
+        return get(std::any_cast<Vector&>(owner.value), index);
+    }
+    return nullptr;
+}
+
+void set(Vector& owner, const Integer& integer, const Object& value)
+{
+    if (static_cast<std::size_t>(integer.value) < owner.value.size()) {
+        owner.value[integer.value] = value;
+    }
+}
+
+void set(Vector& owner, const Object& index, const Object& value)
+{
+    if (index.value.type() == typeid(Integer)) {
+        set(owner, std::any_cast<const Integer&>(index.value), value);
+    }
+}
+
+void set(UnorderedSet& owner, const Object& index, const Object& value)
+{
+    owner.value.erase({Setter({{index, value}})});
+    owner.value.insert({Setter({{index, value}})});
+}
+
+void set(Object& owner, const Getter& index, const Object& value)
+{
+    set(*get(owner, index.value.first), index.value.second, value);
+}
+
+void set(Object& owner, const Object& index, const Object& value)
+{
+    if (index.value.type() == typeid(Getter)) {
+        set(owner, std::any_cast<const Getter&>(index.value), value);
+    }
+    if (owner.value.type() == typeid(UnorderedSet)) {
+        set(std::any_cast<UnorderedSet&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(Vector)) {
+        set(std::any_cast<Vector&>(owner.value), index, value);
+    }
+}
+
 }  // namespace fundot
