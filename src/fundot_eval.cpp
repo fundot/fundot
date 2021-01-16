@@ -71,7 +71,7 @@ Object defun(Evaluator* eval, const List& list)
 
 Object quit(Evaluator*, const List&)
 {
-    exit(EXIT_SUCCESS);
+    std::exit(EXIT_SUCCESS);
 }
 
 Object eval_(Evaluator* eval, const List& list)
@@ -82,10 +82,19 @@ Object eval_(Evaluator* eval, const List& list)
     return (*eval)(*++list.value.begin());
 }
 
-Object scan(Evaluator*, const List&)
+Object read(Evaluator*, const List& list)
 {
-    Object object;
-    std::cin >> object;
+    Object object = {Null()};
+    Scanner scan;
+    if (list.value.size() == 1) {
+        scan(std::cin, object);
+        return object;
+    }
+    auto iter = ++list.value.begin();
+    if (iter->value.type() == typeid(File)) {
+        std::iostream& ios = *std::any_cast<const File&>(iter->value).value;
+        scan(ios, object);
+    }
     return object;
 }
 
@@ -95,6 +104,52 @@ Object print(Evaluator*, const List& list)
         std::cout << *++list.value.begin() << '\n';
     }
     return {Void()};
+}
+
+Object open(Evaluator*, const List& list)
+{
+    if (list.value.size() < 2) {
+        return {Null()};
+    }
+    auto iter = ++list.value.begin();
+    if (iter->value.type() != typeid(String)) {
+        return {Null()};
+    }
+    const String& file_name = std::any_cast<const String&>(iter->value);
+    std::ios::openmode mode = std::ios::in;
+    if (++iter != list.value.end()) {
+        if (*iter == Object({Symbol({"w"})})) {
+            mode = std::ios::out;
+        }
+        if (*iter == Object({Symbol({"a"})})) {
+            mode = std::ios::out;
+        }
+        if (*iter == Object({Symbol({"b"})})) {
+            mode = std::ios::binary;
+        }
+        if (*iter == Object({Symbol({"+"})})) {
+            mode = std::ios::in | std::ios::out;
+        }
+    }
+    File file = {std::make_shared<std::fstream>(file_name.value, mode)};
+    if (file.value->is_open()) {
+        return {(Boolean({true}))};
+    }
+    return {Null()};
+}
+
+Object close(Evaluator*, const List& list)
+{
+    if (list.value.size() < 2) {
+        return {Null()};
+    }
+    auto iter = ++list.value.begin();
+    if (iter->value.type() == typeid(File)) {
+        const File& file = std::any_cast<const File&>(iter->value);
+        file.value->close();
+        return {Boolean({!file.value->is_open()})};
+    }
+    return {Null()};
 }
 
 Object do_(Evaluator*, const List& list)
@@ -279,8 +334,10 @@ Object Evaluator::eval(const List& list)
         built_in_functions = {{{Symbol({"global"})}, &Evaluator::global},
                               {{Symbol({"quit"})}, quit},
                               {{Symbol({"eval"})}, eval_},
-                              {{Symbol({"scan"})}, scan},
+                              {{Symbol({"read"})}, read},
                               {{Symbol({"print"})}, print},
+                              {{Symbol({"open"})}, open},
+                              {{Symbol({"close"})}, close},
                               {{Symbol({"do"})}, do_}};
     if (built_in_functions.find(list.value.front())
         != built_in_functions.end()) {

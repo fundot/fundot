@@ -1,5 +1,3 @@
-#include <fstream>
-
 #include "fundot_eval.h"
 
 using namespace fundot;

@@ -2,7 +2,9 @@
 #define FUNDOT_TYPE_H
 
 #include <any>
+#include <fstream>
 #include <list>
+#include <memory>
 #include <string>
 #include <unordered_set>
 #include <vector>
@@ -137,6 +139,10 @@ struct Null {
 };
 
 struct Void {
+};
+
+struct File {
+    std::shared_ptr<std::fstream> value;
 };
 
 struct List {

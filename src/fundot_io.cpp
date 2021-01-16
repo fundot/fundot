@@ -589,6 +589,16 @@ std::ostream& operator<<(std::ostream& os, const Function& function)
     return os << set;
 }
 
+std::ostream& operator<<(std::ostream& os, const File&)
+{
+    UnorderedSet set;
+    Setter setter;
+    setter.value.first.value = Symbol({"type"});
+    setter.value.second.value = Symbol({"file"});
+    set.value.insert({setter});
+    return os << set;
+}
+
 std::ostream& operator<<(std::ostream& os, const Object& object)
 {
     const auto& value = object.value;
@@ -693,6 +703,9 @@ std::ostream& operator<<(std::ostream& os, const Object& object)
     }
     if (value.type() == typeid(Function)) {
         return os << std::any_cast<const Function&>(value);
+    }
+    if (value.type() == typeid(File)) {
+        return os << std::any_cast<const File&>(value);
     }
     return os;
 }
