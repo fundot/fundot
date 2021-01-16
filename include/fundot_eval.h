@@ -14,6 +14,38 @@ public:
 private:
     Object scope_ = {UnorderedSet()};
 
+    Object* get(Vector& owner, const Integer& integer);
+
+    Object* get(Vector& owner, const Object& index);
+
+    Object* get(UnorderedSet& owner, const Object& index);
+
+    Object* get(Function& owner, const Object& index);
+
+    Object* get(List& owner, const Integer& integer);
+
+    Object* get(List& owner, const Object& index);
+
+    Object* get(Object& owner, const Getter& getter);
+
+    Object* get(Object& owner, const Object& index);
+
+    void set(Vector& owner, const Integer& integer, const Object& value);
+
+    void set(Vector& owner, const Object& index, const Object& value);
+
+    void set(UnorderedSet& owner, const Object& index, const Object& value);
+
+    void set(Function& owner, const Object& index, const Object& value);
+
+    void set(List& owner, const Integer& index, const Object& value);
+
+    void set(List& owner, const Object& index, const Object& value);
+
+    void set(Object& owner, const Getter& index, const Object& value);
+
+    void set(Object& owner, const Object& index, const Object& value);
+
     Object global(const List&);
 
     Object eval(const Adder& adder);

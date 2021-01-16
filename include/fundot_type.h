@@ -241,10 +241,6 @@ struct UnorderedSet {
     std::unordered_set<Object, Hash<Object>> value;
 };
 
-Object* get(Object& owner, const Object& index);
-
-void set(Object& owner, const Object& index, const Object& value);
-
 }  // namespace fundot
 
 #endif

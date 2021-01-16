@@ -177,6 +177,164 @@ Object Evaluator::operator()(const Object& object)
     return eval(object);
 }
 
+Object* Evaluator::get(Vector& owner, const Integer& integer)
+{
+    if (static_cast<std::size_t>(integer.value) < owner.value.size()) {
+        return &owner.value[integer.value];
+    }
+    return nullptr;
+}
+
+Object* Evaluator::get(Vector& owner, const Object& index)
+{
+    if (index.value.type() == typeid(Integer)) {
+        return get(owner, std::any_cast<const Integer&>(index.value));
+    }
+    return nullptr;
+}
+
+Object* Evaluator::get(UnorderedSet& owner, const Object& index)
+{
+    auto iter = owner.value.find(index);
+    if (iter != owner.value.end()) {
+        if (iter->value.type() == typeid(Setter)) {
+            return &const_cast<Object&>(
+                std::any_cast<const Setter&>(iter->value).value.second);
+        }
+        return &const_cast<Object&>(*iter);
+    }
+    return nullptr;
+}
+
+Object* Evaluator::get(Function& owner, const Object& index)
+{
+    if (index == Object({Symbol({"params"})})) {
+        return &owner.params;
+    }
+    if (index == Object({Symbol({"body"})})) {
+        return &owner.body;
+    }
+    return nullptr;
+}
+
+Object* Evaluator::get(List& owner, const Integer& integer)
+{
+    if (static_cast<std::size_t>(integer.value) < owner.value.size()) {
+        auto iter = owner.value.begin();
+        std::advance(iter, integer.value);
+        return &*iter;
+    }
+    return nullptr;
+}
+
+Object* Evaluator::get(List& owner, const Object& index)
+{
+    if (index.value.type() == typeid(Integer)) {
+        return get(owner, std::any_cast<const Integer&>(index.value));
+    }
+    return nullptr;
+}
+
+Object* Evaluator::get(Object& owner, const Getter& getter)
+{
+    Object* obj_ptr = get(owner, getter.value.first);
+    if (obj_ptr != nullptr) {
+        return get(*obj_ptr, eval(getter.value.second));
+    }
+    return nullptr;
+}
+
+Object* Evaluator::get(Object& owner, const Object& index)
+{
+    if (index.value.type() == typeid(Getter)) {
+        return get(owner, std::any_cast<const Getter&>(index.value));
+    }
+    if (owner.value.type() == typeid(UnorderedSet)) {
+        return get(std::any_cast<UnorderedSet&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(Vector)) {
+        return get(std::any_cast<Vector&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(Function)) {
+        return get(std::any_cast<Function&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(List)) {
+        return get(std::any_cast<List&>(owner.value), index);
+    }
+    return nullptr;
+}
+
+void Evaluator::set(Vector& owner, const Integer& integer, const Object& value)
+{
+    if (static_cast<std::size_t>(integer.value) < owner.value.size()) {
+        owner.value[integer.value] = value;
+    }
+}
+
+void Evaluator::set(Vector& owner, const Object& index, const Object& value)
+{
+    if (index.value.type() == typeid(Integer)) {
+        set(owner, std::any_cast<const Integer&>(index.value), value);
+    }
+}
+
+void Evaluator::set(UnorderedSet& owner, const Object& index,
+                    const Object& value)
+{
+    owner.value.erase({Setter({{index, value}})});
+    owner.value.insert({Setter({{index, value}})});
+}
+
+void Evaluator::set(Function& owner, const Object& index, const Object& value)
+{
+    if (index == Object({Symbol({"params"})})) {
+        owner.params = value;
+    }
+    if (index == Object({Symbol({"body"})})) {
+        owner.body = value;
+    }
+}
+
+void Evaluator::set(List& owner, const Integer& index, const Object& value)
+{
+    if (static_cast<std::size_t>(index.value) < owner.value.size()) {
+        auto iter = owner.value.begin();
+        std::advance(iter, index.value);
+        *iter = value;
+    }
+}
+
+void Evaluator::set(List& owner, const Object& index, const Object& value)
+{
+    if (index.value.type() == typeid(Integer)) {
+        set(owner, std::any_cast<const Integer&>(index.value), value);
+    }
+}
+
+void Evaluator::set(Object& owner, const Getter& index, const Object& value)
+{
+    set(*get(owner, index.value.first), eval(index.value.second), value);
+}
+
+void Evaluator::set(Object& owner, const Object& index, const Object& value)
+{
+    if (index.value.type() == typeid(Getter)) {
+        set(owner, std::any_cast<const Getter&>(index.value), value);
+    }
+    if (owner.value.type() == typeid(UnorderedSet)) {
+        set(std::any_cast<UnorderedSet&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(Vector)) {
+        set(std::any_cast<Vector&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(Function)) {
+        set(std::any_cast<Function&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(List)) {
+        set(std::any_cast<List&>(owner.value), index, value);
+    }
+}
+
 Object Evaluator::global(const List&)
 {
     return scope_;
