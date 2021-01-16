@@ -97,6 +97,14 @@ Object print(Evaluator*, const List& list)
     return {Void()};
 }
 
+Object do_(Evaluator*, const List& list)
+{
+    if (list.value.size() < 2) {
+        return {Null()};
+    }
+    return list.value.back();
+}
+
 Object Evaluator::operator()(const Object& object)
 {
     return eval(object);
@@ -249,6 +257,9 @@ Object Evaluator::eval(const Assignment& assignment)
 
 Object Evaluator::eval(const List& list)
 {
+    if (list.value.empty()) {
+        return {Null()};
+    }
     static std::unordered_map<
         Object, std::function<Object(Evaluator*, const List&)>, Hash<Object>>
         built_in_macros = {{{Symbol({"if"})}, if_},
@@ -269,7 +280,8 @@ Object Evaluator::eval(const List& list)
                               {{Symbol({"quit"})}, quit},
                               {{Symbol({"eval"})}, eval_},
                               {{Symbol({"scan"})}, scan},
-                              {{Symbol({"print"})}, print}};
+                              {{Symbol({"print"})}, print},
+                              {{Symbol({"do"})}, do_}};
     if (built_in_functions.find(list.value.front())
         != built_in_functions.end()) {
         return built_in_functions[list.value.front()](this, after_eval);
@@ -292,7 +304,10 @@ Object Evaluator::eval(const List& list)
         }
         return local_eval(function.body);
     }
-    return {after_eval.value.back()};
+    if (list.value.size() == 1) {
+        return after_eval.value.back();
+    }
+    return {after_eval};
 }
 
 Object Evaluator::eval(const UnorderedSet& set)

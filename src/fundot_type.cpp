@@ -385,6 +385,22 @@ void set(Function& owner, const Object& index, const Object& value)
     }
 }
 
+void set(List& owner, const Integer& index, const Object& value)
+{
+    if (static_cast<std::size_t>(index.value) < owner.value.size()) {
+        auto iter = owner.value.begin();
+        std::advance(iter, index.value);
+        *iter = value;
+    }
+}
+
+void set(List& owner, const Object& index, const Object& value)
+{
+    if (index.value.type() == typeid(Integer)) {
+        set(owner, std::any_cast<const Integer&>(index.value), value);
+    }
+}
+
 void set(Object& owner, const Getter& index, const Object& value)
 {
     set(*get(owner, index.value.first), index.value.second, value);
@@ -403,6 +419,9 @@ void set(Object& owner, const Object& index, const Object& value)
     }
     if (owner.value.type() == typeid(Function)) {
         set(std::any_cast<Function&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(List)) {
+        set(std::any_cast<List&>(owner.value), index, value);
     }
 }
 

@@ -47,10 +47,12 @@ For file execution mode, enter `fundot` followed by the name of the source file.
   (if x < 0 (-x) x))
 
 (defun sqrt [x]
-  (root : x
-   precision : 1e-9
-   (while (abs x - root * root) > precision root : (root + x / root) / 2)
-   root))
+  (do
+    root : x
+    precision : 1e-9
+    (while (abs x - root * root) > precision
+      root : (root + x / root) / 2)
+    root))
 
 (print (sqrt 1))
 (print (sqrt 2))
