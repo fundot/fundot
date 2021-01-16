@@ -172,6 +172,183 @@ Object do_(Evaluator*, const List& list)
     return list.value.back();
 }
 
+Object count(Evaluator*, const List& list)
+{
+    if (list.value.size() < 2) {
+        return {Null()};
+    }
+    auto iter = ++list.value.begin();
+    Integer size = {0};
+    if (iter->value.type() == typeid(String)) {
+        size.value = std::any_cast<const String&>(iter->value).value.size();
+        return {size};
+    }
+    if (iter->value.type() == typeid(UnorderedSet)) {
+        size.value =
+            std::any_cast<const UnorderedSet&>(iter->value).value.size();
+        return {size};
+    }
+    if (iter->value.type() == typeid(Vector)) {
+        size.value = std::any_cast<const Vector&>(iter->value).value.size();
+        return {size};
+    }
+    if (iter->value.type() == typeid(List)) {
+        size.value = std::any_cast<const List&>(iter->value).value.size();
+        return {size};
+    }
+    return list.value.back();
+}
+
+Object append(const UnorderedSet& owner, const Object& value)
+{
+    UnorderedSet ret = owner;
+    ret.value.emplace(value);
+    return {ret};
+}
+
+Object append(const Vector& owner, const Object& value)
+{
+    Vector ret = owner;
+    ret.value.emplace_back(value);
+    return {ret};
+}
+
+Object append(const List& owner, const Object& value)
+{
+    List ret = owner;
+    ret.value.emplace_back(value);
+    return {ret};
+}
+
+Object append(const Object& owner, const Object& value)
+{
+    if (owner.value.type() == typeid(UnorderedSet)) {
+        return append(std::any_cast<const UnorderedSet&>(owner.value), value);
+    }
+    if (owner.value.type() == typeid(Vector)) {
+        return append(std::any_cast<const Vector&>(owner.value), value);
+    }
+    if (owner.value.type() == typeid(List)) {
+        return append(std::any_cast<const List&>(owner.value), value);
+    }
+    return {Null()};
+}
+
+Object append_(Evaluator*, const List& list)
+{
+    if (list.value.size() < 3) {
+        return {Null()};
+    }
+    auto iter = ++list.value.begin();
+    return append(*iter, *++iter);
+}
+
+Object remove(const UnorderedSet& owner, const Object& value)
+{
+    UnorderedSet ret = owner;
+    auto iter = std::find(ret.value.begin(), ret.value.end(), value);
+    if (iter == ret.value.end()) {
+        return {Null()};
+    }
+    ret.value.erase(iter);
+    return {ret};
+}
+
+Object remove(const Vector& owner, const Object& value)
+{
+    Vector ret = owner;
+    auto iter = std::find(ret.value.begin(), ret.value.end(), value);
+    if (iter == ret.value.end()) {
+        return {Null()};
+    }
+    ret.value.erase(iter);
+    return {ret};
+}
+
+Object remove(const List& owner, const Object& value)
+{
+    List ret = owner;
+    auto iter = std::find(ret.value.begin(), ret.value.end(), value);
+    if (iter == ret.value.end()) {
+        return {Null()};
+    }
+    ret.value.erase(iter);
+    return {ret};
+}
+
+Object remove(const Object& owner, const Object& value)
+{
+    if (owner.value.type() == typeid(UnorderedSet)) {
+        return remove(std::any_cast<const UnorderedSet&>(owner.value), value);
+    }
+    if (owner.value.type() == typeid(Vector)) {
+        return remove(std::any_cast<const Vector&>(owner.value), value);
+    }
+    if (owner.value.type() == typeid(List)) {
+        return remove(std::any_cast<const List&>(owner.value), value);
+    }
+    return {Null()};
+}
+
+Object remove_(Evaluator*, const List& list)
+{
+    if (list.value.size() < 3) {
+        return {Null()};
+    }
+    auto iter = ++list.value.begin();
+    return remove(*iter, *++iter);
+}
+
+Object pop(const Vector& owner, const Object& value)
+{
+    if (value.value.type() != typeid(Integer)) {
+        return {Null()};
+    }
+    Vector ret = owner;
+    auto iter = ret.value.begin();
+    std::advance(iter, std::any_cast<const Integer&>(value.value).value);
+    if (iter == ret.value.end()) {
+        return {Null()};
+    }
+    ret.value.erase(iter);
+    return {ret};
+}
+
+Object pop(const List& owner, const Object& value)
+{
+    if (value.value.type() != typeid(Integer)) {
+        return {Null()};
+    }
+    List ret = owner;
+    auto iter = ret.value.begin();
+    std::advance(iter, std::any_cast<const Integer&>(value.value).value);
+    if (iter == ret.value.end()) {
+        return {Null()};
+    }
+    ret.value.erase(iter);
+    return {ret};
+}
+
+Object pop(const Object& owner, const Object& value)
+{
+    if (owner.value.type() == typeid(Vector)) {
+        return pop(std::any_cast<const Vector&>(owner.value), value);
+    }
+    if (owner.value.type() == typeid(List)) {
+        return pop(std::any_cast<const List&>(owner.value), value);
+    }
+    return {Null()};
+}
+
+Object pop_(Evaluator*, const List& list)
+{
+    if (list.value.size() < 3) {
+        return {Null()};
+    }
+    auto iter = ++list.value.begin();
+    return pop(*iter, *++iter);
+}
+
 Object Evaluator::operator()(const Object& object)
 {
     return eval(object);
@@ -497,7 +674,7 @@ Object Evaluator::eval(const List& list)
     }
     List after_eval;
     for (const auto& elem : list.value) {
-        after_eval.value.push_back(eval(elem));
+        after_eval.value.emplace_back(eval(elem));
     }
     static std::unordered_map<
         Object, std::function<Object(Evaluator*, const List&)>, Hash<Object>>
@@ -508,7 +685,11 @@ Object Evaluator::eval(const List& list)
                               {{Symbol({"print"})}, print},
                               {{Symbol({"open"})}, open},
                               {{Symbol({"close"})}, close},
-                              {{Symbol({"do"})}, do_}};
+                              {{Symbol({"do"})}, do_},
+                              {{Symbol({"count"})}, count},
+                              {{Symbol({"append"})}, append_},
+                              {{Symbol({"pop"})}, pop_},
+                              {{Symbol({"remove"})}, remove_}};
     if (built_in_functions.find(list.value.front())
         != built_in_functions.end()) {
         return built_in_functions[list.value.front()](this, after_eval);
