@@ -92,16 +92,28 @@ Object read(Evaluator*, const List& list)
     }
     auto iter = ++list.value.begin();
     if (iter->value.type() == typeid(File)) {
-        std::iostream& ios = *std::any_cast<const File&>(iter->value).value;
-        scan(ios, object);
+        scan(*std::any_cast<const File&>(iter->value).value, object);
     }
     return object;
 }
 
 Object print(Evaluator*, const List& list)
 {
-    if (list.value.size() > 1) {
-        std::cout << *++list.value.begin() << '\n';
+    Object end = {Symbol({"\n"})};
+    auto iter = list.value.begin();
+    Object to_print;
+    if (++iter == list.value.end()) {
+        std::cout << end;
+        return {Void()};
+    }
+    to_print = *iter;
+    if (++iter == list.value.end()) {
+        std::cout << to_print << end;
+        return {Void()};
+    }
+    if (iter->value.type() == typeid(File)) {
+        *std::any_cast<const File&>(iter->value).value << to_print << end;
+        return {Void()};
     }
     return {Void()};
 }
@@ -118,22 +130,22 @@ Object open(Evaluator*, const List& list)
     const String& file_name = std::any_cast<const String&>(iter->value);
     std::ios::openmode mode = std::ios::in;
     if (++iter != list.value.end()) {
-        if (*iter == Object({Symbol({"w"})})) {
+        if (*iter == Object({String({"w"})})) {
             mode = std::ios::out;
         }
-        if (*iter == Object({Symbol({"a"})})) {
-            mode = std::ios::out;
+        if (*iter == Object({String({"a"})})) {
+            mode = std::ios::app;
         }
-        if (*iter == Object({Symbol({"b"})})) {
+        if (*iter == Object({String({"b"})})) {
             mode = std::ios::binary;
         }
-        if (*iter == Object({Symbol({"+"})})) {
+        if (*iter == Object({String({"+"})})) {
             mode = std::ios::in | std::ios::out;
         }
     }
-    File file = {std::make_shared<std::fstream>(file_name.value, mode)};
+    File file({std::make_shared<std::fstream>(file_name.value, mode)});
     if (file.value->is_open()) {
-        return {(Boolean({true}))};
+        return {file};
     }
     return {Null()};
 }
@@ -283,7 +295,7 @@ Object Evaluator::eval(const Symbol& symbol)
 {
     Object* obj_ptr = get(scope_, {symbol});
     if (obj_ptr != nullptr) {
-        return eval(*obj_ptr);
+        return *obj_ptr;
     }
     return {symbol};
 }
@@ -292,7 +304,7 @@ Object Evaluator::eval(const Getter& getter)
 {
     Object* obj_ptr = get(scope_, {getter});
     if (obj_ptr != nullptr) {
-        return eval(*obj_ptr);
+        return *obj_ptr;
     }
     return {Null()};
 }

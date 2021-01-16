@@ -329,6 +329,24 @@ Object* get(Function& owner, const Object& index)
     return nullptr;
 }
 
+Object* get(List& owner, const Integer& integer)
+{
+    if (static_cast<std::size_t>(integer.value) < owner.value.size()) {
+        auto iter = owner.value.begin();
+        std::advance(iter, integer.value);
+        return &*iter;
+    }
+    return nullptr;
+}
+
+Object* get(List& owner, const Object& index)
+{
+    if (index.value.type() == typeid(Integer)) {
+        return get(owner, std::any_cast<const Integer&>(index.value));
+    }
+    return nullptr;
+}
+
 Object* get(Object& owner, const Getter& getter)
 {
     Object* obj_ptr = get(owner, getter.value.first);
@@ -351,6 +369,9 @@ Object* get(Object& owner, const Object& index)
     }
     if (owner.value.type() == typeid(Function)) {
         return get(std::any_cast<Function&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(List)) {
+        return get(std::any_cast<List&>(owner.value), index);
     }
     return nullptr;
 }
