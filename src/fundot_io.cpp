@@ -172,9 +172,9 @@ std::istream& operator>>(std::istream& is, String& string)
 std::istream& operator>>(std::istream& is, Symbol& symbol)
 {
     static std::unordered_set<char> delimiters = {
-        ')',  ']',  '}',  ',',  '"', '\'', ':', '.', ' ', '\n',
-        '\t', '\v', '\f', '\r', '(', '[',  '{', '+', '-', '*',
-        '/',  '%',  '<',  '>',  '=', '&',  '|', '^', '~', '!'};
+        ';',  ')',  ']',  '}',  ',', '"', '\'', ':', '.', ' ', '\n',
+        '\t', '\v', '\f', '\r', '(', '[', '{',  '+', '-', '*', '/',
+        '%',  '<',  '>',  '=',  '&', '|', '^',  '~', '!'};
     std::string& value = symbol.value;
     value.clear();
     char c;
@@ -234,6 +234,10 @@ std::istream& operator>>(std::istream& is, List& list)
     value.clear();
     char c;
     is >> c;
+    if (c == ';') {
+        is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        is >> c;
+    }
     if (c == ')') {
         return is;
     }
@@ -242,6 +246,10 @@ std::istream& operator>>(std::istream& is, List& list)
     while (is >> elem) {
         value.push_back(elem);
         is >> c;
+        if (c == ';') {
+            is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            is >> c;
+        }
         if (c == ')') {
             parse(value);
             return is;
@@ -257,6 +265,10 @@ std::istream& operator>>(std::istream& is, Vector& vector)
     value.clear();
     char c;
     is >> c;
+    if (c == ';') {
+        is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        is >> c;
+    }
     if (c == ']') {
         return is;
     }
@@ -267,6 +279,10 @@ std::istream& operator>>(std::istream& is, Vector& vector)
         while (is >> elem) {
             list.push_back(elem);
             is >> c;
+            if (c == ';') {
+                is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                is >> c;
+            }
             if (c == ',') {
                 break;
             }
@@ -295,6 +311,10 @@ std::istream& operator>>(std::istream& is, UnorderedSet& set)
     value.clear();
     char c;
     is >> c;
+    if (c == ';') {
+        is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        is >> c;
+    }
     if (c == '}') {
         return is;
     }
@@ -305,6 +325,10 @@ std::istream& operator>>(std::istream& is, UnorderedSet& set)
         while (is >> elem) {
             list.push_back(elem);
             is >> c;
+            if (c == ';') {
+                is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                is >> c;
+            }
             if (c == ',') {
                 break;
             }
@@ -331,6 +355,10 @@ std::istream& operator>>(std::istream& is, Object& object)
 {
     char c;
     is >> c;
+    if (c == ';') {
+        is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        is >> c;
+    }
     if (c == '\'') {
         Quote quote;
         is >> quote.value;
@@ -722,7 +750,10 @@ std::istream& Scanner::operator()(std::istream& is, Object& object) const
             is >> c;
         }
         is >> std::skipws;
-        if (c == '\n' || is.eof()) {
+        if (c == ';') {
+            is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+        if (c == '\n' || is.eof() || c == ';') {
             parse(list);
             object = list.back();
             return is;
