@@ -48,7 +48,7 @@ Object while_(Evaluator* eval, const List& list)
     return ret;
 }
 
-Object lambda(Evaluator*, const List& list)
+Object lambda(const List& list)
 {
     if (list.value.size() < 3) {
         return {Null()};
@@ -69,7 +69,7 @@ Object defun(Evaluator* eval, const List& list)
     return (*eval)({setter});
 }
 
-Object quit(Evaluator*, const List&)
+Object quit()
 {
     std::exit(EXIT_SUCCESS);
 }
@@ -82,7 +82,7 @@ Object eval_(Evaluator* eval, const List& list)
     return (*eval)(*++list.value.begin());
 }
 
-Object read(Evaluator*, const List& list)
+Object read(const List& list)
 {
     Object object = {Null()};
     Scanner scan;
@@ -97,7 +97,7 @@ Object read(Evaluator*, const List& list)
     return object;
 }
 
-Object print(Evaluator*, const List& list)
+Object print(const List& list)
 {
     Object end = {Symbol({"\n"})};
     auto iter = list.value.begin();
@@ -118,7 +118,7 @@ Object print(Evaluator*, const List& list)
     return {Void()};
 }
 
-Object open(Evaluator*, const List& list)
+Object open(const List& list)
 {
     if (list.value.size() < 2) {
         return {Null()};
@@ -150,7 +150,7 @@ Object open(Evaluator*, const List& list)
     return {Null()};
 }
 
-Object close(Evaluator*, const List& list)
+Object close(const List& list)
 {
     if (list.value.size() < 2) {
         return {Null()};
@@ -164,7 +164,7 @@ Object close(Evaluator*, const List& list)
     return {Null()};
 }
 
-Object do_(Evaluator*, const List& list)
+Object do_(const List& list)
 {
     if (list.value.size() < 2) {
         return {Null()};
@@ -172,7 +172,7 @@ Object do_(Evaluator*, const List& list)
     return list.value.back();
 }
 
-Object count(Evaluator*, const List& list)
+Object count(const List& list)
 {
     if (list.value.size() < 2) {
         return {Null()};
@@ -224,7 +224,7 @@ Object append(const Object& owner, const Object& value)
     return {Null()};
 }
 
-Object append_(Evaluator*, const List& list)
+Object append_(const List& list)
 {
     if (list.value.size() < 3) {
         return {Null()};
@@ -276,7 +276,7 @@ Object insert(const Object& owner, const Object& index, const Object& value)
     return {Null()};
 }
 
-Object insert_(Evaluator*, const List& list)
+Object insert_(const List& list)
 {
     if (list.value.size() < 4) {
         return {Null()};
@@ -332,7 +332,7 @@ Object remove(const Object& owner, const Object& value)
     return {Null()};
 }
 
-Object remove_(Evaluator*, const List& list)
+Object remove_(const List& list)
 {
     if (list.value.size() < 3) {
         return {Null()};
@@ -415,7 +415,7 @@ Object pop(const Object& owner)
     return {Null()};
 }
 
-Object pop_(Evaluator*, const List& list)
+Object pop_(const List& list)
 {
     if (list.value.size() < 2) {
         return {Null()};
@@ -425,6 +425,34 @@ Object pop_(Evaluator*, const List& list)
         return pop(*iter);
     }
     return pop(*iter, *++iter);
+}
+
+Evaluator::Evaluator()
+{
+    registerSpecialForm("if",
+                        [this](const List& list) { return if_(this, list); });
+    registerSpecialForm("cond",
+                        [this](const List& list) { return cond(this, list); });
+    registerSpecialForm(
+        "while", [this](const List& list) { return while_(this, list); });
+    registerSpecialForm("lambda", lambda);
+    registerSpecialForm("defun",
+                        [this](const List& list) { return defun(this, list); });
+    registerPrimitiveFunction("global",
+                              [this](const List&) { return global(); });
+    registerPrimitiveFunction("eval",
+                              [this](const List& list) { return eval(list); });
+    registerPrimitiveFunction("quit", [](const List&) { return quit(); });
+    registerPrimitiveFunction("read", read);
+    registerPrimitiveFunction("print", print);
+    registerPrimitiveFunction("open", open);
+    registerPrimitiveFunction("close", close);
+    registerPrimitiveFunction("do", do_);
+    registerPrimitiveFunction("count", count);
+    registerPrimitiveFunction("append", append_);
+    registerPrimitiveFunction("insert_", insert_);
+    registerPrimitiveFunction("pop", pop_);
+    registerPrimitiveFunction("remove", remove_);
 }
 
 Object Evaluator::operator()(const Object& object)
@@ -590,7 +618,19 @@ void Evaluator::set(Object& owner, const Object& index, const Object& value)
     }
 }
 
-Object Evaluator::global(const List&)
+void Evaluator::registerSpecialForm(
+    const std::string& name, const std::function<Object(const List&)>& function)
+{
+    set(scope_, {Symbol({name})}, {SpecialForm({function})});
+}
+
+void Evaluator::registerPrimitiveFunction(
+    const std::string& name, const std::function<Object(const List&)>& function)
+{
+    set(scope_, {Symbol({name})}, {PrimitiveFunction({function})});
+}
+
+Object Evaluator::global()
 {
     return scope_;
 }
@@ -740,44 +780,27 @@ Object Evaluator::eval(const List& list)
     if (list.value.empty()) {
         return {Null()};
     }
-    static std::unordered_map<
-        Object, std::function<Object(Evaluator*, const List&)>, Hash<Object>>
-        built_in_macros = {{{Symbol({"if"})}, if_},
-                           {{Symbol({"cond"})}, cond},
-                           {{Symbol({"while"})}, while_},
-                           {{Symbol({"lambda"})}, lambda},
-                           {{Symbol({"defun"})}, defun}};
-    if (built_in_macros.find(list.value.front()) != built_in_macros.end()) {
-        return built_in_macros[list.value.front()](this, list);
+    List after_eval = list;
+    auto iter = after_eval.value.begin();
+    *iter = eval(*iter);
+    const Object& front = after_eval.value.front();
+    if (front.value.type() == typeid(SpecialForm)) {
+        const SpecialForm& special_form =
+            std::any_cast<const SpecialForm&>(front.value);
+        return special_form.value(list);
     }
-    List after_eval;
-    for (const auto& elem : list.value) {
-        after_eval.value.emplace_back(eval(elem));
+    while (++iter != after_eval.value.end()) {
+        *iter = eval(*iter);
     }
-    static std::unordered_map<
-        Object, std::function<Object(Evaluator*, const List&)>, Hash<Object>>
-        built_in_functions = {{{Symbol({"global"})}, &Evaluator::global},
-                              {{Symbol({"quit"})}, quit},
-                              {{Symbol({"eval"})}, eval_},
-                              {{Symbol({"read"})}, read},
-                              {{Symbol({"print"})}, print},
-                              {{Symbol({"open"})}, open},
-                              {{Symbol({"close"})}, close},
-                              {{Symbol({"do"})}, do_},
-                              {{Symbol({"count"})}, count},
-                              {{Symbol({"append"})}, append_},
-                              {{Symbol({"insert"})}, insert_},
-                              {{Symbol({"pop"})}, pop_},
-                              {{Symbol({"remove"})}, remove_}};
-    if (built_in_functions.find(list.value.front())
-        != built_in_functions.end()) {
-        return built_in_functions[list.value.front()](this, after_eval);
+    if (front.value.type() == typeid(PrimitiveFunction)) {
+        const PrimitiveFunction& function =
+            std::any_cast<const PrimitiveFunction&>(front.value);
+        return function.value(after_eval);
     }
-    if (after_eval.value.front().value.type() == typeid(Function)) {
-        Function& function =
+    if (front.value.type() == typeid(Function)) {
+        const Function& function =
             std::any_cast<Function&>(after_eval.value.front().value);
-        Evaluator local_eval;
-        local_eval.scope_ = scope_;
+        Object scope = scope_;
         auto iter = after_eval.value.begin();
         if (function.params.value.type() != typeid(Vector)) {
             return {function};
@@ -787,9 +810,11 @@ Object Evaluator::eval(const List& list)
             if (++iter == after_eval.value.end()) {
                 break;
             }
-            local_eval.eval(Setter({{arg, *iter}}));
+            eval(Setter({{arg, *iter}}));
         }
-        return local_eval(function.body);
+        Object ret = eval(function.body);
+        scope_ = scope;
+        return ret;
     }
     if (list.value.size() == 1) {
         return after_eval.value.back();

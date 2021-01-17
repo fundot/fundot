@@ -601,6 +601,26 @@ std::ostream& operator<<(std::ostream& os, const RightShift& right_shift)
     return os << right_shift.value.first << " >> " << right_shift.value.second;
 }
 
+std::ostream& operator<<(std::ostream& os, const SpecialForm&)
+{
+    UnorderedSet set;
+    Setter setter;
+    setter.value.first.value = Symbol({"type"});
+    setter.value.second.value = Symbol({"special_form"});
+    set.value.insert({setter});
+    return os << set;
+}
+
+std::ostream& operator<<(std::ostream& os, const PrimitiveFunction&)
+{
+    UnorderedSet set;
+    Setter setter;
+    setter.value.first.value = Symbol({"type"});
+    setter.value.second.value = Symbol({"primitive_function"});
+    set.value.insert({setter});
+    return os << set;
+}
+
 std::ostream& operator<<(std::ostream& os, const Function& function)
 {
     UnorderedSet set;
@@ -728,6 +748,12 @@ std::ostream& operator<<(std::ostream& os, const Object& object)
     }
     if (value.type() == typeid(BitwiseNot)) {
         return os << std::any_cast<const BitwiseNot&>(value);
+    }
+    if (value.type() == typeid(SpecialForm)) {
+        return os << std::any_cast<const SpecialForm&>(value);
+    }
+    if (value.type() == typeid(PrimitiveFunction)) {
+        return os << std::any_cast<const PrimitiveFunction&>(value);
     }
     if (value.type() == typeid(Function)) {
         return os << std::any_cast<const Function&>(value);

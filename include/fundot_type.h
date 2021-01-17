@@ -153,6 +153,14 @@ struct Vector {
     std::vector<Object> value;
 };
 
+struct SpecialForm {
+    std::function<Object(const List&)> value;
+};
+
+struct PrimitiveFunction {
+    std::function<Object(const List&)> value;
+};
+
 struct Function {
     Object params;
     Object body;

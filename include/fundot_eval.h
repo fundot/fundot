@@ -1,14 +1,14 @@
 #ifndef FUNDOT_EVAL_H
 #define FUNDOT_EVAL_H
 
-#include <unordered_map>
-
 #include "fundot_io.h"
 
 namespace fundot {
 
 class Evaluator {
 public:
+    Evaluator();
+
     Object operator()(const Object& object);
 
 private:
@@ -46,7 +46,15 @@ private:
 
     void set(Object& owner, const Object& index, const Object& value);
 
-    Object global(const List&);
+    void registerSpecialForm(
+        const std::string& name,
+        const std::function<Object(const List&)>& function);
+
+    void registerPrimitiveFunction(
+        const std::string& name,
+        const std::function<Object(const List&)>& function);
+
+    Object global();
 
     Object eval(const Adder& adder);
 
