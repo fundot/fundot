@@ -1,21 +1,21 @@
-#include "fundot_eval.h"
+#include <fstream>
+#include <iostream>
+
+#include "object.h"
 
 using namespace fundot;
 
 int main(int argc, char* argv[])
 {
     if (argc == 1) {
-        Scanner scan;
-        Object to_eval;
+        Object object;
+        Reader read;
         Evaluator eval;
-        Object after_eval;
+        Printer print;
         std::cout << ">>> ";
-        while (scan(std::cin, to_eval)) {
-            after_eval = eval(to_eval);
-            if (after_eval.value.type() != typeid(Void)) {
-                std::cout << after_eval << '\n';
-            }
-            std::cout << ">>> ";
+        while (read(object, std::cin)) {
+            print(eval(object), std::cout);
+            std::cout << "\n>>> ";
         }
         std::cout << std::endl;
         return 0;
@@ -23,11 +23,11 @@ int main(int argc, char* argv[])
     if (argc == 2) {
         std::ifstream file(argv[1]);
         if (file.is_open()) {
-            Scanner scan;
             Object to_eval;
+            Reader read;
             Evaluator eval;
             while (file) {
-                scan(file, to_eval);
+                read(to_eval, file);
                 eval(to_eval);
             }
         }
