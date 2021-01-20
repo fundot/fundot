@@ -99,7 +99,7 @@ Object read_(const List& list)
 
 Object print_(const List& list)
 {
-    Object end = {Symbol({"\n"})};
+    Object end = {String({"\n"})};
     auto iter = list.value.begin();
     Object to_print;
     Printer print;

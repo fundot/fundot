@@ -1,15 +1,20 @@
-add_library(fundot_core
-            hash.cpp
-            comparison.cpp
+add_library(fundot
             arithmetic.cpp
-            logical.cpp
             bitwise.cpp
-            input.cpp
-            output.cpp
             built_in.cpp
+            comparison.cpp
             eval.cpp
+            fundot.cpp
+            hash.cpp
+            input.cpp
+            logical.cpp
+            output.cpp
             )
 
-add_executable(fundot main.cpp)
+add_executable(fundot_bin main.cpp)
 
-target_link_libraries(fundot fundot_core)
+target_link_libraries(fundot_bin fundot)
+
+set_target_properties(fundot_bin PROPERTIES OUTPUT_NAME fundot)
+
+install(TARGETS fundot_bin)
