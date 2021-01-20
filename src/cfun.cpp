@@ -2,8 +2,6 @@
 
 #include <sstream>
 
-#include "object.h"
-
 struct FunObject {
     fundot::Object value;
 };

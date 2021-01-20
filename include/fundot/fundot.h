@@ -2,6 +2,10 @@
 #define FUNDOT_FUNDOT_H
 
 #ifdef __cplusplus
+#include "types.h"
+#endif
+
+#ifdef __cplusplus
 extern "C" {
 #endif
 

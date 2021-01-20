@@ -161,6 +161,10 @@ struct PrimitiveFunction {
     std::function<Object(const List&)> value;
 };
 
+struct SharedObject {
+    std::shared_ptr<Object> value;
+};
+
 struct Function {
     Object params;
     Object body;

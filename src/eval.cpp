@@ -1,17 +1,11 @@
-#include "built_in.h"
+#include <boost/dll.hpp>
+
+#include "fundot/fundot.h"
 
 namespace fundot {
 
 class Evaluator::Impl {
 public:
-    void registerSpecialForm(
-        const std::string& name,
-        const std::function<Object(const List&)>& function);
-
-    void registerPrimitiveFunction(
-        const std::string& name,
-        const std::function<Object(const List&)>& function);
-
     Object* get(Vector& owner, const Integer& integer);
 
     Object* get(Vector& owner, const Object& index);
@@ -44,7 +38,21 @@ public:
 
     void set(Object& owner, const Object& index, const Object& value);
 
-    Object global();
+    Object cond_(const List& list);
+
+    Object defun_(const List& list);
+
+    Object eval_(const List& list);
+
+    Object global_();
+
+    Object if_(const List& list);
+
+    Object import_(const List& list);
+
+    Object locate_(const List& list);
+
+    Object while_(const List& list);
 
     Object eval(const Adder& adder);
 
@@ -101,6 +109,8 @@ public:
     Object eval(const UnorderedSet& set);
 
     Object eval(const Quote& quote);
+
+    Object eval(const SharedObject& shared_object);
 
     Object eval(const Object& object);
 
@@ -272,21 +282,114 @@ void Evaluator::Impl::set(Object& owner, const Object& index,
     }
 }
 
-void Evaluator::Impl::registerSpecialForm(
-    const std::string& name, const std::function<Object(const List&)>& function)
+Object Evaluator::Impl::cond_(const List& list)
 {
-    set(scope_, {Symbol({name})}, {SpecialForm({function})});
+    auto iter = list.value.begin();
+    while (++iter != list.value.end()) {
+        Object result = eval(*iter);
+        ++iter;
+        if (result.value.type() != typeid(Null)
+            && result != Object({Boolean({false})})) {
+            return eval(*iter);
+        }
+    }
+    return {Null()};
 }
 
-void Evaluator::Impl::registerPrimitiveFunction(
-    const std::string& name, const std::function<Object(const List&)>& function)
+Object Evaluator::Impl::defun_(const List& list)
 {
-    set(scope_, {Symbol({name})}, {PrimitiveFunction({function})});
+    if (list.value.size() < 4) {
+        return {Null()};
+    }
+    auto iter = ++list.value.begin();
+    Setter setter;
+    setter.value.first = *iter;
+    setter.value.second = {Function({*++iter, *++iter})};
+    return eval({setter});
 }
 
-Object Evaluator::Impl::global()
+Object Evaluator::Impl::eval_(const List& list)
+{
+    if (list.value.size() < 2) {
+        return {Null()};
+    }
+    return eval(*++list.value.begin());
+}
+
+Object Evaluator::Impl::global_()
 {
     return scope_;
+}
+
+Object Evaluator::Impl::if_(const List& list)
+{
+    auto iter = ++list.value.begin();
+    Object result = eval(*iter);
+    if (result.value.type() == typeid(Null)
+        || result == Object({Boolean({false})})) {
+        if (++iter != list.value.end() && ++iter != list.value.end()) {
+            return eval(*iter);
+        }
+        return {Null()};
+    }
+    if (++iter != list.value.end()) {
+        return eval(*iter);
+    }
+    return {Null()};
+}
+
+Object Evaluator::Impl::import_(const List& list)
+{
+    if (list.value.size() < 3) {
+        return {Null()};
+    }
+    auto iter = ++list.value.begin();
+    PrimitiveFunction function;
+    if (iter->value.type() != typeid(String)) {
+        return {Null()};
+    }
+    std::string lib_path = std::any_cast<const String&>(iter->value).value;
+    if ((++iter)->value.type() != typeid(String)) {
+        return {Null()};
+    }
+    std::string obj_name = std::any_cast<const String&>(iter->value).value;
+    boost::shared_ptr<Object> obj_ptr =
+        boost::dll::import<Object>(lib_path, obj_name);
+    SharedObject shared_object = {std::shared_ptr<Object>(
+        obj_ptr.get(), [obj_ptr](Object*) mutable { obj_ptr.reset(); })};
+    Object first = {Symbol({obj_name})};
+    Object second = {shared_object};
+    set(scope_, first, second);
+    return eval(shared_object);
+}
+
+Object Evaluator::Impl::locate_(const List& list)
+{
+    boost::dll::fs::path bin_path = boost::dll::program_location();
+    auto iter = ++list.value.begin();
+    if (iter == list.value.end()) {
+        return {String({bin_path.string()})};
+    }
+    if (*iter == Object({Symbol({"lib"})})) {
+        return {
+            String({bin_path.parent_path().parent_path().string() + "/lib"})};
+    }
+    return {Null()};
+}
+
+Object Evaluator::Impl::while_(const List& list)
+{
+    auto iter = ++list.value.begin();
+    Object predicate = *iter;
+    Object to_eval = *++iter;
+    Object result = eval(predicate);
+    Object ret({Null()});
+    while (result.value.type() != typeid(Null)
+           && result != Object({Boolean({false})})) {
+        ret = eval(to_eval);
+        result = eval(predicate);
+    }
+    return ret;
 }
 
 Object Evaluator::Impl::eval(const Adder& adder)
@@ -505,6 +608,11 @@ Object Evaluator::Impl::eval(const Quote& quote)
     return quote.value;
 }
 
+Object Evaluator::Impl::eval(const SharedObject& shared_object)
+{
+    return eval(*shared_object.value);
+}
+
 Object Evaluator::Impl::eval(const Object& object)
 {
     if (object.value.type() == typeid(Adder)) {
@@ -591,6 +699,9 @@ Object Evaluator::Impl::eval(const Object& object)
     if (object.value.type() == typeid(Quote)) {
         return eval(std::any_cast<const Quote&>(object.value));
     }
+    if (object.value.type() == typeid(SharedObject)) {
+        return eval(std::any_cast<const SharedObject&>(object.value));
+    }
     return object;
 }
 
@@ -601,32 +712,48 @@ Object Evaluator::operator()(const Object& object)
 
 Evaluator::Evaluator() : pimpl_(new Evaluator::Impl)
 {
-    pimpl_->registerSpecialForm(
-        "if", [this](const List& list) { return if_(this, list); });
-    pimpl_->registerSpecialForm(
-        "cond", [this](const List& list) { return cond_(this, list); });
-    pimpl_->registerSpecialForm(
-        "while", [this](const List& list) { return while_(this, list); });
-    pimpl_->registerSpecialForm(
-        "defun", [this](const List& list) { return defun_(this, list); });
-    pimpl_->registerPrimitiveFunction(
-        "global", [this](const List&) { return pimpl_->global(); });
-    pimpl_->registerPrimitiveFunction(
-        "eval", [this](const List& list) { return eval_(this, list); });
-    pimpl_->registerPrimitiveFunction("quit",
-                                      [](const List&) { return quit_(); });
-
-    pimpl_->registerSpecialForm("lambda", lambda_);
-    pimpl_->registerPrimitiveFunction("read", read_);
-    pimpl_->registerPrimitiveFunction("print", print_);
-    pimpl_->registerPrimitiveFunction("open", open_);
-    pimpl_->registerPrimitiveFunction("close", close_);
-    pimpl_->registerPrimitiveFunction("do", do_);
-    pimpl_->registerPrimitiveFunction("count", count_);
-    pimpl_->registerPrimitiveFunction("append", append_);
-    pimpl_->registerPrimitiveFunction("insert_", insert_);
-    pimpl_->registerPrimitiveFunction("pop", pop_);
-    pimpl_->registerPrimitiveFunction("remove", remove_);
+    Symbol name;
+    PrimitiveFunction function;
+    name.value = "cond";
+    function.value = [this](const List& list) {
+        return pimpl_->cond_(list);
+    };
+    pimpl_->eval(Setter({{{name}, {function}}}));
+    name.value = "defun";
+    function.value = [this](const List& list) {
+        return pimpl_->defun_(list);
+    };
+    pimpl_->eval(Setter({{{name}, {function}}}));
+    name.value = "eval";
+    function.value = [this](const List& list) {
+        return pimpl_->eval_(list);
+    };
+    pimpl_->eval(Setter({{{name}, {function}}}));
+    name.value = "global";
+    function.value = [this](const List&) {
+        return pimpl_->global_();
+    };
+    pimpl_->eval(Setter({{{name}, {function}}}));
+    name.value = "if";
+    function.value = [this](const List& list) {
+        return pimpl_->if_(list);
+    };
+    pimpl_->eval(Setter({{{name}, {function}}}));
+    name.value = "import";
+    function.value = [this](const List& list) {
+        return pimpl_->import_(list);
+    };
+    pimpl_->eval(Setter({{{name}, {function}}}));
+    name.value = "locate";
+    function.value = [this](const List& list) {
+        return pimpl_->locate_(list);
+    };
+    pimpl_->eval(Setter({{{name}, {function}}}));
+    name.value = "while";
+    function.value = [this](const List& list) {
+        return pimpl_->while_(list);
+    };
+    pimpl_->eval(Setter({{{name}, {function}}}));
 }
 
 Evaluator::~Evaluator() = default;

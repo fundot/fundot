@@ -1,4 +1,4 @@
-#include "types.h"
+#include "fundot/fundot.h"
 
 namespace fundot {
 
@@ -209,6 +209,16 @@ std::ostream& operator<<(std::ostream& os, const PrimitiveFunction&)
     return os << set;
 }
 
+std::ostream& operator<<(std::ostream& os, const SharedObject&)
+{
+    UnorderedSet set;
+    Setter setter;
+    setter.value.first.value = Symbol({"type"});
+    setter.value.second.value = Symbol({"shared_object"});
+    set.value.insert({setter});
+    return os << set;
+}
+
 std::ostream& operator<<(std::ostream& os, const Function& function)
 {
     UnorderedSet set;
@@ -342,6 +352,9 @@ std::ostream& operator<<(std::ostream& os, const Object& object)
     }
     if (value.type() == typeid(PrimitiveFunction)) {
         return os << std::any_cast<const PrimitiveFunction&>(value);
+    }
+    if (value.type() == typeid(SharedObject)) {
+        return os << std::any_cast<const SharedObject&>(value);
     }
     if (value.type() == typeid(Function)) {
         return os << std::any_cast<const Function&>(value);

@@ -1,7 +1,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "object.h"
+#include "fundot/fundot.h"
 
 using namespace fundot;
 
