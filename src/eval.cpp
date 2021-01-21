@@ -46,6 +46,10 @@ public:
 
     Object import_(const List& list);
 
+    Object let_(const List& list);
+
+    Object local_();
+
     Object locate_(const List& list);
 
     Object while_(const List& list);
@@ -111,7 +115,9 @@ public:
     Object eval(const std::string& script);
 
 private:
-    Object scope_ = {UnorderedSet()};
+    Object global_scope_ = {UnorderedSet()};
+
+    Object local_scope_ = {UnorderedSet()};
 };
 
 Object* Evaluator::Impl::get(Vector& owner, const Integer& integer)
@@ -274,7 +280,7 @@ Object Evaluator::Impl::eval_(const List& list)
 
 Object Evaluator::Impl::global_()
 {
-    return scope_;
+    return global_scope_;
 }
 
 Object Evaluator::Impl::if_(const List& list)
@@ -333,8 +339,25 @@ Object Evaluator::Impl::import_(const List& list)
         obj_ptr.get(), [obj_ptr](Object*) mutable { obj_ptr.reset(); })};
     Object first = {Symbol({name})};
     Object second = {shared_object};
-    set(scope_, first, second);
+    set(global_scope_, first, second);
     return eval(shared_object);
+}
+
+Object Evaluator::Impl::let_(const List& list)
+{
+    if (list.value.size() < 3) {
+        return {Null()};
+    }
+    auto iter = ++list.value.begin();
+    Setter setter({{*iter, *++iter}});
+    Object after_eval = eval(setter.value.second);
+    set(local_scope_, setter.value.first, after_eval);
+    return after_eval;
+}
+
+Object Evaluator::Impl::local_()
+{
+    return local_scope_;
 }
 
 Object Evaluator::Impl::locate_(const List& list)
@@ -483,7 +506,11 @@ Object Evaluator::Impl::eval(const RightShift& right_shift)
 
 Object Evaluator::Impl::eval(const Symbol& symbol)
 {
-    Object* obj_ptr = get(scope_, {symbol});
+    Object* obj_ptr = get(local_scope_, {symbol});
+    if (obj_ptr != nullptr) {
+        return *obj_ptr;
+    }
+    obj_ptr = get(global_scope_, {symbol});
     if (obj_ptr != nullptr) {
         return *obj_ptr;
     }
@@ -492,7 +519,11 @@ Object Evaluator::Impl::eval(const Symbol& symbol)
 
 Object Evaluator::Impl::eval(const Getter& getter)
 {
-    Object* obj_ptr = get(scope_, {getter});
+    Object* obj_ptr = get(local_scope_, {getter});
+    if (obj_ptr != nullptr) {
+        return *obj_ptr;
+    }
+    obj_ptr = get(global_scope_, {getter});
     if (obj_ptr != nullptr) {
         return *obj_ptr;
     }
@@ -502,7 +533,7 @@ Object Evaluator::Impl::eval(const Getter& getter)
 Object Evaluator::Impl::eval(const Setter& setter)
 {
     Object after_eval = eval(setter.value.second);
-    set(scope_, setter.value.first, after_eval);
+    set(global_scope_, setter.value.first, after_eval);
     return after_eval;
 }
 
@@ -556,17 +587,21 @@ Object Evaluator::Impl::eval(const List& list)
             if (body == nullptr) {
                 return ret;
             }
-            Object scope = scope_;
+            Object local = local_scope_;
             auto vector = std::any_cast<const Vector&>(params->value).value;
             auto it = after_eval.value.begin();
             for (const auto& arg : vector) {
                 if (++it == after_eval.value.end()) {
                     break;
                 }
-                eval(Setter({{arg, *it}}));
+                List let;
+                let.value.push_back({Symbol({"let"})});
+                let.value.push_back(arg);
+                let.value.push_back(*it);
+                eval(let);
             }
             Object after = eval(*body);
-            scope_ = scope;
+            local_scope_ = local;
             return after;
         }
     }
@@ -705,6 +740,11 @@ Evaluator::Evaluator() : pimpl_(new Evaluator::Impl)
         return pimpl_->import_(list);
     };
     pimpl_->eval(Setter({{{name}, {function}}}));
+    name.value = "local";
+    function.value = [this](const List&) {
+        return pimpl_->local_();
+    };
+    pimpl_->eval(Setter({{{name}, {function}}}));
     name.value = "locate";
     function.value = [this](const List& list) {
         return pimpl_->locate_(list);
@@ -719,6 +759,11 @@ Evaluator::Evaluator() : pimpl_(new Evaluator::Impl)
     name.value = "if";
     special_from.value = [this](const List& list) {
         return pimpl_->if_(list);
+    };
+    pimpl_->eval(Setter({{{name}, {special_from}}}));
+    name.value = "let";
+    special_from.value = [this](const List& list) {
+        return pimpl_->let_(list);
     };
     pimpl_->eval(Setter({{{name}, {special_from}}}));
     name.value = "while";
