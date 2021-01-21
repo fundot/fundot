@@ -4,6 +4,10 @@
 
 using namespace fundot;
 
+struct File {
+    std::shared_ptr<std::fstream> value;
+};
+
 Object print_(const List& list)
 {
     std::string end = "\n";

@@ -137,10 +137,6 @@ struct Null {
 struct Void {
 };
 
-struct File {
-    std::shared_ptr<std::fstream> value;
-};
-
 struct List {
     std::list<Object> value;
 };
@@ -163,11 +159,6 @@ struct PrimitiveFunction {
 
 struct SharedObject {
     std::shared_ptr<Object> value;
-};
-
-struct Function {
-    Object params;
-    Object body;
 };
 
 }  // namespace fundot

@@ -4,6 +4,10 @@
 
 using namespace fundot;
 
+struct File {
+    std::shared_ptr<std::fstream> value;
+};
+
 Object read_(const List& list)
 {
     Object object = {Null()};

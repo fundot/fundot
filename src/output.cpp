@@ -14,11 +14,17 @@ std::ostream& operator<<(std::ostream& os, const Boolean& boolean)
 
 std::ostream& operator<<(std::ostream& os, const Integer& num)
 {
+    if (num.value < 0) {
+        return os << "(-" << -num.value << ')';
+    }
     return os << num.value;
 }
 
 std::ostream& operator<<(std::ostream& os, const Float& num)
 {
+    if (num.value < 0) {
+        return os << "(-" << -num.value << ')';
+    }
     return os << num.value;
 }
 
@@ -219,32 +225,6 @@ std::ostream& operator<<(std::ostream& os, const SharedObject&)
     return os << set;
 }
 
-std::ostream& operator<<(std::ostream& os, const Function& function)
-{
-    UnorderedSet set;
-    Setter setter;
-    setter.value.first.value = Symbol({"type"});
-    setter.value.second.value = Symbol({"function"});
-    set.value.insert({setter});
-    setter.value.first.value = Symbol({"params"});
-    setter.value.second = function.params;
-    set.value.insert({setter});
-    setter.value.first.value = Symbol({"body"});
-    setter.value.second = function.body;
-    set.value.insert({setter});
-    return os << set;
-}
-
-std::ostream& operator<<(std::ostream& os, const File&)
-{
-    UnorderedSet set;
-    Setter setter;
-    setter.value.first.value = Symbol({"type"});
-    setter.value.second.value = Symbol({"file"});
-    set.value.insert({setter});
-    return os << set;
-}
-
 std::ostream& operator<<(std::ostream& os, const Object& object)
 {
     const auto& value = object.value;
@@ -356,13 +336,10 @@ std::ostream& operator<<(std::ostream& os, const Object& object)
     if (value.type() == typeid(SharedObject)) {
         return os << std::any_cast<const SharedObject&>(value);
     }
-    if (value.type() == typeid(Function)) {
-        return os << std::any_cast<const Function&>(value);
+    if (value.type() == typeid(Void)) {
+        return os;
     }
-    if (value.type() == typeid(File)) {
-        return os << std::any_cast<const File&>(value);
-    }
-    return os;
+    return os << "{type : extern}";
 }
 
 std::ostream& Printer::Impl::print(const Object& object, std::ostream& os) const

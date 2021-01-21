@@ -14,8 +14,6 @@ public:
 
     Object* get(UnorderedSet& owner, const Object& index);
 
-    Object* get(Function& owner, const Object& index);
-
     Object* get(List& owner, const Integer& integer);
 
     Object* get(List& owner, const Object& index);
@@ -30,8 +28,6 @@ public:
 
     void set(UnorderedSet& owner, const Object& index, const Object& value);
 
-    void set(Function& owner, const Object& index, const Object& value);
-
     void set(List& owner, const Integer& index, const Object& value);
 
     void set(List& owner, const Object& index, const Object& value);
@@ -41,8 +37,6 @@ public:
     void set(Object& owner, const Object& index, const Object& value);
 
     Object cond_(const List& list);
-
-    Object defun_(const List& list);
 
     Object eval_(const List& list);
 
@@ -108,8 +102,6 @@ public:
 
     Object eval(const List& list);
 
-    Object eval(const UnorderedSet& set);
-
     Object eval(const Quote& quote);
 
     Object eval(const SharedObject& shared_object);
@@ -147,17 +139,6 @@ Object* Evaluator::Impl::get(UnorderedSet& owner, const Object& index)
                 std::any_cast<const Setter&>(iter->value).value.second);
         }
         return &const_cast<Object&>(*iter);
-    }
-    return nullptr;
-}
-
-Object* Evaluator::Impl::get(Function& owner, const Object& index)
-{
-    if (index == Object({Symbol({"params"})})) {
-        return &owner.params;
-    }
-    if (index == Object({Symbol({"body"})})) {
-        return &owner.body;
     }
     return nullptr;
 }
@@ -200,9 +181,6 @@ Object* Evaluator::Impl::get(Object& owner, const Object& index)
     if (owner.value.type() == typeid(Vector)) {
         return get(std::any_cast<Vector&>(owner.value), index);
     }
-    if (owner.value.type() == typeid(Function)) {
-        return get(std::any_cast<Function&>(owner.value), index);
-    }
     if (owner.value.type() == typeid(List)) {
         return get(std::any_cast<List&>(owner.value), index);
     }
@@ -230,17 +208,6 @@ void Evaluator::Impl::set(UnorderedSet& owner, const Object& index,
 {
     owner.value.erase({Setter({{index, value}})});
     owner.value.insert({Setter({{index, value}})});
-}
-
-void Evaluator::Impl::set(Function& owner, const Object& index,
-                          const Object& value)
-{
-    if (index == Object({Symbol({"params"})})) {
-        owner.params = value;
-    }
-    if (index == Object({Symbol({"body"})})) {
-        owner.body = value;
-    }
 }
 
 void Evaluator::Impl::set(List& owner, const Integer& index,
@@ -278,9 +245,6 @@ void Evaluator::Impl::set(Object& owner, const Object& index,
     if (owner.value.type() == typeid(Vector)) {
         set(std::any_cast<Vector&>(owner.value), index, value);
     }
-    if (owner.value.type() == typeid(Function)) {
-        set(std::any_cast<Function&>(owner.value), index, value);
-    }
     if (owner.value.type() == typeid(List)) {
         set(std::any_cast<List&>(owner.value), index, value);
     }
@@ -298,18 +262,6 @@ Object Evaluator::Impl::cond_(const List& list)
         }
     }
     return {Null()};
-}
-
-Object Evaluator::Impl::defun_(const List& list)
-{
-    if (list.value.size() < 4) {
-        return {Null()};
-    }
-    auto iter = ++list.value.begin();
-    Setter setter;
-    setter.value.first = *iter;
-    setter.value.second = {Function({*++iter, *++iter})};
-    return eval({setter});
 }
 
 Object Evaluator::Impl::eval_(const List& list)
@@ -582,53 +534,43 @@ Object Evaluator::Impl::eval(const List& list)
             std::any_cast<const PrimitiveFunction&>(front.value);
         return function.value(after_eval);
     }
-    if (front.value.type() == typeid(Function)) {
-        const Function& function =
-            std::any_cast<Function&>(after_eval.value.front().value);
-        Object scope = scope_;
-        auto iter = after_eval.value.begin();
-        if (function.params.value.type() != typeid(Vector)) {
-            return {function};
+    Object ret;
+    if (after_eval.value.size() == 1) {
+        ret = after_eval.value.back();
+    }
+    else {
+        ret = {after_eval};
+    }
+    if (front.value.type() == typeid(UnorderedSet)) {
+        auto set = std::any_cast<const UnorderedSet&>(front.value);
+        Object* type = get(set, {Symbol({"type"})});
+        if (type == nullptr) {
+            return ret;
         }
-        auto vector = std::any_cast<const Vector&>(function.params.value).value;
-        for (const auto& arg : vector) {
-            if (++iter == after_eval.value.end()) {
-                break;
+        if (*type == Object({Symbol({"function"})})) {
+            Object* params = get(set, {Symbol({"params"})});
+            if (params == nullptr || params->value.type() != typeid(Vector)) {
+                return ret;
             }
-            eval(Setter({{arg, *iter}}));
+            Object* body = get(set, {Symbol({"body"})});
+            if (body == nullptr) {
+                return ret;
+            }
+            Object scope = scope_;
+            auto vector = std::any_cast<const Vector&>(params->value).value;
+            auto it = after_eval.value.begin();
+            for (const auto& arg : vector) {
+                if (++it == after_eval.value.end()) {
+                    break;
+                }
+                eval(Setter({{arg, *it}}));
+            }
+            Object after = eval(*body);
+            scope_ = scope;
+            return after;
         }
-        Object ret = eval(function.body);
-        scope_ = scope;
-        return ret;
     }
-    if (list.value.size() == 1) {
-        return after_eval.value.back();
-    }
-    return {after_eval};
-}
-
-Object Evaluator::Impl::eval(const UnorderedSet& set)
-{
-    Object set_copy = {set};
-    Object* obj_ptr = get(set_copy, {Symbol({"type"})});
-    if (obj_ptr == nullptr) {
-        return {set};
-    }
-    if (*obj_ptr == Object({Symbol({"function"})})) {
-        Function function;
-        obj_ptr = get(set_copy, {Symbol({"params"})});
-        if (obj_ptr == nullptr) {
-            return {set};
-        }
-        function.params = *obj_ptr;
-        obj_ptr = get(set_copy, {Symbol({"body"})});
-        if (obj_ptr == nullptr) {
-            return {set};
-        }
-        function.body = *obj_ptr;
-        return {function};
-    }
-    return {set};
+    return ret;
 }
 
 Object Evaluator::Impl::eval(const Quote& quote)
@@ -721,9 +663,6 @@ Object Evaluator::Impl::eval(const Object& object)
     if (object.value.type() == typeid(List)) {
         return eval(std::any_cast<const List&>(object.value));
     }
-    if (object.value.type() == typeid(UnorderedSet)) {
-        return eval(std::any_cast<const UnorderedSet&>(object.value));
-    }
     if (object.value.type() == typeid(Quote)) {
         return eval(std::any_cast<const Quote&>(object.value));
     }
@@ -777,13 +716,6 @@ Evaluator::Evaluator() : pimpl_(new Evaluator::Impl)
         return pimpl_->cond_(list);
     };
     pimpl_->eval(Setter({{{name}, {special_from}}}));
-    /*
-    name.value = "defun";
-    special_from.value = [this](const List& list) {
-        return pimpl_->defun_(list);
-    };
-    pimpl_->eval(Setter({{{name}, {special_from}}}));
-    */
     name.value = "if";
     special_from.value = [this](const List& list) {
         return pimpl_->if_(list);

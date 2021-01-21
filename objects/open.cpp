@@ -2,6 +2,10 @@
 
 using namespace fundot;
 
+struct File {
+    std::shared_ptr<std::fstream> value;
+};
+
 Object open_(const List& list)
 {
     if (list.value.size() < 2) {
