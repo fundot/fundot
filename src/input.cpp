@@ -131,11 +131,11 @@ Object buildBinaryOperator(const Symbol& symbol,
 
 void parseBinaryOperator(std::list<Object>& list)
 {
-    static std::list<Symbol> operators = {
+    static std::list<Symbol> left_to_right_operators = {
         {"."},  {"*"}, {"/"}, {"%"},  {"+"},  {"-"},  {"<<"},
         {">>"}, {"<"}, {">"}, {"<="}, {">="}, {"=="}, {"!="},
-        {"&"},  {"^"}, {"|"}, {"&&"}, {"||"}, {"="},  {":"}};
-    for (const auto& symbol : operators) {
+        {"&"},  {"^"}, {"|"}, {"&&"}, {"||"}};
+    for (const auto& symbol : left_to_right_operators) {
         Object to_find({symbol});
         auto iter = std::find(list.begin(), list.end(), to_find);
         while (iter != list.end()) {
@@ -148,6 +148,22 @@ void parseBinaryOperator(std::list<Object>& list)
             list.erase(next);
             list.erase(prev);
             iter = std::find(list.begin(), list.end(), to_find);
+        }
+    }
+    static std::list<Symbol> right_to_left_operators = {{"="}, {":"}};
+    for (const auto& symbol : right_to_left_operators) {
+        Object to_find({symbol});
+        auto iter = std::find(list.rbegin(), list.rend(), to_find);
+        while (iter != list.rend()) {
+            auto prev = --iter.base();
+            auto next = --iter.base();
+            --prev;
+            ++next;
+            std::pair<Object, Object> pair(*prev, *next);
+            *iter = buildBinaryOperator(symbol, pair);
+            list.erase(next);
+            list.erase(prev);
+            iter = std::find(list.rbegin(), list.rend(), to_find);
         }
     }
 }

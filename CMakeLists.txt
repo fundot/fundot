@@ -23,3 +23,9 @@ add_subdirectory(src)
 add_subdirectory(tests)
 
 install(FILES init.fun DESTINATION fundot)
+
+include(InstallRequiredSystemLibraries)
+
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+
+include(CPack)
