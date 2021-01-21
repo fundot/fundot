@@ -22,4 +22,4 @@ target_link_libraries(fundot_bin fundot)
 
 set_target_properties(fundot_bin PROPERTIES OUTPUT_NAME fundot)
 
-install(TARGETS fundot_bin)
+install(TARGETS fundot_bin DESTINATION fundot/bin)

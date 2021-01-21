@@ -8,7 +8,7 @@ Fundot is a  programming language that treats "code as data". Inspired by both L
 
 Go to the directory where you want to build Fundot, and enter the following commands. Fundot will be built and then moved to `/usr/local/bin`, where local programs are normally installed. However, if you want to run Fundot only in the cloned directory, then please ignore the last line of commands.
 
-    git clone https://github.com/Fundot/fundot.git
+    git clone https://github.com/fundot/fundot.git
     cd fundot
     make
     sudo mv fundot /usr/local/bin

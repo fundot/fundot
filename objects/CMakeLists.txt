@@ -15,4 +15,4 @@ add_library(funstd SHARED
 
 target_link_libraries(funstd fundot)
 
-install(TARGETS funstd)
+install(TARGETS funstd DESTINATION fundot/lib)

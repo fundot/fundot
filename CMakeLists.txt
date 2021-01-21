@@ -21,3 +21,5 @@ add_subdirectory(objects)
 add_subdirectory(src)
 
 add_subdirectory(tests)
+
+install(FILES init.fun DESTINATION fundot)

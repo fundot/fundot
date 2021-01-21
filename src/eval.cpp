@@ -1,4 +1,6 @@
 #include <boost/dll.hpp>
+#include <filesystem>
+#include <sstream>
 
 #include "fundot/fundot.h"
 
@@ -113,6 +115,8 @@ public:
     Object eval(const SharedObject& shared_object);
 
     Object eval(const Object& object);
+
+    Object eval(const std::string& script);
 
 private:
     Object scope_ = {UnorderedSet()};
@@ -340,24 +344,42 @@ Object Evaluator::Impl::if_(const List& list)
 
 Object Evaluator::Impl::import_(const List& list)
 {
-    if (list.value.size() < 3) {
+    auto iter = ++list.value.begin();
+    if (iter == list.value.end()) {
         return {Null()};
     }
-    auto iter = ++list.value.begin();
     PrimitiveFunction function;
     if (iter->value.type() != typeid(String)) {
         return {Null()};
     }
-    std::string lib_path = std::any_cast<const String&>(iter->value).value;
-    if ((++iter)->value.type() != typeid(String)) {
+    std::filesystem::path path =
+        std::any_cast<const String&>(iter->value).value;
+    if (std::filesystem::exists(path) == false) {
         return {Null()};
     }
-    std::string obj_name = std::any_cast<const String&>(iter->value).value;
+    if (++iter == list.value.end()) {
+        std::fstream file(path.string());
+        Object to_eval;
+        Reader read;
+        while (file) {
+            read(to_eval, file);
+            eval(to_eval);
+        }
+        return global_();
+    }
+    if (iter->value.type() != typeid(String)) {
+        return {Null()};
+    }
+    std::string name = std::any_cast<const String&>(iter->value).value;
+    boost::dll::shared_library lib(path.string());
+    if (lib.has(name) == false) {
+        return {Null()};
+    }
     boost::shared_ptr<Object> obj_ptr =
-        boost::dll::import<Object>(lib_path, obj_name);
+        boost::dll::import<Object>(path.string(), name);
     SharedObject shared_object = {std::shared_ptr<Object>(
         obj_ptr.get(), [obj_ptr](Object*) mutable { obj_ptr.reset(); })};
-    Object first = {Symbol({obj_name})};
+    Object first = {Symbol({name})};
     Object second = {shared_object};
     set(scope_, first, second);
     return eval(shared_object);
@@ -365,14 +387,20 @@ Object Evaluator::Impl::import_(const List& list)
 
 Object Evaluator::Impl::locate_(const List& list)
 {
-    boost::dll::fs::path bin_path = boost::dll::program_location();
     auto iter = ++list.value.begin();
     if (iter == list.value.end()) {
-        return {String({bin_path.string()})};
+        return {String({std::filesystem::current_path().string()})};
+    }
+    boost::dll::fs::path path = boost::dll::program_location().parent_path();
+    if (*iter == Object({Symbol({"bin"})})) {
+        return {String({path.string()})};
+    }
+    path = path.parent_path();
+    if (*iter == Object({Symbol({"fundot"})})) {
+        return {String({path.string()})};
     }
     if (*iter == Object({Symbol({"lib"})})) {
-        return {
-            String({bin_path.parent_path().parent_path().string() + "/lib"})};
+        return {String({(path / "lib").string()})};
     }
     return {Null()};
 }
@@ -705,6 +733,15 @@ Object Evaluator::Impl::eval(const Object& object)
     return object;
 }
 
+Object Evaluator::Impl::eval(const std::string& script)
+{
+    std::stringstream script_stream(script);
+    Object to_eval;
+    Reader read;
+    read(to_eval, script_stream);
+    return eval(to_eval);
+}
+
 Object Evaluator::operator()(const Object& object)
 {
     return pimpl_->eval(object);
@@ -714,16 +751,6 @@ Evaluator::Evaluator() : pimpl_(new Evaluator::Impl)
 {
     Symbol name;
     PrimitiveFunction function;
-    name.value = "cond";
-    function.value = [this](const List& list) {
-        return pimpl_->cond_(list);
-    };
-    pimpl_->eval(Setter({{{name}, {function}}}));
-    name.value = "defun";
-    function.value = [this](const List& list) {
-        return pimpl_->defun_(list);
-    };
-    pimpl_->eval(Setter({{{name}, {function}}}));
     name.value = "eval";
     function.value = [this](const List& list) {
         return pimpl_->eval_(list);
@@ -732,11 +759,6 @@ Evaluator::Evaluator() : pimpl_(new Evaluator::Impl)
     name.value = "global";
     function.value = [this](const List&) {
         return pimpl_->global_();
-    };
-    pimpl_->eval(Setter({{{name}, {function}}}));
-    name.value = "if";
-    function.value = [this](const List& list) {
-        return pimpl_->if_(list);
     };
     pimpl_->eval(Setter({{{name}, {function}}}));
     name.value = "import";
@@ -749,11 +771,34 @@ Evaluator::Evaluator() : pimpl_(new Evaluator::Impl)
         return pimpl_->locate_(list);
     };
     pimpl_->eval(Setter({{{name}, {function}}}));
+    SpecialForm special_from;
+    name.value = "cond";
+    special_from.value = [this](const List& list) {
+        return pimpl_->cond_(list);
+    };
+    pimpl_->eval(Setter({{{name}, {special_from}}}));
+    /*
+    name.value = "defun";
+    special_from.value = [this](const List& list) {
+        return pimpl_->defun_(list);
+    };
+    pimpl_->eval(Setter({{{name}, {special_from}}}));
+    */
+    name.value = "if";
+    special_from.value = [this](const List& list) {
+        return pimpl_->if_(list);
+    };
+    pimpl_->eval(Setter({{{name}, {special_from}}}));
     name.value = "while";
-    function.value = [this](const List& list) {
+    special_from.value = [this](const List& list) {
         return pimpl_->while_(list);
     };
-    pimpl_->eval(Setter({{{name}, {function}}}));
+    pimpl_->eval(Setter({{{name}, {special_from}}}));
+    boost::dll::fs::path path =
+        boost::dll::program_location().parent_path().parent_path();
+    if (std::filesystem::exists((path / "init.fun").string())) {
+        pimpl_->eval("(import \"" + (path / "init.fun").string() + "\")");
+    }
 }
 
 Evaluator::~Evaluator() = default;
