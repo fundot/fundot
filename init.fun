@@ -8,6 +8,8 @@ count : (import lib_path "count_obj")
 
 do : (import lib_path "do_obj")
 
+expand : (import lib_path "expand_obj")
+
 insert : (import lib_path "insert_obj")
 
 lambda : (import lib_path "lambda_obj")
@@ -20,6 +22,25 @@ print : (import lib_path "print_obj")
 
 quit : (import lib_path "quit_obj")
 
+quote : (import lib_path "quote_obj")
+
 read : (import lib_path "read_obj")
 
 remove : (import lib_path "remove_obj")
+
+defmacro : {
+  type : macro,
+  params : [name, params, body],
+  body : ('do
+    name ': {}
+    name'.'type ': 'macro
+    name'.'params ': params
+    name'.'body ': ('quote body))
+}
+
+defun : {
+  type : macro,
+  params : [name, params, body],
+  body : ('do
+    name ': ('lambda params body))
+}

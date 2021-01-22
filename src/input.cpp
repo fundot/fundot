@@ -170,8 +170,12 @@ void parseBinaryOperator(std::list<Object>& list)
 
 void parse(std::list<Object>& list)
 {
-    parseUnaryOperator(list);
-    parseBinaryOperator(list);
+    if (list.size() > 1) {
+        parseUnaryOperator(list);
+    }
+    if (list.size() > 2) {
+        parseBinaryOperator(list);
+    }
 }
 
 std::istream& operator>>(std::istream& is, String& string)

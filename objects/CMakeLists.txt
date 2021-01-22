@@ -3,12 +3,14 @@ add_library(funstd SHARED
             close.cpp
             count.cpp
             do.cpp
+            expand.cpp
             insert.cpp
             lambda.cpp
             open.cpp
             pop.cpp
             print.cpp
             quit.cpp
+            quote.cpp
             read.cpp
             remove.cpp
             )

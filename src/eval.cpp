@@ -54,6 +54,10 @@ public:
 
     Object while_(const List& list);
 
+    Object evalFunction(const List& list);
+
+    Object evalMacro(const List& list);
+
     Object eval(const Adder& adder);
 
     Object eval(const Subtractor& subtractor);
@@ -119,6 +123,8 @@ private:
 
     Object local_scope_ = {UnorderedSet()};
 };
+
+void parse(std::list<Object>& list);
 
 Object* Evaluator::Impl::get(Vector& owner, const Integer& integer)
 {
@@ -395,6 +401,78 @@ Object Evaluator::Impl::while_(const List& list)
     return ret;
 }
 
+Object Evaluator::Impl::evalFunction(const List& list)
+{
+    const Object& front = list.value.front();
+    if (front.value.type() == typeid(UnorderedSet)) {
+        auto info = std::any_cast<const UnorderedSet&>(front.value);
+        Object* type = get(info, {Symbol({"type"})});
+        if (type == nullptr) {
+            return {Null()};
+        }
+        if (*type == Object({Symbol({"function"})})) {
+            Object* params = get(info, {Symbol({"params"})});
+            if (params == nullptr || params->value.type() != typeid(Vector)) {
+                return {Null()};
+            }
+            Object* body = get(info, {Symbol({"body"})});
+            if (body == nullptr) {
+                return {Null()};
+            }
+            Object local = local_scope_;
+            const auto& vector =
+                std::any_cast<const Vector&>(params->value).value;
+            auto it = list.value.begin();
+            for (const auto& arg : vector) {
+                if (++it == list.value.end()) {
+                    break;
+                }
+                set(local_scope_, arg, *it);
+            }
+            Object after = eval(*body);
+            local_scope_ = local;
+            return after;
+        }
+    }
+    return {Null()};
+}
+
+Object Evaluator::Impl::evalMacro(const List& list)
+{
+    const Object& front = list.value.front();
+    if (front.value.type() == typeid(UnorderedSet)) {
+        auto info = std::any_cast<const UnorderedSet&>(front.value);
+        Object* type = get(info, {Symbol({"type"})});
+        if (type == nullptr) {
+            return {Null()};
+        }
+        if (*type == Object({Symbol({"macro"})})) {
+            Object* params = get(info, {Symbol({"params"})});
+            if (params == nullptr || params->value.type() != typeid(Vector)) {
+                return {Null()};
+            }
+            Object* body = get(info, {Symbol({"body"})});
+            if (body == nullptr) {
+                return {Null()};
+            }
+            Object local = local_scope_;
+            const auto& vector =
+                std::any_cast<const Vector&>(params->value).value;
+            auto it = list.value.begin();
+            for (const auto& arg : vector) {
+                if (++it == list.value.end()) {
+                    break;
+                }
+                set(local_scope_, arg, *it);
+            }
+            Object after = eval(*body);
+            local_scope_ = local;
+            return after;
+        }
+    }
+    return {Null()};
+}
+
 Object Evaluator::Impl::eval(const Adder& adder)
 {
     return eval(adder.value.first) + eval(adder.value.second);
@@ -548,64 +626,36 @@ Object Evaluator::Impl::eval(const List& list)
     if (list.value.empty()) {
         return {Null()};
     }
-    List after_eval = list;
-    auto iter = after_eval.value.begin();
+    List list_copy = list;
+    parse(list_copy.value);
+    auto iter = list_copy.value.begin();
     *iter = eval(*iter);
-    const Object& front = after_eval.value.front();
+    const Object& front = list_copy.value.front();
     if (front.value.type() == typeid(SpecialForm)) {
         const SpecialForm& special_form =
             std::any_cast<const SpecialForm&>(front.value);
         return special_form.value(list);
     }
-    while (++iter != after_eval.value.end()) {
+    Object after_eval = evalMacro(list_copy);
+    if (after_eval.value.type() != typeid(Null)) {
+        return eval(after_eval);
+    }
+    while (++iter != list_copy.value.end()) {
         *iter = eval(*iter);
     }
     if (front.value.type() == typeid(PrimitiveFunction)) {
         const PrimitiveFunction& function =
             std::any_cast<const PrimitiveFunction&>(front.value);
-        return function.value(after_eval);
+        return function.value(list_copy);
     }
-    Object ret;
-    if (after_eval.value.size() == 1) {
-        ret = after_eval.value.back();
+    after_eval = evalFunction(list_copy);
+    if (after_eval.value.type() != typeid(Null)) {
+        return after_eval;
     }
-    else {
-        ret = {after_eval};
+    if (list_copy.value.size() == 1) {
+        return list_copy.value.back();
     }
-    if (front.value.type() == typeid(UnorderedSet)) {
-        auto set = std::any_cast<const UnorderedSet&>(front.value);
-        Object* type = get(set, {Symbol({"type"})});
-        if (type == nullptr) {
-            return ret;
-        }
-        if (*type == Object({Symbol({"function"})})) {
-            Object* params = get(set, {Symbol({"params"})});
-            if (params == nullptr || params->value.type() != typeid(Vector)) {
-                return ret;
-            }
-            Object* body = get(set, {Symbol({"body"})});
-            if (body == nullptr) {
-                return ret;
-            }
-            Object local = local_scope_;
-            auto vector = std::any_cast<const Vector&>(params->value).value;
-            auto it = after_eval.value.begin();
-            for (const auto& arg : vector) {
-                if (++it == after_eval.value.end()) {
-                    break;
-                }
-                List let;
-                let.value.push_back({Symbol({"let"})});
-                let.value.push_back(arg);
-                let.value.push_back(*it);
-                eval(let);
-            }
-            Object after = eval(*body);
-            local_scope_ = local;
-            return after;
-        }
-    }
-    return ret;
+    return {list_copy};
 }
 
 Object Evaluator::Impl::eval(const Quote& quote)
