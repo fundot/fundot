@@ -24,19 +24,19 @@ These tips are for Common Lisp, but it is recommended to also follow them in Fun
 
 Everything in Fundot is an object, which can be roughly divided into three categories.
 
-* [Atom](#Atom)
-* [Pair](#Pair)
-* [Container](#Container)
+* [Atom](#atom)
+* [Pair](#pair)
+* [Container](#container)
 
 ## Atom
 
 An atom is the smallest building block of Fundot that cannot be furthuer divided, which should be separated by whitespace.
 
-* [String - "..."](#String)
-* [Number](#Number)
-* [Boolean](#Boolean)
-* [Null](#Null)
-* [Symbol](#Symbol)
+* [String - "..."](#string)
+* [Number](#number)
+* [Boolean](#boolean)
+* [Null](#null)
+* [Symbol](#symbol)
 
 ### String
 
@@ -84,11 +84,11 @@ pi
 
 Because Fundot treats code as data, there is no syntax for operators. However, in order to improve readability, Fundot stores almost all commonly used binary operators in pair data sturctures.
 
-* [Setter - key : value](#Setter)
-* [Getter - owner . key](#Getter)
-* [Adder](#Adder)
-* [Subtractor](#Subtractor)
-* [More Operators](#More Operators)
+* [Setter - key : value](#setter)
+* [Getter - owner . key](#getter)
+* [Adder](#adder)
+* [Subtractor](#subtractor)
+* [More Operators](#more-operators)
 
 ### Setter
 
@@ -170,10 +170,10 @@ So far, Fundot promises to recognize unary operators at the front of a list.
 
 Containers store a collection of objects, which are invoked by their corresponding delimiters.
 
-* [Set - { ... }](#Set)
-* [Vector - [ ... ]](#Vector)
-* [List - ( ... )](#List)
-* [Quote - '](#Quote)
+* [Set - { ... }](#set)
+* [Vector - [ ... ]](#vector)
+* [List - ( ... )](#list)
+* [Quote - '](#quote)
 
 ### Set
 
@@ -183,7 +183,7 @@ A set stores a collection of unique elements.
 {pi, 1.414, "Hello"}
 ```
 
-You may notice that there is no map container in Fundot. You are right. We don't have a map, because we we provide the same functionality by combining sets and [setter pairs](#Setter). After all, a map is just a a set of key-value pairs.
+You may notice that there is no map container in Fundot. You are right. We don't have a map, because we we provide the same functionality by combining sets and [setter pairs](#setter). After all, a map is just a a set of key-value pairs.
 
 ```Fundot
 {

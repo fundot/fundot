@@ -4,12 +4,12 @@ Fundot is a  programming language that treats "code as data". Inspired by both L
 
 ## Contents
 
-* [Documentation](#Documentation)
-* [Dependencies](#Dependencies)
-* [Installation](#Installation)
-* [Usage](#Usage)
-* [Contributing](#Contributing)
-* [License](#License)
+* [Documentation](#documentation)
+* [Dependencies](#dependencies)
+* [Installation](#installation)
+* [Usage](#usage)
+* [Contributing](#contributing)
+* [License](#license)
 
 ## Documentation
 
