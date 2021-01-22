@@ -1,6 +1,6 @@
 # C++ Style Guide
 
-This guide is mainly based on [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html) and [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines). It is very recommended to read them even though you don't want to code Fundot interpreter, because this is a great way to learn C++ better and improve your coding skills.
+This guide is mainly based on [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) and [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html). It is very recommended to read them even though you don't want to code Fundot interpreter, because this is a great way to learn C++ better and improve your coding skills.
 
 Note: This guide is not mature and under development.
 
@@ -8,7 +8,7 @@ Note: This guide is not mature and under development.
 
 When coding Fundot interpreter, you should treat this document with the highest priority, which means whenever you meet a conflict, please follow this guide. [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) is a set of comprehensive guidelines for using C++ well, and [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html) is more about styles of coding. Whenever there is a conflict between them, please follow the former one.
 
-There is no real guide of truth in C++ programming, and what we have provided is just one of the many possibilities, but we still need to follow this guide to better maintain our project. Therefore, if you are dealing with something not mentioned in all of those documents, just remember to keep everything clean and simple, and then you will be fine.
+There is no real guide of truth in C++ programming, and what we have provided is just one of the many possibilities, but we still need to follow this guide to better maintain our project. Therefore, if you are dealing with something not mentioned in all of those documents, just remember to keep everything clean and simple, and then you are fine.
 
 ## Naming
 

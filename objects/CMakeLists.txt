@@ -17,4 +17,6 @@ add_library(funstd SHARED
 
 target_link_libraries(funstd fundot)
 
+set_target_properties(funstd PROPERTIES SUFFIX ".funso")
+
 install(TARGETS funstd DESTINATION fundot/lib)

@@ -1,4 +1,4 @@
-lib_path : (locate lib) / "libfunstd.dylib"
+lib_path : (locate lib) / "libfunstd.funso"
 
 append : (import lib_path "append_obj")
 
