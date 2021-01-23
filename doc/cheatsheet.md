@@ -2,15 +2,21 @@
 
 This page provides quick references on how Fundot reads code as data.
 
-## Comments
+## Contents
+
+* [Comment](#comment)
+* [Object](#object)
+* [Reader](#reader)
+
+## Comment
 
 Everything after semicolons ';' are ignored, which can be used to comment Fundot code.
 
 ```Fundot
->>> (print "Hello, World!")  ;; Hello, World!
+>>> (print "Hello, World!")  ; Hello, World!
 ```
 
-You may notice that there are two semicolons above, but only one is necessary. You may use only one if you want, and you may even use any number of semicolons as you wish. However, there are conventions to properly use semicolons to comment in some other languages. Here is an example in [Common Lisp Style Guide](https://lisp-lang.org/style-guide/#comment-hierarchy).
+You may notice that there is only one semicolon above, but you may use any number of semicolons as you wish. However, there are conventions to properly use semicolons to comment in some other languages. Here is an example in [Common Lisp Style Guide](https://lisp-lang.org/style-guide/#comment-hierarchy).
 
 >Comments that start with four semicolons, `;;;;`, should appear at the top of a file, explaining its purpose.
 >
@@ -85,7 +91,7 @@ pi
 Because Fundot treats code as data, there is no syntax for operators. However, in order to improve readability, Fundot stores almost all commonly used binary operators in pair data sturctures.
 
 * [Setter - key : value](#setter)
-* [Getter - owner . key](#getter)
+* [Getter - owner.index](#getter)
 * [Adder](#adder)
 * [Subtractor](#subtractor)
 * [More Operators](#more-operators)
@@ -105,7 +111,7 @@ pi
 
 ### Getter
 
-A getter is a owner-key pair that is used to get the value with the specific key out of the owner.
+A getter is a owner-index pair that is used to get the value with the specific index out of the owner.
 
 ```Fundot
 >>> math : {pi : 3.14}
@@ -202,7 +208,7 @@ A vector is an ordered collection of objects.
 
 ### List
 
-A Fundot list is a doubly linked list of objects. This is also the fundamental evaluation unit in Fundot. A list is default to be evaluated.
+A Fundot list is a doubly linked list of objects. This is also the fundamental evaluation unit in Fundot. A list is default to be evaluated in Fundot.
 
 ```Fundot
 (alpha "beta" 2.71828)
@@ -218,3 +224,56 @@ A quote is a special form that contains one object after its invocation. The mai
 >>> '(print 3.14)
 (print 3.14)
 ```
+
+## Reader
+
+All the input in Fundot are done by `fundot::Reader`. Here is the strategy how it works. The words are boring, so we provide some code examples below.
+
+1. The reader extracts an object from the input stream.
+   1. The reader checks the first character. If the first character is a delimiter, such as '(', '[', '{', and so on, then the reader knows what type the upcoming data structure is.
+   2. In a list, the only delimiter is ')', but in sets and vectors, commas ',' are used to separate elements. The elements in between delimiters are all stored in a list, and then will be parsed to see whether there are operators inside. A list keeps all the objects after parsing as its elements, while sets and vectors keep only the last element of the parsed object lists. The reader does so only for parsing operators, so please never write more than one top-level object between commas ',', otherwise all the objects except the last one are ignored.
+   3. If the first charcter is a number, then the reader extracts a number.
+   4. If all the above conditions are not met, then the reader extracts a symbol, and checks whether that is `true`, `false`or `null`. Then the reader returns any of them or simply a symbol.
+2. The reader stores the object in a list as what happens when extracting elements in sets and vectors between commas ','.
+3. The reader repeatedly does the first and the second step, until a newline is met. Here is a point: Not every newline stops the reader from reading, only the ones after a complete object stop.
+4. As mentioned above, the list storing the objects is parsed to see whether there are operators. Then the last element of the parsed list is returned.
+
+```Fundot
+students : {        ; 'students' and ':' are stored in a list.
+;   ^    ^ ^        ; The above newline does not stop reading,
+  mike : {          ; because '{' tells the reader to extract a set,
+    age : 19,       ; and the reader is still extracting an object.
+    gender : male
+  },                ; Now you see a comma ','. The elements in between
+  tina : {          ; are 'mike', ':', and a set.
+    age : 20,       ; They are then parsed and becomes a setter.
+    gender : female ; This process is the same as below.
+  }
+}                   ; This newline stops reading, because it is
+                    ; after a complete object.
+;; Now, there are three elements in the top-level list in reader:
+;; two symbols 'student' and ':', and a set.
+;; The list is parsed.
+;; Because there is a ':', which denotes a setter, the three elements
+;; are combined as a setter, whose first element is 'students', and
+;; whose second element is the set.
+;; After parsing, there is only one object, the setter, in the list.
+;; Therefore, the last (and also the first) element, the setter,
+;; is returned.
+
+students :          ; This newline stops reading, because the reader
+{"some contents"}   ; is not extracting any objects.
+;; Note: Never do this when coding! It causes undefined behaviors,
+;; or even serious errors.
+
+x : 0 y : 0         ; Now there are 6 elements in the reader list:
+;; one 'x', two ':', one 'y', and two 0s.
+;; They are parsed and becomes two setters.
+;; However, the reader only cares about the last one in list.
+;; Therefore, the first setter is ignored.
+;; Now you may understand what I meant by "The reader does
+;; so only for parsing operators, so please never write more
+;; than one top-level object between commas ',',
+;; otherwise all the objects except the last one are ignored.".
+```
+
