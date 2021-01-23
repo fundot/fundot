@@ -50,7 +50,7 @@ If you are naming something that is analogous to an existing C or C++ entity the
 
 ## Formatting
 
-To help you format code correctly, we've created a [clang-format](.clang-format) file.
+To help you format code correctly, we've created a [clang-format](https://github.com/fundot/fundot/blob/master/.clang-format) file.
 
 ### Line Length
 

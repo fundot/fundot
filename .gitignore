@@ -4,7 +4,6 @@
 .clangd
 fundot.dSYM
 compile_commands.json
-.clang-format
 /obj
 /build
 *.fun
