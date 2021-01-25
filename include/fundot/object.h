@@ -2,6 +2,7 @@
 #define FUNDOT_OBJECT_H
 
 #include <any>
+#include <exception>
 #include <memory>
 
 namespace fundot {
@@ -30,6 +31,8 @@ private:
 class Evaluator {
 public:
     Object operator()(const Object& object);
+
+    Object operator()(const std::string& script);
 
     Evaluator();
 

@@ -119,6 +119,8 @@ public:
     Object eval(const std::string& script);
 
 private:
+    Object shared_objects_ = {UnorderedSet()};
+
     Object global_scope_ = {UnorderedSet()};
 
     Object local_scope_ = {UnorderedSet()};
@@ -128,10 +130,10 @@ void parse(std::list<Object>& list);
 
 Object* Evaluator::Impl::get(Vector& owner, const Integer& integer)
 {
-    if (static_cast<std::size_t>(integer.value) < owner.value.size()) {
+    if (static_cast<std::size_t>(integer.value) >= owner.value.size()) {
         return &owner.value[integer.value];
     }
-    return nullptr;
+    throw std::out_of_range("Index out of range.");
 }
 
 Object* Evaluator::Impl::get(Vector& owner, const Object& index)
@@ -139,7 +141,7 @@ Object* Evaluator::Impl::get(Vector& owner, const Object& index)
     if (index.value.type() == typeid(Integer)) {
         return get(owner, std::any_cast<const Integer&>(index.value));
     }
-    return nullptr;
+    throw std::invalid_argument("Unexpected index type.");
 }
 
 Object* Evaluator::Impl::get(UnorderedSet& owner, const Object& index)
@@ -162,7 +164,7 @@ Object* Evaluator::Impl::get(List& owner, const Integer& integer)
         std::advance(iter, integer.value);
         return &*iter;
     }
-    return nullptr;
+    throw std::out_of_range("Index out of range.");
 }
 
 Object* Evaluator::Impl::get(List& owner, const Object& index)
@@ -170,7 +172,7 @@ Object* Evaluator::Impl::get(List& owner, const Object& index)
     if (index.value.type() == typeid(Integer)) {
         return get(owner, std::any_cast<const Integer&>(index.value));
     }
-    return nullptr;
+    throw std::invalid_argument("Unexpected index type.");
 }
 
 Object* Evaluator::Impl::get(Object& owner, const Getter& getter)
@@ -179,7 +181,7 @@ Object* Evaluator::Impl::get(Object& owner, const Getter& getter)
     if (obj_ptr != nullptr) {
         return get(*obj_ptr, eval(getter.value.second));
     }
-    return nullptr;
+    throw std::runtime_error("Owner not found.");
 }
 
 Object* Evaluator::Impl::get(Object& owner, const Object& index)
@@ -196,7 +198,7 @@ Object* Evaluator::Impl::get(Object& owner, const Object& index)
     if (owner.value.type() == typeid(List)) {
         return get(std::any_cast<List&>(owner.value), index);
     }
-    return nullptr;
+    throw std::invalid_argument("Unexpected owner type.");
 }
 
 void Evaluator::Impl::set(Vector& owner, const Integer& integer,
@@ -205,14 +207,16 @@ void Evaluator::Impl::set(Vector& owner, const Integer& integer,
     if (static_cast<std::size_t>(integer.value) < owner.value.size()) {
         owner.value[integer.value] = value;
     }
+    throw std::out_of_range("Index out of range.");
 }
 
 void Evaluator::Impl::set(Vector& owner, const Object& index,
                           const Object& value)
 {
     if (index.value.type() == typeid(Integer)) {
-        set(owner, std::any_cast<const Integer&>(index.value), value);
+        return set(owner, std::any_cast<const Integer&>(index.value), value);
     }
+    throw std::invalid_argument("Unexpected index type.");
 }
 
 void Evaluator::Impl::set(UnorderedSet& owner, const Object& index,
@@ -230,6 +234,7 @@ void Evaluator::Impl::set(List& owner, const Integer& index,
         std::advance(iter, index.value);
         *iter = value;
     }
+    throw std::out_of_range("Index out of range.");
 }
 
 void Evaluator::Impl::set(List& owner, const Object& index, const Object& value)
@@ -237,29 +242,35 @@ void Evaluator::Impl::set(List& owner, const Object& index, const Object& value)
     if (index.value.type() == typeid(Integer)) {
         set(owner, std::any_cast<const Integer&>(index.value), value);
     }
+    throw std::invalid_argument("Unexpected index type.");
 }
 
 void Evaluator::Impl::set(Object& owner, const Getter& index,
                           const Object& value)
 {
-    set(*get(owner, index.value.first), eval(index.value.second), value);
+    Object* owner_ptr = get(owner, index.value.first);
+    if (owner_ptr == nullptr) {
+        throw std::runtime_error("Owner not found.");
+    }
+    set(*owner_ptr, eval(index.value.second), value);
 }
 
 void Evaluator::Impl::set(Object& owner, const Object& index,
                           const Object& value)
 {
     if (index.value.type() == typeid(Getter)) {
-        set(owner, std::any_cast<const Getter&>(index.value), value);
+        return set(owner, std::any_cast<const Getter&>(index.value), value);
     }
     if (owner.value.type() == typeid(UnorderedSet)) {
-        set(std::any_cast<UnorderedSet&>(owner.value), index, value);
+        return set(std::any_cast<UnorderedSet&>(owner.value), index, value);
     }
     if (owner.value.type() == typeid(Vector)) {
-        set(std::any_cast<Vector&>(owner.value), index, value);
+        return set(std::any_cast<Vector&>(owner.value), index, value);
     }
     if (owner.value.type() == typeid(List)) {
-        set(std::any_cast<List&>(owner.value), index, value);
+        return set(std::any_cast<List&>(owner.value), index, value);
     }
+    throw std::invalid_argument("Unexpected owner type.");
 }
 
 Object Evaluator::Impl::cond_(const List& list)
@@ -345,17 +356,20 @@ Object Evaluator::Impl::import_(const List& list)
         obj_ptr.get(), [obj_ptr](Object*) mutable { obj_ptr.reset(); })};
     Object first = {Symbol({name})};
     Object second = {shared_object};
-    set(global_scope_, first, second);
+    set(shared_objects_, first, second);
     return eval(shared_object);
 }
 
 Object Evaluator::Impl::let_(const List& list)
 {
-    if (list.value.size() < 3) {
+    if (list.value.size() < 2) {
         return {Null()};
     }
     auto iter = ++list.value.begin();
-    Setter setter({{*iter, *++iter}});
+    if (iter->value.type() != typeid(Setter)) {
+        return {Null()};
+    }
+    const Setter& setter = std::any_cast<const Setter&>(iter->value);
     Object after_eval = eval(setter.value.second);
     set(local_scope_, setter.value.first, after_eval);
     return after_eval;
@@ -605,7 +619,7 @@ Object Evaluator::Impl::eval(const Getter& getter)
     if (obj_ptr != nullptr) {
         return *obj_ptr;
     }
-    return {Null()};
+    throw std::runtime_error("Variable not found.");
 }
 
 Object Evaluator::Impl::eval(const Setter& setter)
@@ -634,7 +648,7 @@ Object Evaluator::Impl::eval(const List& list)
     if (front.value.type() == typeid(SpecialForm)) {
         const SpecialForm& special_form =
             std::any_cast<const SpecialForm&>(front.value);
-        return special_form.value(list);
+        return special_form.value(list_copy);
     }
     Object after_eval = evalMacro(list_copy);
     if (after_eval.value.type() != typeid(Null)) {
@@ -771,6 +785,11 @@ Object Evaluator::operator()(const Object& object)
     return pimpl_->eval(object);
 }
 
+Object Evaluator::operator()(const std::string& script)
+{
+    return pimpl_->eval(script);
+}
+
 Evaluator::Evaluator() : pimpl_(new Evaluator::Impl)
 {
     Symbol name;
@@ -821,11 +840,6 @@ Evaluator::Evaluator() : pimpl_(new Evaluator::Impl)
         return pimpl_->while_(list);
     };
     pimpl_->eval(Setter({{{name}, {special_from}}}));
-    boost::dll::fs::path path =
-        boost::dll::program_location().parent_path().parent_path();
-    if (std::filesystem::exists((path / "init.fun").string())) {
-        pimpl_->eval("(import \"" + (path / "init.fun").string() + "\")");
-    }
 }
 
 Evaluator::~Evaluator() = default;

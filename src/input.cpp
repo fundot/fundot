@@ -36,23 +36,33 @@ void parseUnaryOperator(std::list<Object>& list)
     auto iter = findUnaryOperator(list);
     while (iter != list.end()) {
         if (*iter == Object({Symbol({"+"})})) {
+            auto next = iter;
+            if (++next == list.end()) {
+                throw std::runtime_error("Unexpected operator.");
+            }
             list.erase(iter);
         }
         else if (*iter == Object({Symbol({"-"})})) {
             auto next = iter;
-            ++next;
+            if (++next == list.end()) {
+                throw std::runtime_error("Unexpected operator.");
+            }
             *iter = {Negator({*next})};
             list.erase(next);
         }
         else if (*iter == Object({Symbol({"!"})})) {
             auto next = iter;
-            ++next;
+            if (++next == list.end()) {
+                throw std::runtime_error("Unexpected operator.");
+            }
             *iter = {Not({*next})};
             list.erase(next);
         }
         else if (*iter == Object({Symbol({"~"})})) {
             auto next = iter;
-            ++next;
+            if (++next == list.end()) {
+                throw std::runtime_error("Unexpected operator.");
+            }
             *iter = {BitwiseNot({*next})};
             list.erase(next);
         }
@@ -139,6 +149,9 @@ void parseBinaryOperator(std::list<Object>& list)
         Object to_find({symbol});
         auto iter = std::find(list.begin(), list.end(), to_find);
         while (iter != list.end()) {
+            if (iter == --list.end() || iter == list.begin()) {
+                throw std::runtime_error("Unexpected operator.");
+            }
             auto prev = iter;
             auto next = iter;
             --prev;
@@ -155,6 +168,9 @@ void parseBinaryOperator(std::list<Object>& list)
         Object to_find({symbol});
         auto iter = std::find(list.rbegin(), list.rend(), to_find);
         while (iter != list.rend()) {
+            if (iter == --list.rend() || iter == list.rbegin()) {
+                throw std::runtime_error("Unexpected operator.");
+            }
             auto prev = --iter.base();
             auto next = --iter.base();
             --prev;
@@ -170,12 +186,8 @@ void parseBinaryOperator(std::list<Object>& list)
 
 void parse(std::list<Object>& list)
 {
-    if (list.size() > 1) {
-        parseUnaryOperator(list);
-    }
-    if (list.size() > 2) {
-        parseBinaryOperator(list);
-    }
+    parseUnaryOperator(list);
+    parseBinaryOperator(list);
 }
 
 std::istream& operator>>(std::istream& is, String& string)

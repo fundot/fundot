@@ -9,7 +9,7 @@ Object operator&(const Object& lhs, const Object& rhs)
         return {Integer({std::any_cast<const Integer&>(lhs.value).value
                          & std::any_cast<const Integer&>(rhs.value).value})};
     }
-    return {Null()};
+    throw std::runtime_error("Invalid operand type.");
 }
 
 Object operator|(const Object& lhs, const Object& rhs)
@@ -19,7 +19,7 @@ Object operator|(const Object& lhs, const Object& rhs)
         return {Integer({std::any_cast<const Integer&>(lhs.value).value
                          | std::any_cast<const Integer&>(rhs.value).value})};
     }
-    return {Null()};
+    throw std::runtime_error("Invalid operand type.");
 }
 
 Object operator^(const Object& lhs, const Object& rhs)
@@ -29,7 +29,7 @@ Object operator^(const Object& lhs, const Object& rhs)
         return {Integer({std::any_cast<const Integer&>(lhs.value).value
                          ^ std::any_cast<const Integer&>(rhs.value).value})};
     }
-    return {Null()};
+    throw std::runtime_error("Invalid operand type.");
 }
 
 Object operator~(const Object& object)
@@ -37,7 +37,7 @@ Object operator~(const Object& object)
     if (object.value.type() == typeid(Integer)) {
         return {Integer({~std::any_cast<const Integer&>(object.value).value})};
     }
-    return {Null()};
+    throw std::runtime_error("Invalid operand type.");
 }
 
 Object operator<<(const Object& lhs, const Object& rhs)
@@ -47,7 +47,7 @@ Object operator<<(const Object& lhs, const Object& rhs)
         return {Integer({std::any_cast<const Integer&>(lhs.value).value
                          << std::any_cast<const Integer&>(rhs.value).value})};
     }
-    return {Null()};
+    throw std::runtime_error("Invalid operand type.");
 }
 
 Object operator>>(const Object& lhs, const Object& rhs)
@@ -57,7 +57,7 @@ Object operator>>(const Object& lhs, const Object& rhs)
         return {Integer({std::any_cast<const Integer&>(lhs.value).value
                          >> std::any_cast<const Integer&>(rhs.value).value})};
     }
-    return {Null()};
+    throw std::runtime_error("Invalid operand type.");
 }
 
 }  // namespace fundot

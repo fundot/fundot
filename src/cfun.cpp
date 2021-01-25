@@ -1,6 +1,6 @@
-#include "fundot/fundot.h"
-
 #include <sstream>
+
+#include "fundot/fundot.h"
 
 struct FunObject {
     fundot::Object value;

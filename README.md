@@ -48,7 +48,7 @@ If you did everything right, then the following message should be printed. And y
 ```shell
 -- Install configuration: ""
 -- Installing: path_you_entered/fundot/init.fun
--- Installing: path_you_entered/fundot/lib/libfunstd.dylib
+-- Installing: path_you_entered/fundot/lib/libfunstd.funso
 -- Installing: path_you_entered/fundot/bin/fundot
 ```
 
@@ -90,10 +90,10 @@ For file execution mode, enter `fundot` followed by the name of the source file.
 abs : (lambda [x] (if x < 0 (-x) x))
 
 sqrt : (lambda [x] (do
-  (let root x)
-  (let precision 1e-9)
+  (let root : x)
+  (let precision : 1e-9)
   (while (abs x - root * root) > precision
-    (let root (root + x / root) / 2))
+    (let root : (root + x / root) / 2))
   root))
 
 (print (sqrt 1))

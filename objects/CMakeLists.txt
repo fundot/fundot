@@ -4,8 +4,8 @@ add_library(funstd SHARED
             count.cpp
             do.cpp
             expand.cpp
+            hash.cpp
             insert.cpp
-            lambda.cpp
             open.cpp
             pop.cpp
             print.cpp

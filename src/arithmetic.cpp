@@ -31,7 +31,7 @@ Object operator+(const Object& lhs, const Object& rhs)
         return {String({std::any_cast<const String&>(lhs.value).value
                         + std::any_cast<const String&>(rhs.value).value})};
     }
-    return {Null()};
+    throw std::runtime_error("Invalid operand type.");
 }
 
 Object operator-(const Object& lhs, const Object& rhs)
@@ -56,7 +56,7 @@ Object operator-(const Object& lhs, const Object& rhs)
         return {Float({std::any_cast<const Float&>(lhs.value).value
                        - std::any_cast<const Integer&>(rhs.value).value})};
     }
-    return {Null()};
+    throw std::runtime_error("Invalid operand type.");
 }
 
 Object operator*(const Object& lhs, const Object& rhs)
@@ -81,7 +81,7 @@ Object operator*(const Object& lhs, const Object& rhs)
         return {Float({std::any_cast<const Float&>(lhs.value).value
                        * std::any_cast<const Integer&>(rhs.value).value})};
     }
-    return {Null()};
+    throw std::runtime_error("Invalid operand type.");
 }
 
 Object operator/(const Object& lhs, const Object& rhs)
@@ -114,7 +114,7 @@ Object operator/(const Object& lhs, const Object& rhs)
         path /= std::any_cast<const String&>(rhs.value).value;
         return {String({path.string()})};
     }
-    return {Null()};
+    throw std::runtime_error("Invalid operand type.");
 }
 
 Object operator%(const Object& lhs, const Object& rhs)
@@ -124,7 +124,7 @@ Object operator%(const Object& lhs, const Object& rhs)
         return {Integer({std::any_cast<const Integer&>(lhs.value).value
                          % std::any_cast<const Integer&>(rhs.value).value})};
     }
-    return {Null()};
+    throw std::runtime_error("Invalid operand type.");
 }
 
 Object operator-(const Object& object)
@@ -135,7 +135,7 @@ Object operator-(const Object& object)
     if (object.value.type() == typeid(Float)) {
         return {Float({-std::any_cast<const Float&>(object.value).value})};
     }
-    return object;
+    throw std::runtime_error("Invalid operand type.");
 }
 
 }  // namespace fundot

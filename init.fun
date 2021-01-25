@@ -10,9 +10,9 @@ do : (import lib_path "do_obj")
 
 expand : (import lib_path "expand_obj")
 
-insert : (import lib_path "insert_obj")
+hash : (import lib_path "hash_obj")
 
-lambda : (import lib_path "lambda_obj")
+insert : (import lib_path "insert_obj")
 
 open : (import lib_path "open_obj")
 
@@ -27,6 +27,17 @@ quote : (import lib_path "quote_obj")
 read : (import lib_path "read_obj")
 
 remove : (import lib_path "remove_obj")
+
+lambda : {
+  type : macro,
+  params : [params, body],
+  body : ('do
+    ('let 'fun ': {})
+    ('let 'fun'.'type ': 'function)
+    ('let 'fun'.'params ': params)
+    ('let 'fun'.'body ': ('quote body))
+    'fun)
+}
 
 defmacro : {
   type : macro,
