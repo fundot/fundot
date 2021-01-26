@@ -1,3 +1,4 @@
+
 #include <boost/dll.hpp>
 #include <filesystem>
 #include <sstream>
@@ -181,7 +182,7 @@ Object* Evaluator::Impl::get(Object& owner, const Getter& getter)
     if (obj_ptr != nullptr) {
         return get(*obj_ptr, eval(getter.value.second));
     }
-    throw std::runtime_error("Owner not found.");
+    return nullptr;
 }
 
 Object* Evaluator::Impl::get(Object& owner, const Object& index)
