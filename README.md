@@ -15,9 +15,9 @@ Fundot is a  programming language that treats "code as data". Inspired by both L
 
 Here is a list of Fundot documents that helps you better learn and use Fundot. Because Fundot is still a baby language, there is not so many documents yet, but we are trying our best to provide everybody a good experience.
 
-* [Cheatsheet](doc/cheatsheet.md) - Explanations for how Fundot reads "code as data".
-* [Quick Guide](doc/quick_guide.md) - Descriptions for the fundamental ideas and features of Fundot.
-* [C++ Style Guide](doc/cpp_style.md) - Style guide for C++ when coding Fundot core and shared objects.
+* [Cheatsheet](docs/cheatsheet.md) - Explanations for how Fundot reads "code as data".
+* [Quick Guide](docs/quick_guide.md) - Descriptions for the fundamental ideas and features of Fundot.
+* [C++ Style Guide](docs/cpp_style.md) - Style guide for C++ when coding Fundot core and shared objects.
 
 ## Dependencies
 
