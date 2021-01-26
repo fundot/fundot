@@ -30,7 +30,47 @@ std::ostream& operator<<(std::ostream& os, const Float& num)
 
 std::ostream& operator<<(std::ostream& os, const String& string)
 {
-    return os << '"' << string.value << '"';
+    os << '"';
+    for (const auto& c : string.value) {
+        if (c == '"') {
+            os << '\\' << '"';
+            continue;
+        }
+        if (c == '\\') {
+            os << '\\' << '\\';
+            continue;
+        }
+        if (c == '\a') {
+            os << '\\' << 'a';
+            continue;
+        }
+        if (c == '\b') {
+            os << '\\' << 'b';
+            continue;
+        }
+        if (c == '\f') {
+            os << '\\' << 'f';
+            continue;
+        }
+        if (c == '\n') {
+            os << '\\' << 'n';
+            continue;
+        }
+        if (c == '\r') {
+            os << '\\' << 'r';
+            continue;
+        }
+        if (c == '\t') {
+            os << '\\' << 't';
+            continue;
+        }
+        if (c == '\v') {
+            os << '\\' << 'v';
+            continue;
+        }
+        os << c;
+    }
+    return os << '"';
 }
 
 std::ostream& operator<<(std::ostream& os, const Symbol& symbol)

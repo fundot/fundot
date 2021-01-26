@@ -197,8 +197,50 @@ std::istream& operator>>(std::istream& is, String& string)
     char c;
     is >> std::noskipws;
     while (is >> c) {
+        if (c == '\\') {
+            is >> c;
+            if (c == '"') {
+                value.push_back('\"');
+                continue;
+            }
+            if (c == '\\') {
+                value.push_back('\\');
+                continue;
+            }
+            if (c == 'a') {
+                value.push_back('\a');
+                continue;
+            }
+            if (c == 'b') {
+                value.push_back('\b');
+                continue;
+            }
+            if (c == 'f') {
+                value.push_back('\f');
+                continue;
+            }
+            if (c == 'n') {
+                value.push_back('\n');
+                continue;
+            }
+            if (c == 'r') {
+                value.push_back('\r');
+                continue;
+            }
+            if (c == 't') {
+                value.push_back('\t');
+                continue;
+            }
+            if (c == 'v') {
+                value.push_back('\v');
+                continue;
+            }
+        }
         if (c == '"') {
             break;
+        }
+        if (std::iswspace(c)) {
+            c = ' ';
         }
         value.push_back(c);
     }
