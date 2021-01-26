@@ -9,6 +9,9 @@ namespace fundot {
 
 class Evaluator::Impl {
 public:
+    template<class T>
+    Object* getFromPair(T& owner, const Object& index);
+
     Object* get(Vector& owner, const Integer& integer);
 
     Object* get(Vector& owner, const Object& index);
@@ -22,6 +25,9 @@ public:
     Object* get(Object& owner, const Getter& getter);
 
     Object* get(Object& owner, const Object& index);
+
+    template<class T>
+    void setPair(T& owner, const Object& index, const Object& value);
 
     void set(Vector& owner, const Integer& integer, const Object& value);
 
@@ -129,6 +135,18 @@ private:
 
 void parse(std::list<Object>& list);
 
+template<class T>
+Object* Evaluator::Impl::getFromPair(T& owner, const Object& index)
+{
+    if (index == Object({Symbol({"first"})})) {
+        return &owner.value.first;
+    }
+    if (index == Object({Symbol({"second"})})) {
+        return &owner.value.second;
+    }
+    throw std::invalid_argument("Unexpected index.");
+}
+
 Object* Evaluator::Impl::get(Vector& owner, const Integer& integer)
 {
     if (static_cast<std::size_t>(integer.value) >= owner.value.size()) {
@@ -190,6 +208,66 @@ Object* Evaluator::Impl::get(Object& owner, const Object& index)
     if (index.value.type() == typeid(Getter)) {
         return get(owner, std::any_cast<const Getter&>(index.value));
     }
+    if (owner.value.type() == typeid(Setter)) {
+        return getFromPair(std::any_cast<Setter&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(Getter)) {
+        return getFromPair(std::any_cast<Getter&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(Adder)) {
+        return getFromPair(std::any_cast<Adder&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(Subtractor)) {
+        return getFromPair(std::any_cast<Subtractor&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(Multiplier)) {
+        return getFromPair(std::any_cast<Multiplier&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(Divisor)) {
+        return getFromPair(std::any_cast<Divisor&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(Modular)) {
+        return getFromPair(std::any_cast<Modular&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(Less)) {
+        return getFromPair(std::any_cast<Less&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(Greater)) {
+        return getFromPair(std::any_cast<Greater&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(LessEqual)) {
+        return getFromPair(std::any_cast<LessEqual&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(GreaterEqual)) {
+        return getFromPair(std::any_cast<GreaterEqual&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(EqualTo)) {
+        return getFromPair(std::any_cast<EqualTo&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(NotEqualTo)) {
+        return getFromPair(std::any_cast<NotEqualTo&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(And)) {
+        return getFromPair(std::any_cast<And&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(Or)) {
+        return getFromPair(std::any_cast<Or&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(BitwiseAnd)) {
+        return getFromPair(std::any_cast<BitwiseAnd&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(BitwiseOr)) {
+        return getFromPair(std::any_cast<BitwiseOr&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(BitwiseXor)) {
+        return getFromPair(std::any_cast<BitwiseXor&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(LeftShift)) {
+        return getFromPair(std::any_cast<LeftShift&>(owner.value), index);
+    }
+    if (owner.value.type() == typeid(RightShift)) {
+        return getFromPair(std::any_cast<RightShift&>(owner.value), index);
+    }
     if (owner.value.type() == typeid(UnorderedSet)) {
         return get(std::any_cast<UnorderedSet&>(owner.value), index);
     }
@@ -200,6 +278,21 @@ Object* Evaluator::Impl::get(Object& owner, const Object& index)
         return get(std::any_cast<List&>(owner.value), index);
     }
     throw std::invalid_argument("Unexpected owner type.");
+}
+
+template<class T>
+void Evaluator::Impl::setPair(T& owner, const Object& index,
+                              const Object& value)
+{
+    if (index == Object({Symbol({"first"})})) {
+        owner.value.first = value;
+        return;
+    }
+    if (index == Object({Symbol({"second"})})) {
+        owner.value.second = value;
+        return;
+    }
+    throw std::invalid_argument("Unexpected index.");
 }
 
 void Evaluator::Impl::set(Vector& owner, const Integer& integer,
@@ -261,6 +354,66 @@ void Evaluator::Impl::set(Object& owner, const Object& index,
 {
     if (index.value.type() == typeid(Getter)) {
         return set(owner, std::any_cast<const Getter&>(index.value), value);
+    }
+    if (owner.value.type() == typeid(Setter)) {
+        return setPair(std::any_cast<Setter&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(Getter)) {
+        return setPair(std::any_cast<Getter&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(Adder)) {
+        return setPair(std::any_cast<Adder&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(Subtractor)) {
+        return setPair(std::any_cast<Subtractor&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(Multiplier)) {
+        return setPair(std::any_cast<Multiplier&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(Divisor)) {
+        return setPair(std::any_cast<Divisor&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(Modular)) {
+        return setPair(std::any_cast<Modular&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(Less)) {
+        return setPair(std::any_cast<Less&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(Greater)) {
+        return setPair(std::any_cast<Greater&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(LessEqual)) {
+        return setPair(std::any_cast<LessEqual&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(GreaterEqual)) {
+        return setPair(std::any_cast<GreaterEqual&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(EqualTo)) {
+        return setPair(std::any_cast<EqualTo&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(NotEqualTo)) {
+        return setPair(std::any_cast<NotEqualTo&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(And)) {
+        return setPair(std::any_cast<And&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(Or)) {
+        return setPair(std::any_cast<Or&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(BitwiseAnd)) {
+        return setPair(std::any_cast<BitwiseAnd&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(BitwiseOr)) {
+        return setPair(std::any_cast<BitwiseOr&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(BitwiseXor)) {
+        return setPair(std::any_cast<BitwiseXor&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(LeftShift)) {
+        return setPair(std::any_cast<LeftShift&>(owner.value), index, value);
+    }
+    if (owner.value.type() == typeid(RightShift)) {
+        return setPair(std::any_cast<RightShift&>(owner.value), index, value);
     }
     if (owner.value.type() == typeid(UnorderedSet)) {
         return set(std::any_cast<UnorderedSet&>(owner.value), index, value);
@@ -449,7 +602,7 @@ Object Evaluator::Impl::evalFunction(const List& list)
             return after;
         }
     }
-    return {Null()};
+    return {Void()};
 }
 
 Object Evaluator::Impl::evalMacro(const List& list)
@@ -485,7 +638,7 @@ Object Evaluator::Impl::evalMacro(const List& list)
             return after;
         }
     }
-    return {Null()};
+    return {Void()};
 }
 
 Object Evaluator::Impl::eval(const Adder& adder)
@@ -652,7 +805,7 @@ Object Evaluator::Impl::eval(const List& list)
         return special_form.value(list_copy);
     }
     Object after_eval = evalMacro(list_copy);
-    if (after_eval.value.type() != typeid(Null)) {
+    if (after_eval.value.type() != typeid(Void)) {
         return eval(after_eval);
     }
     while (++iter != list_copy.value.end()) {
@@ -664,7 +817,7 @@ Object Evaluator::Impl::eval(const List& list)
         return function.value(list_copy);
     }
     after_eval = evalFunction(list_copy);
-    if (after_eval.value.type() != typeid(Null)) {
+    if (after_eval.value.type() != typeid(Void)) {
         return after_eval;
     }
     if (list_copy.value.size() == 1) {
