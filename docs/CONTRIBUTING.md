@@ -43,4 +43,4 @@ After thinking clearly about the changes you want to make, please start a pull r
 
 ## Coding Style
 
-When coding Fundot, please follow the guidelines we provide. So far, please follow this [C++ Style Guide](#cpp_style.md).
+When coding Fundot, please follow the guidelines we provide. So far, please follow this [C++ Style Guide](cpp_style.md).
