@@ -115,7 +115,7 @@ Then if we enter `fundot example.fun` in the terminal, we will get the output sh
 
 ## Contributing
 
-Contributions are welcome. The guideline is coming soon.
+Contributions are welcome. Please read our [contributing guidelines](docs/CONTRIBUTING.md) carefully. Note: Use GitHub Issues only to report bugs. If you have some questions about Fundot, please use GitHub Discussions.
 
 ## License
 
