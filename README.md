@@ -96,11 +96,11 @@ sqrt : (lambda [x] (do
     (let root : (root + x / root) / 2))
   root))
 
-(print (sqrt 1))
-(print (sqrt 2))
-(print (sqrt 3))
-(print (sqrt 4))
-(print (sqrt 5))
+(println (sqrt 1))
+(println (sqrt 2))
+(println (sqrt 3))
+(println (sqrt 4))
+(println (sqrt 5))
 ```
 Then if we enter `fundot example.fun` in the terminal, we will get the output shown below.
 

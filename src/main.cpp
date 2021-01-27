@@ -29,9 +29,7 @@ int main(int argc, char* argv[])
                 }
                 after_eval = eval(to_eval);
                 print(after_eval, std::cout);
-                if (after_eval.value.type() != typeid(Void)) {
-                    std::cout << '\n';
-                }
+                std::cout << '\n';
             }
             catch (const std::exception& e) {
                 std::cerr << "Error: " << e.what() << '\n';

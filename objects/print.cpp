@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 
 #include "fundot/fundot.h"
 
@@ -10,26 +11,49 @@ struct File {
 
 Object print_(const List& list)
 {
-    std::string end = "\n";
     auto iter = list.value.begin();
     Object to_print;
     Printer print;
     if (++iter == list.value.end()) {
-        std::cout << end;
-        return {Void()};
+        return {Null()};
     }
     to_print = *iter;
     if (++iter == list.value.end()) {
         print(to_print, std::cout);
-        std::cout << end;
-        return {Void()};
+        return {Null()};
     }
-    if (iter->value.type() == typeid(File)) {
-        print(to_print, *std::any_cast<const File&>(iter->value).value);
-        *std::any_cast<const File&>(iter->value).value << end;
-        return {Void()};
+    std::ostream* os_ptr = &std::cout;
+    std::stringstream ss;
+    print(to_print, ss);
+    iter = std::find(list.value.begin(), list.value.end(),
+                     Object({Symbol({"to"})}));
+    if (iter != list.value.end()) {
+        if (++iter == list.value.end()) {
+            throw std::runtime_error("No argument found after 'to'.");
+        }
+        if (iter->value.type() != typeid(File)) {
+            throw std::invalid_argument("Invalid argument after 'to'.");
+        }
+        os_ptr = std::any_cast<const File&>(iter->value).value.get();
     }
-    return {Void()};
+    iter = std::find(list.value.begin(), list.value.end(),
+                     Object({Symbol({"for"})}));
+    if (iter != list.value.end()) {
+        if (++iter == list.value.end()) {
+            throw std::runtime_error("No argument found after 'for'.");
+        }
+        if (*iter != Object({Symbol({"human"})})) {
+            throw std::invalid_argument("Invalid argument after 'for'.");
+        }
+        if (to_print.value.type() == typeid(String)) {
+            const std::string& string =
+                std::any_cast<const String&>(to_print.value).value;
+            ss.str("");
+            ss << string;
+        }
+    }
+    *os_ptr << ss.str();
+    return {Null()};
 }
 
 Object print_obj = {PrimitiveFunction({print_})};

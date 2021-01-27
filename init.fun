@@ -55,3 +55,11 @@ defun : {
   body : ('do
     name ': ('lambda params body))
 }
+
+println : {
+  type : function,
+  params : [obj],
+  body : (do
+    (print obj)
+    (print "\n" 'for 'human))
+}

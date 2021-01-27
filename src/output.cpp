@@ -376,9 +376,6 @@ std::ostream& operator<<(std::ostream& os, const Object& object)
     if (value.type() == typeid(SharedObject)) {
         return os << std::any_cast<const SharedObject&>(value);
     }
-    if (value.type() == typeid(Void)) {
-        return os;
-    }
     return os << "{type : extern}";
 }
 

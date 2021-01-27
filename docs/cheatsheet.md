@@ -13,7 +13,7 @@ This page provides quick references on how Fundot reads code as data.
 Everything after semicolons ';' are ignored, which can be used to comment Fundot code.
 
 ```Fundot
->>> (print "Hello, World!")  ; Hello, World!
+>>> (println "Hello, World!")  ; Hello, World!
 ```
 
 You may notice that there is only one semicolon above, but you may use any number of semicolons as you wish. However, there are conventions to properly use semicolons to comment in some other languages. Here is an example in [Common Lisp Style Guide](https://lisp-lang.org/style-guide/#comment-hierarchy).
@@ -219,10 +219,11 @@ A Fundot list is a doubly linked list of objects. This is also the fundamental e
 A quote is a special form that contains one object after its invocation. The main effect of a quote is to prevent the contained object from being evaluated. For example, it is default for Fundot to evaluate a list by its front element, but placing a quote before that prevents it from being evaluated.
 
 ```Fundot
->>> (print 3.14)
+>>> (println 3.14)
 3.14
->>> '(print 3.14)
-(print 3.14)
+null
+>>> '(println 3.14)
+(println 3.14)
 ```
 
 ## Reader
