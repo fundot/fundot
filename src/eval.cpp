@@ -1,4 +1,3 @@
-
 #include <boost/dll.hpp>
 #include <filesystem>
 #include <sstream>
@@ -149,7 +148,7 @@ Object* Evaluator::Impl::getFromPair(T& owner, const Object& index)
 
 Object* Evaluator::Impl::get(Vector& owner, const Integer& integer)
 {
-    if (static_cast<std::size_t>(integer.value) >= owner.value.size()) {
+    if (static_cast<std::size_t>(integer.value) < owner.value.size()) {
         return &owner.value[integer.value];
     }
     throw std::out_of_range("Index out of range.");
@@ -300,6 +299,7 @@ void Evaluator::Impl::set(Vector& owner, const Integer& integer,
 {
     if (static_cast<std::size_t>(integer.value) < owner.value.size()) {
         owner.value[integer.value] = value;
+        return;
     }
     throw std::out_of_range("Index out of range.");
 }
@@ -327,6 +327,7 @@ void Evaluator::Impl::set(List& owner, const Integer& index,
         auto iter = owner.value.begin();
         std::advance(iter, index.value);
         *iter = value;
+        return;
     }
     throw std::out_of_range("Index out of range.");
 }
@@ -334,7 +335,7 @@ void Evaluator::Impl::set(List& owner, const Integer& index,
 void Evaluator::Impl::set(List& owner, const Object& index, const Object& value)
 {
     if (index.value.type() == typeid(Integer)) {
-        set(owner, std::any_cast<const Integer&>(index.value), value);
+        return set(owner, std::any_cast<const Integer&>(index.value), value);
     }
     throw std::invalid_argument("Unexpected index type.");
 }
