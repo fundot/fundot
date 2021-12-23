@@ -19,8 +19,8 @@ std::string String::to_string() const {
     return '"' + raw_str + '"';
 }
 
-String::operator std::string&() {
-    return raw_str;
+bool String::equals(const std::string& other) const {
+    return raw_str == other;
 }
 
 }

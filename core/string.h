@@ -15,7 +15,7 @@ public:
 
     std::string to_string() const override;
 
-    operator std::string&();
+    bool equals(const std::string& other) const;
 
 private:
     std::string raw_str;
