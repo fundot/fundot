@@ -67,7 +67,8 @@ Object* Parser::parse_associated(Vector* args) {
     if (pos == nullptr) {
         throw Error{"failed to parse. Fourth argument is not an 'Integer'"};
     }
-    if (static_cast<std::string>(*associated.second) == "right_to_left") {
+    if (static_cast<const std::string&>(*associated.second)
+        == "right_to_left") {
         return objs->at((*pos)--);
     }
     return objs->at((*pos)++);
@@ -83,7 +84,7 @@ Object* Parser::parse_objs(Vector* objs) {
     args->push_back(objs);
     args->push_back(pos);
     while (static_cast<std::size_t>(*precedence) < count) {
-        if (static_cast<std::string>(*rules[*precedence].second)
+        if (static_cast<const std::string&>(*rules[*precedence].second)
             == "left_to_right") {
             static_cast<std::int64_t&>(*pos) = 0;
             while (static_cast<std::size_t>(*pos) < objs->size()) {
