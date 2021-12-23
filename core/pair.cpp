@@ -51,16 +51,31 @@ Object* Pair::set(Object* index, Object* value) {
     return value;
 }
 
+Object*& Pair::first() {
+    return raw_pair.first;
+}
+
+Object* const& Pair::first() const {
+    return raw_pair.first;
+}
+
+Object*& Pair::second() {
+    return raw_pair.second;
+}
+
+Object* const& Pair::second() const {
+    return raw_pair.second;
+}
+
 Getter::Getter(Object* first, Object* second) : Pair{first, second} {
 }
 
 std::string Getter::to_string() const {
-    return get(new Integer{0})->to_string() + "."
-           + get(new Integer{1})->to_string();
+    return first()->to_string() + "." + second()->to_string();
 }
 
 Object* Getter::eval() {
-    return get(new Integer{0})->eval()->get(get(new Integer{1}));
+    return first()->eval()->get(second());
 }
 
 Setter::Setter(Object* first, Object* second) : Pair{first, second} {
@@ -69,28 +84,25 @@ Setter::Setter(Object* first, Object* second) : Pair{first, second} {
 bool Setter::equals(const Object* obj) const {
     auto other{dynamic_cast<const Setter*>(obj)};
     if (other != nullptr) {
-        return get(new Integer{0})->equals(other->get(new Integer{0}));
+        return first()->equals(other->first());
     }
-    return get(new Integer{0})->equals(obj);
+    return first()->equals(obj);
 }
 
 std::size_t Setter::hash() const {
-    return get(new Integer{0})->hash();
+    return first()->hash();
 }
 
 std::string Setter::to_string() const {
-    return get(new Integer{0})->to_string() + ": "
-           + get(new Integer{1})->to_string();
+    return first()->to_string() + ": " + second()->to_string();
 }
 
 Object* Setter::eval() {
-    auto getter{dynamic_cast<Getter*>(get(new Integer{0}))};
+    auto getter{dynamic_cast<Getter*>(first())};
     if (getter != nullptr) {
-        return getter->get(new Integer{0})
-            ->eval()
-            ->set(getter->get(new Integer{1}), get(new Integer{1})->eval());
+        return getter->first()->eval()->set(getter->second(), second()->eval());
     }
-    return get_scope()->set(get(new Integer{0}), get(new Integer{1})->eval());
+    return get_scope()->set(first(), second()->eval());
 }
 
 }

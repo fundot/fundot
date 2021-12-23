@@ -18,6 +18,14 @@ public:
 
     Object* set(Object* index, Object* value) override;
 
+    Object*& first();
+
+    Object* const& first() const;
+
+    Object*& second();
+
+    Object* const& second() const;
+
 private:
     std::pair<Object*, Object*> raw_pair;
 };

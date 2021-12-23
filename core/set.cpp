@@ -38,7 +38,7 @@ Object* Set::get(Object* obj) const {
     if (setter == nullptr) {
         throw Error{"no value bound to '" + (*found)->to_string() + "'"};
     }
-    return setter->get(new Integer{1});
+    return setter->second();
 }
 
 Object* Set::set(Object* index, Object* value) {
@@ -62,7 +62,7 @@ Object* Set::eval() {
     for (auto& obj : raw_set) {
         auto setter{dynamic_cast<Setter*>(obj)};
         if (setter != nullptr) {
-            setter->get(new Integer{1})->eval();
+            setter->second()->eval();
         }
     }
     return this;
