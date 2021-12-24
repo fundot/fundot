@@ -29,6 +29,22 @@ std::string Vector::to_string() const {
     return str;
 }
 
+Object* Vector::get(Object* obj) const {
+    auto pos{dynamic_cast<Integer*>(obj)};
+    if (pos == nullptr) {
+        throw Error{"index '" + pos->to_string() + "' is not an 'Integer'"};
+    }
+    return raw_vec.at(pos->int_value());
+}
+
+Object* Vector::set(Object* index, Object* value) {
+    auto pos{dynamic_cast<Integer*>(index)};
+    if (index == nullptr) {
+        throw Error{"index '" + pos->to_string() + "' is not an 'Integer'"};
+    }
+    return raw_vec.at(pos->int_value()) = value;
+}
+
 Object* Vector::eval() {
     if (raw_vec.empty()) {
         throw Error{"empty 'Vector'"};

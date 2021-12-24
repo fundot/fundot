@@ -7,7 +7,7 @@ namespace fundot {
 
 class Boolean : public Object {
 public:
-    Boolean(bool raw_bool);
+    Boolean(bool raw_bool = false);
 
     bool equals(const Object* obj) const override;
 
@@ -15,7 +15,7 @@ public:
 
     std::string to_string() const override;
 
-    operator bool&();
+    bool bool_value() const;
 
 private:
     bool raw_bool;

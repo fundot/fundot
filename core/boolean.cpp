@@ -19,7 +19,7 @@ std::string Boolean::to_string() const {
     return raw_bool ? "true" : "false";
 }
 
-Boolean::operator bool&() {
+bool Boolean::bool_value() const {
     return raw_bool;
 }
 

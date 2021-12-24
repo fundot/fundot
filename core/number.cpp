@@ -3,6 +3,22 @@
 
 namespace fundot {
 
+int Number::int_value() const {
+    std::string message{'\''};
+    message += typeid(*this).name();
+    message += '\'';
+    message += " cannot be converted to an 'int'";
+    throw Error{message};
+}
+
+double Number::double_value() const {
+    std::string message{'\''};
+    message += typeid(*this).name();
+    message += '\'';
+    message += " cannot be converted to a 'double'";
+    throw Error{message};
+}
+
 Integer::Integer(std::int64_t raw_int) : raw_int{raw_int} {
 }
 
@@ -19,7 +35,11 @@ std::string Integer::to_string() const {
     return std::to_string(raw_int);
 }
 
-Integer::operator std::int64_t&() {
+int Integer::int_value() const {
+    return raw_int;
+}
+
+double Integer::double_value() const {
     return raw_int;
 }
 
@@ -39,7 +59,11 @@ std::string Float::to_string() const {
     return std::to_string(raw_float);
 }
 
-Float::operator double&() {
+int Float::int_value() const {
+    return raw_float;
+}
+
+double Float::double_value() const {
     return raw_float;
 }
 

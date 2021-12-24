@@ -8,11 +8,9 @@ namespace fundot {
 
 class Number : public Object {
 public:
-    virtual bool equals(const Object* obj) const = 0;
+    virtual int int_value() const;
 
-    virtual std::size_t hash() const = 0;
-
-    virtual std::string to_string() const = 0;
+    virtual double double_value() const;
 };
 
 class Integer : public Number {
@@ -25,7 +23,9 @@ public:
 
     std::string to_string() const override;
 
-    operator std::int64_t&();
+    int int_value() const override;
+
+    double double_value() const override;
 
 private:
     std::int64_t raw_int;
@@ -33,7 +33,7 @@ private:
 
 class Float : public Number {
 public:
-    Float(double raw_float);
+    Float(double raw_float = 0);
 
     bool equals(const Object* obj) const override;
 
@@ -41,7 +41,9 @@ public:
 
     std::string to_string() const override;
 
-    operator double&();
+    int int_value() const override;
+
+    double double_value() const override;
 
 private:
     double raw_float;

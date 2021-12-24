@@ -22,7 +22,7 @@ Object* Pair::get(Object* obj) const {
         throw Error{"index '" + obj->to_string()
                     + "' not available in a 'Pair'"};
     }
-    switch (*index) {
+    switch (index->int_value()) {
     case 0:
         return raw_pair.first;
     case 1:
@@ -38,7 +38,7 @@ Object* Pair::set(Object* index, Object* value) {
         throw Error{"index '" + index->to_string()
                     + "' not available in a 'Pair'"};
     }
-    switch (*pos) {
+    switch (pos->int_value()) {
     case 0:
         raw_pair.first = value;
         break;
