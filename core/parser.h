@@ -82,6 +82,16 @@ private:
 
     static Integer* args_pos_pos;
 
+    static Rule vector_rule;
+
+    static Rule set_rule;
+
+    static Rule quote_rule;
+
+    static Rule getter_rule;
+
+    static Rule setter_rule;
+
     PrioritizedRules rules;
 };
 

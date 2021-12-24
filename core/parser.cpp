@@ -15,27 +15,28 @@ Integer* Parser::args_objs_pos{new Integer{2}};
 
 Integer* Parser::args_pos_pos{new Integer{3}};
 
+Parser::Rule Parser::vector_rule{new PrimitiveFunction{Parser::is_vector},
+                                 new PrimitiveFunction{Parser::parse_vector},
+                                 new Integer{0},
+                                 left_to_right};
+Parser::Rule Parser::set_rule{new PrimitiveFunction{Parser::is_set},
+                              new PrimitiveFunction{Parser::parse_set},
+                              new Integer{0},
+                              left_to_right};
+Parser::Rule Parser::quote_rule{new PrimitiveFunction{Parser::is_quote},
+                                new PrimitiveFunction{Parser::parse_quote},
+                                new Integer{1},
+                                left_to_right};
+Parser::Rule Parser::getter_rule{new PrimitiveFunction{Parser::is_getter},
+                                 new PrimitiveFunction{Parser::parse_getter},
+                                 new Integer{2},
+                                 left_to_right};
+Parser::Rule Parser::setter_rule{new PrimitiveFunction{Parser::is_setter},
+                                 new PrimitiveFunction{Parser::parse_setter},
+                                 new Integer{3},
+                                 right_to_left};
+
 Parser::Parser() {
-    Rule vector_rule{new PrimitiveFunction{Parser::is_vector},
-                     new PrimitiveFunction{Parser::parse_vector},
-                     new Integer{0},
-                     left_to_right};
-    Rule set_rule{new PrimitiveFunction{Parser::is_set},
-                  new PrimitiveFunction{Parser::parse_set},
-                  new Integer{0},
-                  left_to_right};
-    Rule quote_rule{new PrimitiveFunction{Parser::is_quote},
-                    new PrimitiveFunction{Parser::parse_quote},
-                    new Integer{1},
-                    left_to_right};
-    Rule getter_rule{new PrimitiveFunction{Parser::is_getter},
-                     new PrimitiveFunction{Parser::parse_getter},
-                     new Integer{2},
-                     left_to_right};
-    Rule setter_rule{new PrimitiveFunction{Parser::is_setter},
-                     new PrimitiveFunction{Parser::parse_setter},
-                     new Integer{3},
-                     right_to_left};
     register_rule(vector_rule);
     register_rule(set_rule);
     register_rule(quote_rule);
