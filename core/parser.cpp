@@ -55,8 +55,8 @@ void Parser::trace() {
     for (auto& associated : rules) {
         associated.second->mark();
         for (auto& rule : associated.first) {
-            rule.condition->mark();
-            rule.consequence->mark();
+            rule.predicate->mark();
+            rule.expression->mark();
             rule.precedence->mark();
             rule.associativity->mark();
         }
@@ -85,8 +85,8 @@ Object* Parser::parse_associated(Vector* args) {
     }
     auto associated{rules.at(precedence->int_value())};
     for (const auto& rule : associated.first) {
-        if (rule.condition->call(args)->equals(new Boolean{true})) {
-            return rule.consequence->call(args);
+        if (rule.predicate->call(args)->equals(new Boolean{true})) {
+            return rule.expression->call(args);
         }
     }
     auto objs{dynamic_cast<Vector*>(args->get(args_objs_pos))};

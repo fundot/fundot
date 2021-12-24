@@ -17,8 +17,8 @@ namespace fundot {
 class Parser : public Object {
 public:
     struct Rule {
-        Object* condition;
-        Object* consequence;
+        Object* predicate;
+        Object* expression;
         Integer* precedence;
         String* associativity;
     };
