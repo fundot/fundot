@@ -27,6 +27,8 @@ public:
 
     void trace() override;
 
+    void register_rule(const Rule& rule);
+
     Object* parse_associated(Vector* args);
 
     Object* parse_objs(Vector* objs);

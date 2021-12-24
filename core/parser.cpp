@@ -36,13 +36,11 @@ Parser::Parser() {
                      new PrimitiveFunction{Parser::parse_setter},
                      new Integer{3},
                      right_to_left};
-    rules.push_back({
-        {vector_rule, set_rule},
-        left_to_right
-    });
-    rules.push_back({{quote_rule}, left_to_right});
-    rules.push_back({{getter_rule}, left_to_right});
-    rules.push_back({{setter_rule}, right_to_left});
+    register_rule(vector_rule);
+    register_rule(set_rule);
+    register_rule(quote_rule);
+    register_rule(getter_rule);
+    register_rule(setter_rule);
 }
 
 void Parser::trace() {
@@ -62,6 +60,21 @@ void Parser::trace() {
             rule.associativity->mark();
         }
     }
+}
+
+void Parser::register_rule(const Rule& rule) {
+    auto rule_pos{static_cast<std::size_t>(rule.precedence->int_value())};
+    if (rule_pos >= rules.size()) {
+        rules.resize(rule_pos + 1);
+        rules[rule_pos] = {{rule}, rule.associativity};
+        return;
+    }
+    if (!rule.associativity->equals(rules[rule_pos].second)) {
+        throw Error{"rules with precedence '" + rule.precedence->to_string()
+                    + "' have different associativity: "
+                    + rules[rule_pos].second->to_string()};
+    }
+    rules[rule_pos].first.push_back(rule);
 }
 
 Object* Parser::parse_associated(Vector* args) {
