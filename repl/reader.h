@@ -1,7 +1,7 @@
 #ifndef FUNDOT_REPL_READER_H
 #define FUNDOT_REPL_READER_H
 
-#include "core/object.h"
+#include "core/set.h"
 #include <unordered_map>
 
 namespace fundot {
@@ -16,6 +16,8 @@ private:
     std::string read_line(const std::string& prompt) const;
 
     bool is_complete(const std::string& str) const;
+
+    static char* completion_entry(const char* text, int state);
 
     std::string primary_prompt{"> "};
 

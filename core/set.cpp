@@ -68,6 +68,10 @@ Object* Set::eval() {
     return this;
 }
 
+std::vector<Object*> Set::to_vector() const {
+    return {raw_set.cbegin(), raw_set.cend()};
+}
+
 void Set::insert(Object* obj) {
     raw_set.insert(obj);
 }

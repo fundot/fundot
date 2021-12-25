@@ -25,6 +25,8 @@ public:
 
     Object* eval() override;
 
+    std::vector<Object*> to_vector() const;
+
     void insert(Object* obj);
 
 private:

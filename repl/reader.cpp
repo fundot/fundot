@@ -1,4 +1,6 @@
 #include "reader.h"
+#include <cstdlib>
+#include <cstring>
 #include <readline/history.h>
 #include <readline/readline.h>
 #include <stack>
@@ -6,7 +8,7 @@
 namespace fundot {
 
 Reader::Reader() {
-    rl_completion_entry_function = nullptr;
+    rl_completion_entry_function = completion_entry;
     rl_bind_key('\t', rl_complete);
 }
 
@@ -51,6 +53,40 @@ bool Reader::is_complete(const std::string& str) const {
         halves.pop();
     }
     return halves.empty();
+}
+
+char* Reader::completion_entry(const char* text, int state) {
+    static std::vector<std::string> candidates;
+    static std::size_t pos{0};
+    static std::size_t size{0};
+    if (state == 0) {
+        auto scope{dynamic_cast<Set*>(get_scope())};
+        if (scope == nullptr) {
+            throw Error{"completion failed. Current scope is not a 'Set'"};
+        }
+        auto vec{scope->to_vector()};
+        for (auto& obj : vec) {
+            auto setter{dynamic_cast<Setter*>(obj)};
+            if (setter != nullptr) {
+                candidates.push_back(setter->first()->to_string());
+            } else {
+                candidates.push_back(obj->to_string());
+            }
+        }
+        pos = 0;
+        size = candidates.size();
+    }
+    for (std::size_t i{pos}; i < size; ++i) {
+        const std::string& candidate{candidates[i]};
+        if (candidate.find(text) != std::string::npos) {
+            char* match{
+                static_cast<char*>(std::malloc(candidate.length() + 1))};
+            std::strcpy(match, candidate.c_str());
+            pos = i + 1;
+            return match;
+        }
+    }
+    return nullptr;
 }
 
 }
