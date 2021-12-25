@@ -19,18 +19,27 @@ Parser::Rule Parser::vector_rule{new PrimitiveFunction{Parser::is_vector},
                                  new PrimitiveFunction{Parser::parse_vector},
                                  new Integer{0},
                                  left_to_right};
+
 Parser::Rule Parser::set_rule{new PrimitiveFunction{Parser::is_set},
                               new PrimitiveFunction{Parser::parse_set},
                               new Integer{0},
                               left_to_right};
+
+Parser::Rule Parser::list_rule{new PrimitiveFunction{Parser::is_list},
+                               new PrimitiveFunction{Parser::parse_list},
+                               new Integer{0},
+                               left_to_right};
+
 Parser::Rule Parser::quote_rule{new PrimitiveFunction{Parser::is_quote},
                                 new PrimitiveFunction{Parser::parse_quote},
                                 new Integer{1},
                                 left_to_right};
+
 Parser::Rule Parser::getter_rule{new PrimitiveFunction{Parser::is_getter},
                                  new PrimitiveFunction{Parser::parse_getter},
                                  new Integer{2},
                                  left_to_right};
+
 Parser::Rule Parser::setter_rule{new PrimitiveFunction{Parser::is_setter},
                                  new PrimitiveFunction{Parser::parse_setter},
                                  new Integer{3},
@@ -39,6 +48,7 @@ Parser::Rule Parser::setter_rule{new PrimitiveFunction{Parser::is_setter},
 Parser::Parser() {
     register_rule(vector_rule);
     register_rule(set_rule);
+    register_rule(list_rule);
     register_rule(quote_rule);
     register_rule(getter_rule);
     register_rule(setter_rule);
@@ -249,6 +259,22 @@ Object* Parser::is_set(Vector* args) {
     return new Boolean{false};
 }
 
+Object* Parser::is_list(Vector* args) {
+    auto objs{dynamic_cast<Vector*>(args->get(args_objs_pos))};
+    if (objs == nullptr) {
+        throw Error{"failed to parse 'List'. Third argument is not a 'Vector'"};
+    }
+    auto pos{dynamic_cast<Integer*>(args->get(args_pos_pos))};
+    if (pos == nullptr) {
+        throw Error{
+            "failed to parse 'List'. Fourth argument is not an 'Integer'"};
+    }
+    if (objs->get(pos)->equals(new Symbol{"("})) {
+        return new Boolean{true};
+    }
+    return new Boolean{false};
+}
+
 Object* Parser::is_quote(Vector* args) {
     auto objs{dynamic_cast<Vector*>(args->get(args_objs_pos))};
     if (objs == nullptr) {
@@ -397,6 +423,57 @@ Object* Parser::parse_set(Vector* args) {
         }
     }
     throw Error{"unterminated 'Set'"};
+}
+
+Object* Parser::parse_list(Vector* args) {
+    auto parser{dynamic_cast<Parser*>(args->get(args_parser_pos))};
+    if (parser == nullptr) {
+        throw Error{"failed to parse 'List'. First argument is not a 'Parser'"};
+    }
+    auto precedence{dynamic_cast<Integer*>(args->get(args_precedence_pos))};
+    if (precedence == nullptr) {
+        throw Error{
+            "failed to parse 'List'. Second argument is not a 'Precedence'"};
+    }
+    auto objs{dynamic_cast<Vector*>(args->get(args_objs_pos))};
+    if (objs == nullptr) {
+        throw Error{"failed to parse 'List'. Third argument is not a 'Vector'"};
+    }
+    auto pos{dynamic_cast<Integer*>(args->get(args_pos_pos))};
+    if (pos == nullptr) {
+        throw Error{
+            "failed to parse 'List'. Fourth argument is not an 'Integer'"};
+    }
+    auto start{pos->int_value()};
+    pos = new Integer{pos->int_value() + 1};
+    args->set(args_pos_pos, pos);
+    auto vec{new Vector};
+    auto size{objs->size()};
+    while (static_cast<std::size_t>(pos->int_value()) < size) {
+        Object* obj{parser->parse_associated(args)};
+        pos = dynamic_cast<Integer*>(args->get(args_pos_pos));
+        if (obj->equals(new Symbol{")"})) {
+            pos = new Integer{pos->int_value() - 1};
+            while (pos->int_value() > start) {
+                objs->erase(pos->int_value());
+                pos = new Integer{pos->int_value() - 1};
+            }
+            pos = new Integer{pos->int_value() + 1};
+            objs->at(start) = vec;
+            args->set(args_pos_pos, pos);
+            parser->parse_objs(vec);
+            auto lst{new List};
+            for (std::size_t i{0}, length{vec->size()}; i < length; ++i) {
+                lst->push_back(vec->at(i));
+            }
+            objs->at(start) = lst;
+            return lst;
+        }
+        if (!obj->equals(new Symbol{","})) {
+            vec->push_back(obj);
+        }
+    }
+    throw Error{"unterminated 'List'"};
 }
 
 Object* Parser::parse_quote(Vector* args) {

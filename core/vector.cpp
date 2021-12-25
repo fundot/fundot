@@ -18,14 +18,14 @@ std::string Vector::to_string() const {
     if (raw_vec.empty()) {
         return "[]";
     }
-    std::string str{"["};
+    std::string str{'['};
     for (auto& obj : raw_vec) {
         str += obj->to_string();
         str += ", ";
     }
     str.pop_back();
     str.pop_back();
-    str += "]";
+    str += ']';
     return str;
 }
 
@@ -47,12 +47,12 @@ Object* Vector::set(Object* index, Object* value) {
 
 Object* Vector::eval() {
     if (raw_vec.empty()) {
-        throw Error{"empty 'Vector'"};
+        return new Null;
     }
     auto args{new Vector};
     std::size_t i{1};
-    std::size_t end{raw_vec.size()};
-    while (i < end) {
+    std::size_t size{raw_vec.size()};
+    while (i < size) {
         args->push_back(raw_vec[i]);
         ++i;
     }

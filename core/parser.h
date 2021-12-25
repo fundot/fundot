@@ -3,6 +3,7 @@
 
 #include "boolean.h"
 #include "function.h"
+#include "list.h"
 #include "null.h"
 #include "number.h"
 #include "pair.h"
@@ -54,6 +55,8 @@ private:
 
     static Object* is_set(Vector* args);
 
+    static Object* is_list(Vector* args);
+
     static Object* is_quote(Vector* args);
 
     static Object* is_getter(Vector* args);
@@ -63,6 +66,8 @@ private:
     static Object* parse_vector(Vector* args);
 
     static Object* parse_set(Vector* args);
+
+    static Object* parse_list(Vector* args);
 
     static Object* parse_quote(Vector* args);
 
@@ -85,6 +90,8 @@ private:
     static Rule vector_rule;
 
     static Rule set_rule;
+
+    static Rule list_rule;
 
     static Rule quote_rule;
 

@@ -18,14 +18,14 @@ std::string Set::to_string() const {
     if (raw_set.empty()) {
         return "{}";
     }
-    std::string str{"{"};
+    std::string str{'{'};
     for (auto& obj : raw_set) {
         str += obj->to_string();
         str += ", ";
     }
     str.pop_back();
     str.pop_back();
-    str += "}";
+    str += '}';
     return str;
 }
 

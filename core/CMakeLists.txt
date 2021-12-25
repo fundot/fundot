@@ -9,6 +9,7 @@ add_library(fundot_core
             pair.cpp
             vector.cpp
             set.cpp
+            list.cpp
             function.cpp
             parser.cpp
             )

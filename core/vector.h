@@ -1,6 +1,7 @@
 #ifndef FUNDOT_CORE_VECTOR_H
 #define FUNDOT_CORE_VECTOR_H
 
+#include "null.h"
 #include "number.h"
 #include <vector>
 
