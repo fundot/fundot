@@ -20,6 +20,8 @@ Object* builtin_cond(Vector* args);
 
 Object* builtin_while(Vector* args);
 
+Object* builtin_add(Vector* args);
+
 void load_builtins(Object* obj);
 
 }
