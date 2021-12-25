@@ -51,7 +51,7 @@ Object* Vector::eval() {
     }
     auto args{new Vector};
     std::size_t i{1};
-    std::size_t end{raw_vec.size() - 1};
+    std::size_t end{raw_vec.size()};
     while (i < end) {
         args->push_back(raw_vec[i]);
         ++i;
