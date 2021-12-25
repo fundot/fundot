@@ -78,7 +78,7 @@ char* Reader::completion_entry(const char* text, int state) {
     }
     for (std::size_t i{pos}; i < size; ++i) {
         const std::string& candidate{candidates[i]};
-        if (candidate.find(text) != std::string::npos) {
+        if (std::strncmp(candidate.c_str(), text, std::strlen(text)) == 0) {
             char* match{
                 static_cast<char*>(std::malloc(candidate.length() + 1))};
             std::strcpy(match, candidate.c_str());
