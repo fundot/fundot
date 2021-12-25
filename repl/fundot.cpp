@@ -1,4 +1,4 @@
-#include "parser.h"
+#include "std/builtins.h"
 #include <iostream>
 
 using namespace fundot;
@@ -9,6 +9,7 @@ int main() {
     Object::add_root(scope);
     auto parser{new Parser};
     scope->set(new Symbol{"__parser__"}, parser);
+    load_builtins(scope);
     for (;;) {
         try {
             std::cout << "> ";

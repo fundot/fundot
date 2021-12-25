@@ -12,9 +12,3 @@ add_library(fundot_core
             function.cpp
             parser.cpp
             )
-
-add_executable(fundot_bin main.cpp)
-
-target_link_libraries(fundot_bin fundot_core)
-
-set_target_properties(fundot_bin PROPERTIES OUTPUT_NAME fundot)
