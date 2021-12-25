@@ -1,3 +1,4 @@
+#include "reader.h"
 #include "std/builtins.h"
 #include <iostream>
 
@@ -9,13 +10,14 @@ int main() {
     Object::add_root(scope);
     auto parser{new Parser};
     scope->set(new Symbol{"__parser__"}, parser);
+    auto reader{new Reader};
+    scope->set(new Symbol{"__reader__"}, reader);
     load_builtins(scope);
     for (;;) {
         try {
-            std::cout << "> ";
-            std::string input;
-            if (!std::getline(std::cin, input)) {
-                break;
+            std::string input{reader->read()};
+            if (input.empty()) {
+                continue;
             }
             std::cout << parser->parse(input)->eval()->to_string() << '\n';
         } catch (Object::Error& error) {
