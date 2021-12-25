@@ -18,6 +18,8 @@ namespace fundot {
 
 Object* builtin_cond(Vector* args);
 
+Object* builtin_while(Vector* args);
+
 void load_builtins(Object* obj);
 
 }
