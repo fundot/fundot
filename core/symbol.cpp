@@ -27,4 +27,8 @@ Object* Symbol::eval() {
     }
 }
 
+const std::string& Symbol::string_value() const {
+    return raw_str;
+}
+
 }

@@ -203,7 +203,17 @@ Object* Parser::next_atom(const std::string& str, std::size_t& pos) const {
     if (std::isdigit(str[pos])) {
         return next_number(str, pos);
     }
-    return next_symbol(str, pos);
+    auto symbol{next_symbol(str, pos)};
+    if (symbol->string_value() == "null") {
+        return new Null;
+    }
+    if (symbol->string_value() == "true") {
+        return new Boolean{true};
+    }
+    if (symbol->string_value() == "false") {
+        return new Boolean{false};
+    }
+    return symbol;
 }
 
 Object* Parser::is_vector(Vector* args) {

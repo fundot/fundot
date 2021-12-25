@@ -17,6 +17,8 @@ public:
 
     Object* eval() override;
 
+    const std::string& string_value() const;
+
 private:
     std::string raw_str;
 };
