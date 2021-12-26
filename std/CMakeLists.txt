@@ -1,7 +1,5 @@
 add_library(fundot_std
             builtins.cpp
-            cond.cpp
-            while.cpp
             unary_plus.cpp
             unary_minus.cpp
             addition.cpp
@@ -18,6 +16,9 @@ add_library(fundot_std
             logical_not.cpp
             logical_and.cpp
             logical_or.cpp
+            cond.cpp
+            while.cpp
+            print.cpp
             )
 
 target_include_directories(fundot_std PUBLIC ${PROJECT_SOURCE_DIR})

@@ -19,7 +19,11 @@ int main() {
             if (input.empty()) {
                 continue;
             }
-            std::cout << parser->parse(input)->eval()->to_string() << '\n';
+            auto evaluated{parser->parse(input)->eval()};
+            if (evaluated->equals(new Null)) {
+                continue;
+            }
+            std::cout << evaluated->to_string() << '\n';
         } catch (Object::Error& error) {
             std::cerr << "Exception: " << error.what() << '\n';
         }

@@ -7,6 +7,8 @@ namespace fundot {
 
 class Null : public Object {
 public:
+    bool equals(const Object* obj) const override;
+
     std::string to_string() const override;
 };
 
