@@ -42,7 +42,7 @@ Parser::Rule Parser::getter_rule{new PrimitiveFunction{Parser::is_getter},
 
 Parser::Rule Parser::setter_rule{new PrimitiveFunction{Parser::is_setter},
                                  new PrimitiveFunction{Parser::parse_setter},
-                                 new Integer{3},
+                                 new Integer{32},
                                  right_to_left};
 
 Parser::Parser() {
@@ -63,6 +63,9 @@ void Parser::trace() {
     args_objs_pos->mark();
     args_pos_pos->mark();
     for (auto& associated : rules) {
+        if (associated.second == nullptr) {
+            continue;
+        }
         associated.second->mark();
         for (auto& rule : associated.first) {
             rule.predicate->mark();
@@ -78,6 +81,11 @@ void Parser::register_rule(const Rule& rule) {
     if (rule_pos >= rules.size()) {
         rules.resize(rule_pos + 1);
         rules[rule_pos] = {{rule}, rule.associativity};
+        return;
+    }
+    if (rules[rule_pos].second == nullptr) {
+        rules[rule_pos].first.push_back(rule);
+        rules[rule_pos].second = rule.associativity;
         return;
     }
     if (!rule.associativity->equals(rules[rule_pos].second)) {
@@ -127,6 +135,11 @@ Object* Parser::parse_objs(Vector* objs) {
     args->push_back(objs);
     args->push_back(pos);
     while (static_cast<std::size_t>(precedence->int_value()) < count) {
+        if (rules[precedence->int_value()].second == nullptr) {
+            precedence = new Integer{precedence->int_value() + 1};
+            args->set(args_precedence_pos, precedence);
+            continue;
+        }
         if (rules[precedence->int_value()].second->string_value()
             == "left_to_right") {
             pos = new Integer{0};
@@ -237,10 +250,7 @@ Object* Parser::is_vector(Vector* args) {
         throw Error{
             "failed to parse 'Vector'. Fourth argument is not an 'Integer'"};
     }
-    if (objs->get(pos)->equals(new Symbol{"["})) {
-        return new Boolean{true};
-    }
-    return new Boolean{false};
+    return new Boolean{objs->get(pos)->equals(new Symbol{"["})};
 }
 
 Object* Parser::is_set(Vector* args) {
@@ -253,10 +263,7 @@ Object* Parser::is_set(Vector* args) {
         throw Error{
             "failed to parse 'Set'. Fourth argument is not an 'Integer'"};
     }
-    if (objs->get(pos)->equals(new Symbol{"{"})) {
-        return new Boolean{true};
-    }
-    return new Boolean{false};
+    return new Boolean{objs->get(pos)->equals(new Symbol{"{"})};
 }
 
 Object* Parser::is_list(Vector* args) {
@@ -269,10 +276,7 @@ Object* Parser::is_list(Vector* args) {
         throw Error{
             "failed to parse 'List'. Fourth argument is not an 'Integer'"};
     }
-    if (objs->get(pos)->equals(new Symbol{"("})) {
-        return new Boolean{true};
-    }
-    return new Boolean{false};
+    return new Boolean{objs->get(pos)->equals(new Symbol{"("})};
 }
 
 Object* Parser::is_quote(Vector* args) {
@@ -286,10 +290,7 @@ Object* Parser::is_quote(Vector* args) {
         throw Error{
             "failed to parse 'Quote'. Fourth argument is not an 'Integer'"};
     }
-    if (objs->get(pos)->equals(new Symbol{"'"})) {
-        return new Boolean{true};
-    }
-    return new Boolean{false};
+    return new Boolean{objs->get(pos)->equals(new Symbol{"'"})};
 }
 
 Object* Parser::is_getter(Vector* args) {
@@ -303,10 +304,7 @@ Object* Parser::is_getter(Vector* args) {
         throw Error{
             "failed to parse 'Getter'. Fourth argument is not an 'Integer'"};
     }
-    if (objs->get(pos)->equals(new Symbol{"."})) {
-        return new Boolean{true};
-    }
-    return new Boolean{false};
+    return new Boolean{objs->get(pos)->equals(new Symbol{"."})};
 }
 
 Object* Parser::is_setter(Vector* args) {
@@ -320,10 +318,7 @@ Object* Parser::is_setter(Vector* args) {
         throw Error{
             "failed to parse 'Setter'. Fourth argument is not an 'Integer'"};
     }
-    if (objs->get(pos)->equals(new Symbol{":"})) {
-        return new Boolean{true};
-    }
-    return new Boolean{false};
+    return new Boolean{objs->get(pos)->equals(new Symbol{":"})};
 }
 
 Object* Parser::parse_vector(Vector* args) {
@@ -362,14 +357,20 @@ Object* Parser::parse_vector(Vector* args) {
                 pos = new Integer{pos->int_value() - 1};
             }
             pos = new Integer{pos->int_value() + 1};
-            objs->at(start) = vec;
             args->set(args_pos_pos, pos);
             parser->parse_objs(vec);
+            std::size_t i{0};
+            while (i < vec->size()) {
+                if (vec->at(i)->equals(new Symbol{","})) {
+                    vec->erase(i);
+                    continue;
+                }
+                ++i;
+            }
+            objs->at(start) = vec;
             return vec;
         }
-        if (!obj->equals(new Symbol{","})) {
-            vec->push_back(obj);
-        }
+        vec->push_back(obj);
     }
     throw Error{"unterminated 'Vector'"};
 }
@@ -408,9 +409,16 @@ Object* Parser::parse_set(Vector* args) {
                 pos = new Integer{pos->int_value() - 1};
             }
             pos = new Integer{pos->int_value() + 1};
-            objs->at(start) = vec;
             args->set(args_pos_pos, pos);
             parser->parse_objs(vec);
+            std::size_t i{0};
+            while (i < vec->size()) {
+                if (vec->at(i)->equals(new Symbol{","})) {
+                    vec->erase(i);
+                    continue;
+                }
+                ++i;
+            }
             auto set{new Set};
             for (std::size_t i{0}, length{vec->size()}; i < length; ++i) {
                 set->insert(vec->at(i));
@@ -418,9 +426,7 @@ Object* Parser::parse_set(Vector* args) {
             objs->at(start) = set;
             return set;
         }
-        if (!obj->equals(new Symbol{","})) {
-            vec->push_back(obj);
-        }
+        vec->push_back(obj);
     }
     throw Error{"unterminated 'Set'"};
 }
@@ -459,9 +465,16 @@ Object* Parser::parse_list(Vector* args) {
                 pos = new Integer{pos->int_value() - 1};
             }
             pos = new Integer{pos->int_value() + 1};
-            objs->at(start) = vec;
             args->set(args_pos_pos, pos);
             parser->parse_objs(vec);
+            std::size_t i{0};
+            while (i < vec->size()) {
+                if (vec->at(i)->equals(new Symbol{","})) {
+                    vec->erase(i);
+                    continue;
+                }
+                ++i;
+            }
             auto lst{new List};
             for (std::size_t i{0}, length{vec->size()}; i < length; ++i) {
                 lst->push_back(vec->at(i));
@@ -469,9 +482,7 @@ Object* Parser::parse_list(Vector* args) {
             objs->at(start) = lst;
             return lst;
         }
-        if (!obj->equals(new Symbol{","})) {
-            vec->push_back(obj);
-        }
+        vec->push_back(obj);
     }
     throw Error{"unterminated 'List'"};
 }

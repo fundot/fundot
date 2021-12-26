@@ -7,18 +7,12 @@ namespace fundot {
 
 class AdditionOperator : public Pair {
 public:
-    AdditionOperator(Object* first, Object* second);
+    AdditionOperator(Object* lhs, Object* rhs);
 
     std::string to_string() const override;
 
     Object* eval() override;
 };
-
-Object* is_addition_operator(Vector* args);
-
-Object* parse_addition_operator(Vector* args);
-
-void register_addition_operator(Parser* parser);
 
 }
 

@@ -2,7 +2,18 @@
 #define FUNDOT_STD_BUILTINS_H
 
 #include "addition.h"
+#include "division.h"
+#include "equal_to.h"
+#include "greater_than.h"
+#include "greater_than_or_equal_to.h"
+#include "less_than.h"
+#include "less_than_or_equal_to.h"
+#include "modulo.h"
+#include "multiplication.h"
+#include "not_equal_to.h"
 #include "subtraction.h"
+#include "unary_minus.h"
+#include "unary_plus.h"
 
 namespace fundot {
 

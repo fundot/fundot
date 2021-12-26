@@ -59,13 +59,11 @@ Object* Set::call(Object* obj) {
 }
 
 Object* Set::eval() {
+    auto evaluated{new Set};
     for (auto& obj : raw_set) {
-        auto setter{dynamic_cast<Setter*>(obj)};
-        if (setter != nullptr) {
-            setter->second()->eval();
-        }
+        evaluated->insert(obj->eval());
     }
-    return this;
+    return evaluated;
 }
 
 std::vector<Object*> Set::to_vector() const {
