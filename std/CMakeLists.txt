@@ -15,6 +15,9 @@ add_library(fundot_std
             greater_than.cpp
             less_than_or_equal_to.cpp
             greater_than_or_equal_to.cpp
+            logical_not.cpp
+            logical_and.cpp
+            logical_or.cpp
             )
 
 target_include_directories(fundot_std PUBLIC ${PROJECT_SOURCE_DIR})

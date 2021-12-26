@@ -94,6 +94,30 @@ static Object* is_greater_than_or_equal_to_operator(Vector* args) {
         && objs->at(pos->int_value() + 1)->equals(new Symbol{"="})};
 }
 
+static Object* is_logical_not_operator(Vector* args) {
+    auto objs{dynamic_cast<Vector*>(args->get(Parser::args_objs_pos))};
+    auto pos{dynamic_cast<Integer*>(args->get(Parser::args_pos_pos))};
+    return new Boolean{objs->get(pos)->equals(new Symbol{"!"})};
+}
+
+static Object* is_logical_and_operator(Vector* args) {
+    auto objs{dynamic_cast<Vector*>(args->get(Parser::args_objs_pos))};
+    auto pos{dynamic_cast<Integer*>(args->get(Parser::args_pos_pos))};
+    return new Boolean{
+        objs->get(pos)->equals(new Symbol{"&"})
+        && pos->int_value() < objs->size() - 1
+        && objs->at(pos->int_value() + 1)->equals(new Symbol{"&"})};
+}
+
+static Object* is_logical_or_operator(Vector* args) {
+    auto objs{dynamic_cast<Vector*>(args->get(Parser::args_objs_pos))};
+    auto pos{dynamic_cast<Integer*>(args->get(Parser::args_pos_pos))};
+    return new Boolean{
+        objs->get(pos)->equals(new Symbol{"|"})
+        && pos->int_value() < objs->size() - 1
+        && objs->at(pos->int_value() + 1)->equals(new Symbol{"|"})};
+}
+
 static Object* parse_unary_plus_operator(Vector* args) {
     auto parser{dynamic_cast<Parser*>(args->get(Parser::args_parser_pos))};
     auto precedence{
@@ -335,6 +359,59 @@ static Object* parse_greater_than_or_equal_to_operator(Vector* args) {
     return greater_than_or_equal_to_operator;
 }
 
+static Object* parse_logical_not_operator(Vector* args) {
+    auto parser{dynamic_cast<Parser*>(args->get(Parser::args_parser_pos))};
+    auto precedence{
+        dynamic_cast<Integer*>(args->get(Parser::args_precedence_pos))};
+    auto objs{dynamic_cast<Vector*>(args->get(Parser::args_objs_pos))};
+    auto pos{dynamic_cast<Integer*>(args->get(Parser::args_pos_pos))};
+    auto operand_pos{pos->int_value() + 1};
+    auto logical_not{new LogicalNotOperator{objs->at(operand_pos)}};
+    objs->erase(operand_pos);
+    objs->set(pos, logical_not);
+    return logical_not;
+}
+
+static Object* parse_logical_and_operator(Vector* args) {
+    auto parser{dynamic_cast<Parser*>(args->get(Parser::args_parser_pos))};
+    auto precedence{
+        dynamic_cast<Integer*>(args->get(Parser::args_precedence_pos))};
+    auto objs{dynamic_cast<Vector*>(args->get(Parser::args_objs_pos))};
+    auto pos{dynamic_cast<Integer*>(args->get(Parser::args_pos_pos))};
+    auto lhs_pos{pos->int_value() - 1};
+    auto rhs_pos{pos->int_value() + 2};
+    auto logical_and_operator{
+        new LogicalAndOperator{objs->at(lhs_pos), objs->at(rhs_pos)}
+    };
+    objs->erase(rhs_pos);
+    objs->erase(rhs_pos - 1);
+    objs->erase(pos->int_value());
+    pos = new Integer{lhs_pos};
+    args->set(Parser::args_pos_pos, pos);
+    objs->set(pos, logical_and_operator);
+    return logical_and_operator;
+}
+
+static Object* parse_logical_or_operator(Vector* args) {
+    auto parser{dynamic_cast<Parser*>(args->get(Parser::args_parser_pos))};
+    auto precedence{
+        dynamic_cast<Integer*>(args->get(Parser::args_precedence_pos))};
+    auto objs{dynamic_cast<Vector*>(args->get(Parser::args_objs_pos))};
+    auto pos{dynamic_cast<Integer*>(args->get(Parser::args_pos_pos))};
+    auto lhs_pos{pos->int_value() - 1};
+    auto rhs_pos{pos->int_value() + 2};
+    auto logical_or_operator{
+        new LogicalOrOperator{objs->at(lhs_pos), objs->at(rhs_pos)}
+    };
+    objs->erase(rhs_pos);
+    objs->erase(rhs_pos - 1);
+    objs->erase(pos->int_value());
+    pos = new Integer{lhs_pos};
+    args->set(Parser::args_pos_pos, pos);
+    objs->set(pos, logical_or_operator);
+    return logical_or_operator;
+}
+
 static void register_unary_plus_operator(Parser* parser) {
     parser->register_rule({new PrimitiveFunction{is_unary_plus_operator},
                            new PrimitiveFunction{parse_unary_plus_operator},
@@ -428,6 +505,27 @@ static void register_greater_than_or_equal_to_operator(Parser* parser) {
          Parser::left_to_right});
 }
 
+static void register_logical_not_operator(Parser* parser) {
+    parser->register_rule({new PrimitiveFunction{is_logical_not_operator},
+                           new PrimitiveFunction{parse_logical_not_operator},
+                           new Integer{4},
+                           Parser::right_to_left});
+}
+
+static void register_logical_and_operator(Parser* parser) {
+    parser->register_rule({new PrimitiveFunction{is_logical_and_operator},
+                           new PrimitiveFunction{parse_logical_and_operator},
+                           new Integer{9},
+                           Parser::left_to_right});
+}
+
+static void register_logical_or_operator(Parser* parser) {
+    parser->register_rule({new PrimitiveFunction{is_logical_or_operator},
+                           new PrimitiveFunction{parse_logical_or_operator},
+                           new Integer{10},
+                           Parser::left_to_right});
+}
+
 void load_builtins(Object* obj) {
     obj->set(new Symbol{"cond"}, new SpecialForm{builtin_cond});
     obj->set(new Symbol{"while"}, new SpecialForm{builtin_while});
@@ -446,6 +544,9 @@ void load_builtins(Object* obj) {
     register_greater_than_operator(parser);
     register_less_than_or_equal_to_operator(parser);
     register_greater_than_or_equal_to_operator(parser);
+    register_logical_not_operator(parser);
+    register_logical_and_operator(parser);
+    register_logical_or_operator(parser);
 }
 
 }
