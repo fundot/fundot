@@ -279,12 +279,12 @@ Object* Parser::is_quote(Vector* args) {
     auto objs{dynamic_cast<Vector*>(args->get(args_objs_pos))};
     if (objs == nullptr) {
         throw Error{
-            "failed to parse 'Setter'. Third argument is not a 'Vector'"};
+            "failed to parse 'Quote'. Third argument is not a 'Vector'"};
     }
     auto pos{dynamic_cast<Integer*>(args->get(args_pos_pos))};
     if (pos == nullptr) {
         throw Error{
-            "failed to parse 'Setter'. Fourth argument is not an 'Integer'"};
+            "failed to parse 'Quote'. Fourth argument is not an 'Integer'"};
     }
     if (objs->get(pos)->equals(new Symbol{"'"})) {
         return new Boolean{true};
@@ -296,12 +296,12 @@ Object* Parser::is_getter(Vector* args) {
     auto objs{dynamic_cast<Vector*>(args->get(args_objs_pos))};
     if (objs == nullptr) {
         throw Error{
-            "failed to parse 'Setter'. Third argument is not a 'Vector'"};
+            "failed to parse 'Getter'. Third argument is not a 'Vector'"};
     }
     auto pos{dynamic_cast<Integer*>(args->get(args_pos_pos))};
     if (pos == nullptr) {
         throw Error{
-            "failed to parse 'Setter'. Fourth argument is not an 'Integer'"};
+            "failed to parse 'Getter'. Fourth argument is not an 'Integer'"};
     }
     if (objs->get(pos)->equals(new Symbol{"."})) {
         return new Boolean{true};
@@ -480,22 +480,22 @@ Object* Parser::parse_quote(Vector* args) {
     auto parser{dynamic_cast<Parser*>(args->get(args_parser_pos))};
     if (parser == nullptr) {
         throw Error{
-            "failed to parse 'Vector'. First argument is not a 'Parser'"};
+            "failed to parse 'Quote'. First argument is not a 'Parser'"};
     }
     auto precedence{dynamic_cast<Integer*>(args->get(args_precedence_pos))};
     if (precedence == nullptr) {
         throw Error{
-            "failed to parse 'Vector'. Second argument is not a 'Precedence'"};
+            "failed to parse 'Quote'. Second argument is not a 'Precedence'"};
     }
     auto objs{dynamic_cast<Vector*>(args->get(args_objs_pos))};
     if (objs == nullptr) {
         throw Error{
-            "failed to parse 'Vector'. Third argument is not a 'Vector'"};
+            "failed to parse 'Quote'. Third argument is not a 'Vector'"};
     }
     auto pos{dynamic_cast<Integer*>(args->get(args_pos_pos))};
     if (pos == nullptr) {
         throw Error{
-            "failed to parse 'Vector'. Fourth argument is not an 'Integer'"};
+            "failed to parse 'Quote'. Fourth argument is not an 'Integer'"};
     }
     auto quoted_pos{pos->int_value() + 1};
     auto quote{new Quote{objs->at(quoted_pos)}};
@@ -508,22 +508,22 @@ Object* Parser::parse_getter(Vector* args) {
     auto parser{dynamic_cast<Parser*>(args->get(args_parser_pos))};
     if (parser == nullptr) {
         throw Error{
-            "failed to parse 'Vector'. First argument is not a 'Parser'"};
+            "failed to parse 'Getter'. First argument is not a 'Parser'"};
     }
     auto precedence{dynamic_cast<Integer*>(args->get(args_precedence_pos))};
     if (precedence == nullptr) {
         throw Error{
-            "failed to parse 'Vector'. Second argument is not a 'Precedence'"};
+            "failed to parse 'Getter'. Second argument is not a 'Precedence'"};
     }
     auto objs{dynamic_cast<Vector*>(args->get(args_objs_pos))};
     if (objs == nullptr) {
         throw Error{
-            "failed to parse 'Vector'. Third argument is not a 'Vector'"};
+            "failed to parse 'Getter'. Third argument is not a 'Vector'"};
     }
     auto pos{dynamic_cast<Integer*>(args->get(args_pos_pos))};
     if (pos == nullptr) {
         throw Error{
-            "failed to parse 'Vector'. Fourth argument is not an 'Integer'"};
+            "failed to parse 'Getter'. Fourth argument is not an 'Integer'"};
     }
     auto key_pos{pos->int_value() - 1};
     auto value_pos{pos->int_value() + 1};
@@ -532,7 +532,7 @@ Object* Parser::parse_getter(Vector* args) {
     };
     objs->erase(value_pos);
     objs->erase(pos->int_value());
-    pos = new Integer{pos->int_value() - 1};
+    pos = new Integer{key_pos};
     args->set(args_pos_pos, pos);
     objs->set(pos, getter);
     return getter;
@@ -542,22 +542,22 @@ Object* Parser::parse_setter(Vector* args) {
     auto parser{dynamic_cast<Parser*>(args->get(args_parser_pos))};
     if (parser == nullptr) {
         throw Error{
-            "failed to parse 'Vector'. First argument is not a 'Parser'"};
+            "failed to parse 'Setter'. First argument is not a 'Parser'"};
     }
     auto precedence{dynamic_cast<Integer*>(args->get(args_precedence_pos))};
     if (precedence == nullptr) {
         throw Error{
-            "failed to parse 'Vector'. Second argument is not a 'Precedence'"};
+            "failed to parse 'Setter'. Second argument is not a 'Precedence'"};
     }
     auto objs{dynamic_cast<Vector*>(args->get(args_objs_pos))};
     if (objs == nullptr) {
         throw Error{
-            "failed to parse 'Vector'. Third argument is not a 'Vector'"};
+            "failed to parse 'Setter'. Third argument is not a 'Vector'"};
     }
     auto pos{dynamic_cast<Integer*>(args->get(args_pos_pos))};
     if (pos == nullptr) {
         throw Error{
-            "failed to parse 'Vector'. Fourth argument is not an 'Integer'"};
+            "failed to parse 'Setter'. Fourth argument is not an 'Integer'"};
     }
     auto key_pos{pos->int_value() - 1};
     auto value_pos{pos->int_value() + 1};
@@ -566,7 +566,7 @@ Object* Parser::parse_setter(Vector* args) {
     };
     objs->erase(value_pos);
     objs->erase(pos->int_value());
-    pos = new Integer{pos->int_value() - 1};
+    pos = new Integer{key_pos};
     args->set(args_pos_pos, pos);
     objs->set(pos, setter);
     return setter;

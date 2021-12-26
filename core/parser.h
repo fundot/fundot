@@ -36,6 +36,18 @@ public:
 
     Object* parse(const std::string& str);
 
+    static String* left_to_right;
+
+    static String* right_to_left;
+
+    static Integer* args_parser_pos;
+
+    static Integer* args_precedence_pos;
+
+    static Integer* args_objs_pos;
+
+    static Integer* args_pos_pos;
+
 private:
     using AssociatiedRules = std::pair<std::vector<Rule>, String*>;
 
@@ -74,18 +86,6 @@ private:
     static Object* parse_getter(Vector* args);
 
     static Object* parse_setter(Vector* args);
-
-    static String* left_to_right;
-
-    static String* right_to_left;
-
-    static Integer* args_parser_pos;
-
-    static Integer* args_precedence_pos;
-
-    static Integer* args_objs_pos;
-
-    static Integer* args_pos_pos;
 
     static Rule vector_rule;
 

@@ -2,7 +2,8 @@ add_library(fundot_std
             builtins.cpp
             cond.cpp
             while.cpp
-            add.cpp
+            addition.cpp
+            subtraction.cpp
             )
 
 target_include_directories(fundot_std PUBLIC ${PROJECT_SOURCE_DIR})
