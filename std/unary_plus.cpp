@@ -5,6 +5,11 @@ namespace fundot {
 UnaryPlusOperator::UnaryPlusOperator(Object* operand) : operand{operand} {
 }
 
+void UnaryPlusOperator::trace() {
+    Object::trace();
+    operand->trace();
+}
+
 std::string UnaryPlusOperator::to_string() const {
     return "+" + operand->to_string();
 }

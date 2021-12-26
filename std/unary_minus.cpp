@@ -5,6 +5,11 @@ namespace fundot {
 UnaryMinusOperator::UnaryMinusOperator(Object* operand) : operand{operand} {
 }
 
+void UnaryMinusOperator::trace() {
+    Object::trace();
+    operand->trace();
+}
+
 std::string UnaryMinusOperator::to_string() const {
     return "-" + operand->to_string();
 }

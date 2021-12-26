@@ -9,6 +9,8 @@ class UnaryPlusOperator : public Object {
 public:
     UnaryPlusOperator(Object* operand);
 
+    void trace() override;
+
     std::string to_string() const override;
 
     Object* eval() override;

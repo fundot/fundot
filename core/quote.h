@@ -9,6 +9,10 @@ class Quote : public Object {
 public:
     Quote(Object* quoted);
 
+    void trace() override;
+
+    std::string to_string() const override;
+
     Object* eval() override;
 
 private:

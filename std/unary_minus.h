@@ -9,6 +9,8 @@ class UnaryMinusOperator : public Object {
 public:
     UnaryMinusOperator(Object* operand);
 
+    void trace() override;
+
     std::string to_string() const override;
 
     Object* eval() override;
