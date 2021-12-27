@@ -20,8 +20,9 @@ add_library(fundot_std
             while.cpp
             conj.cpp
             count.cpp
-            read_line.cpp
+            load.cpp
             print.cpp
+            read_line.cpp
             )
 
 target_include_directories(fundot_std PUBLIC ${PROJECT_SOURCE_DIR})

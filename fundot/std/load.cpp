@@ -1,0 +1,35 @@
+#include "builtins.h"
+#include <fstream>
+
+namespace fundot {
+
+Object* builtin_load(Vector* args) {
+    if (args->size() > 1) {
+        throw Object::Error{"'read_line' takes 1 argument but "
+                            + std::to_string(args->size()) + " were given"};
+    }
+    if (args->empty()) {
+        throw Object::Error{"'read_line' missing 1 argument: 'path'"};
+    }
+    auto str{dynamic_cast<String*>(args->at(0))};
+    auto path{str->string_value()};
+    if (str == nullptr) {
+        throw Object::Error{"argument of 'load' is not a 'String'"};
+    }
+    std::ifstream file{path};
+    if (!file.is_open()) {
+        throw Object::Error{"failed to open '" + path + '\''};
+    }
+    std::string expr;
+    while (file >> expr) {
+        continue;
+    }
+    auto scope{Object::get_scope()};
+    auto parser{dynamic_cast<Parser*>(scope->get(new Symbol{"__parser__"}))};
+    if (parser == nullptr) {
+        throw Object::Error{"'__parser__' is not a 'Parser'"};
+    }
+    return parser->parse(expr)->eval();
+}
+
+}

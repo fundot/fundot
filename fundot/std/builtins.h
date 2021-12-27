@@ -28,9 +28,11 @@ Object* builtin_conj(Vector* args);
 
 Object* builtin_count(Vector* args);
 
-Object* builtin_read_line(Vector* args);
+Object* builtin_load(Vector* args);
 
 Object* builtin_print(Vector* args);
+
+Object* builtin_read_line(Vector* args);
 
 void load_builtins(Object* obj);
 
