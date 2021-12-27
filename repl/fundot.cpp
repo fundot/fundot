@@ -8,6 +8,7 @@ int main() {
     auto scope{new Set};
     Object::set_scope(scope);
     Object::add_root(scope);
+    scope->set(new Symbol{"__parent_scope__"}, new Null);
     auto parser{new Parser};
     scope->set(new Symbol{"__parser__"}, parser);
     auto reader{new Reader};
@@ -24,7 +25,7 @@ int main() {
                 continue;
             }
             std::cout << evaluated->to_string() << '\n';
-        } catch (Object::Error& error) {
+        } catch (const std::exception& error) {
             std::cerr << "Exception: " << error.what() << '\n';
         }
         Object::collect();

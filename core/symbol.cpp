@@ -20,11 +20,15 @@ std::string Symbol::to_string() const {
 }
 
 Object* Symbol::eval() {
-    try {
-        return get_scope()->get(this);
-    } catch (Error& error) {
-        throw Error{"symbol '" + to_string() + "' not defined"};
+    auto scope{get_scope()};
+    while (!Object::Equal{}(scope, new Null)) {
+        try {
+            return scope->get(this);
+        } catch (...) {
+            scope = scope->get(new Symbol{"__parent_scope__"});
+        }
     }
+    throw Error{"symbol '" + to_string() + "' not defined"};
 }
 
 const std::string& Symbol::string_value() const {

@@ -413,115 +413,115 @@ static Object* parse_logical_or_operator(Vector* args) {
 }
 
 static void register_unary_plus_operator(Parser* parser) {
-    parser->register_rule({new PrimitiveFunction{is_unary_plus_operator},
-                           new PrimitiveFunction{parse_unary_plus_operator},
+    parser->register_rule({new SpecialForm{is_unary_plus_operator},
+                           new SpecialForm{parse_unary_plus_operator},
                            new Integer{4},
                            Parser::right_to_left});
 }
 
 static void register_unary_minus_operator(Parser* parser) {
-    parser->register_rule({new PrimitiveFunction{is_unary_minus_operator},
-                           new PrimitiveFunction{parse_unary_minus_operator},
+    parser->register_rule({new SpecialForm{is_unary_minus_operator},
+                           new SpecialForm{parse_unary_minus_operator},
                            new Integer{4},
                            Parser::right_to_left});
 }
 
 static void register_addition_operator(Parser* parser) {
-    parser->register_rule({new PrimitiveFunction{is_addition_operator},
-                           new PrimitiveFunction{parse_addition_operator},
+    parser->register_rule({new SpecialForm{is_addition_operator},
+                           new SpecialForm{parse_addition_operator},
                            new Integer{6},
                            Parser::left_to_right});
 }
 
 static void register_subtraction_operator(Parser* parser) {
-    parser->register_rule({new PrimitiveFunction{is_subtraction_operator},
-                           new PrimitiveFunction{parse_subtraction_operator},
+    parser->register_rule({new SpecialForm{is_subtraction_operator},
+                           new SpecialForm{parse_subtraction_operator},
                            new Integer{6},
                            Parser::left_to_right});
 }
 
 static void register_multiplication_operator(Parser* parser) {
-    parser->register_rule({new PrimitiveFunction{is_multiplication_operator},
-                           new PrimitiveFunction{parse_multiplication_operator},
+    parser->register_rule({new SpecialForm{is_multiplication_operator},
+                           new SpecialForm{parse_multiplication_operator},
                            new Integer{5},
                            Parser::left_to_right});
 }
 
 static void register_division_operator(Parser* parser) {
-    parser->register_rule({new PrimitiveFunction{is_division_operator},
-                           new PrimitiveFunction{parse_division_operator},
+    parser->register_rule({new SpecialForm{is_division_operator},
+                           new SpecialForm{parse_division_operator},
                            new Integer{5},
                            Parser::left_to_right});
 }
 
 static void register_modulo_operator(Parser* parser) {
-    parser->register_rule({new PrimitiveFunction{is_modulo_operator},
-                           new PrimitiveFunction{parse_modulo_operator},
+    parser->register_rule({new SpecialForm{is_modulo_operator},
+                           new SpecialForm{parse_modulo_operator},
                            new Integer{5},
                            Parser::left_to_right});
 }
 
 static void register_equal_to_operator(Parser* parser) {
-    parser->register_rule({new PrimitiveFunction{is_equal_to_operator},
-                           new PrimitiveFunction{parse_equal_to_operator},
+    parser->register_rule({new SpecialForm{is_equal_to_operator},
+                           new SpecialForm{parse_equal_to_operator},
                            new Integer{9},
                            Parser::left_to_right});
 }
 
 static void register_not_equal_to_operator(Parser* parser) {
-    parser->register_rule({new PrimitiveFunction{is_not_equal_to_operator},
-                           new PrimitiveFunction{parse_not_equal_to_operator},
+    parser->register_rule({new SpecialForm{is_not_equal_to_operator},
+                           new SpecialForm{parse_not_equal_to_operator},
                            new Integer{9},
                            Parser::left_to_right});
 }
 
 static void register_less_than_operator(Parser* parser) {
-    parser->register_rule({new PrimitiveFunction{is_less_than_operator},
-                           new PrimitiveFunction{parse_less_than_operator},
+    parser->register_rule({new SpecialForm{is_less_than_operator},
+                           new SpecialForm{parse_less_than_operator},
                            new Integer{8},
                            Parser::left_to_right});
 }
 
 static void register_greater_than_operator(Parser* parser) {
-    parser->register_rule({new PrimitiveFunction{is_greater_than_operator},
-                           new PrimitiveFunction{parse_greater_than_operator},
+    parser->register_rule({new SpecialForm{is_greater_than_operator},
+                           new SpecialForm{parse_greater_than_operator},
                            new Integer{8},
                            Parser::left_to_right});
 }
 
 static void register_less_than_or_equal_to_operator(Parser* parser) {
     parser->register_rule(
-        {new PrimitiveFunction{is_less_than_or_equal_to_operator},
-         new PrimitiveFunction{parse_less_than_or_equal_to_operator},
+        {new SpecialForm{is_less_than_or_equal_to_operator},
+         new SpecialForm{parse_less_than_or_equal_to_operator},
          new Integer{7},
          Parser::left_to_right});
 }
 
 static void register_greater_than_or_equal_to_operator(Parser* parser) {
     parser->register_rule(
-        {new PrimitiveFunction{is_greater_than_or_equal_to_operator},
-         new PrimitiveFunction{parse_greater_than_or_equal_to_operator},
+        {new SpecialForm{is_greater_than_or_equal_to_operator},
+         new SpecialForm{parse_greater_than_or_equal_to_operator},
          new Integer{7},
          Parser::left_to_right});
 }
 
 static void register_logical_not_operator(Parser* parser) {
-    parser->register_rule({new PrimitiveFunction{is_logical_not_operator},
-                           new PrimitiveFunction{parse_logical_not_operator},
+    parser->register_rule({new SpecialForm{is_logical_not_operator},
+                           new SpecialForm{parse_logical_not_operator},
                            new Integer{4},
                            Parser::right_to_left});
 }
 
 static void register_logical_and_operator(Parser* parser) {
-    parser->register_rule({new PrimitiveFunction{is_logical_and_operator},
-                           new PrimitiveFunction{parse_logical_and_operator},
+    parser->register_rule({new SpecialForm{is_logical_and_operator},
+                           new SpecialForm{parse_logical_and_operator},
                            new Integer{9},
                            Parser::left_to_right});
 }
 
 static void register_logical_or_operator(Parser* parser) {
-    parser->register_rule({new PrimitiveFunction{is_logical_or_operator},
-                           new PrimitiveFunction{parse_logical_or_operator},
+    parser->register_rule({new SpecialForm{is_logical_or_operator},
+                           new SpecialForm{parse_logical_or_operator},
                            new Integer{10},
                            Parser::left_to_right});
 }

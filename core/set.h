@@ -1,7 +1,6 @@
 #ifndef FUNDOT_CORE_SET_H
 #define FUNDOT_CORE_SET_H
 
-#include "null.h"
 #include "pair.h"
 #include "symbol.h"
 #include "vector.h"
@@ -30,7 +29,11 @@ public:
     void insert(Object* obj);
 
 private:
+    bool is_macro();
+
     bool is_function();
+
+    Object* call_macro(Vector* args);
 
     Object* call_function(Vector* args);
 

@@ -15,33 +15,33 @@ Integer* Parser::args_objs_pos{new Integer{2}};
 
 Integer* Parser::args_pos_pos{new Integer{3}};
 
-Parser::Rule Parser::vector_rule{new PrimitiveFunction{Parser::is_vector},
-                                 new PrimitiveFunction{Parser::parse_vector},
+Parser::Rule Parser::vector_rule{new SpecialForm{Parser::is_vector},
+                                 new SpecialForm{Parser::parse_vector},
                                  new Integer{0},
                                  left_to_right};
 
-Parser::Rule Parser::set_rule{new PrimitiveFunction{Parser::is_set},
-                              new PrimitiveFunction{Parser::parse_set},
+Parser::Rule Parser::set_rule{new SpecialForm{Parser::is_set},
+                              new SpecialForm{Parser::parse_set},
                               new Integer{0},
                               left_to_right};
 
-Parser::Rule Parser::list_rule{new PrimitiveFunction{Parser::is_list},
-                               new PrimitiveFunction{Parser::parse_list},
+Parser::Rule Parser::list_rule{new SpecialForm{Parser::is_list},
+                               new SpecialForm{Parser::parse_list},
                                new Integer{0},
                                left_to_right};
 
-Parser::Rule Parser::quote_rule{new PrimitiveFunction{Parser::is_quote},
-                                new PrimitiveFunction{Parser::parse_quote},
+Parser::Rule Parser::quote_rule{new SpecialForm{Parser::is_quote},
+                                new SpecialForm{Parser::parse_quote},
                                 new Integer{1},
                                 left_to_right};
 
-Parser::Rule Parser::getter_rule{new PrimitiveFunction{Parser::is_getter},
-                                 new PrimitiveFunction{Parser::parse_getter},
+Parser::Rule Parser::getter_rule{new SpecialForm{Parser::is_getter},
+                                 new SpecialForm{Parser::parse_getter},
                                  new Integer{2},
                                  left_to_right};
 
-Parser::Rule Parser::setter_rule{new PrimitiveFunction{Parser::is_setter},
-                                 new PrimitiveFunction{Parser::parse_setter},
+Parser::Rule Parser::setter_rule{new SpecialForm{Parser::is_setter},
+                                 new SpecialForm{Parser::parse_setter},
                                  new Integer{32},
                                  right_to_left};
 

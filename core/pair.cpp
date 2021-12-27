@@ -75,7 +75,7 @@ std::string Getter::to_string() const {
 }
 
 Object* Getter::eval() {
-    return first()->eval()->get(second());
+    return first()->eval()->get(second()->eval());
 }
 
 Setter::Setter(Object* first, Object* second) : Pair{first, second} {

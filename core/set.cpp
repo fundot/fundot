@@ -48,6 +48,13 @@ Object* Set::set(Object* index, Object* value) {
 }
 
 Object* Set::call(Object* obj) {
+    if (is_macro()) {
+        auto args{dynamic_cast<Vector*>(obj)};
+        if (args == nullptr) {
+            throw Error{"argument is not a 'Vector'"};
+        }
+        return call_macro(args);
+    }
     if (is_function()) {
         auto args{dynamic_cast<Vector*>(obj)};
         if (args == nullptr) {
@@ -74,6 +81,17 @@ void Set::insert(Object* obj) {
     raw_set.insert(obj);
 }
 
+bool Set::is_macro() {
+    try {
+        if (get(new Symbol{"__type__"})->equals(new Symbol{"__macro__"})) {
+            return true;
+        }
+    } catch (Error& error) {
+        return false;
+    }
+    return false;
+}
+
 bool Set::is_function() {
     try {
         if (get(new Symbol{"__type__"})->equals(new Symbol{"__fn__"})) {
@@ -85,20 +103,33 @@ bool Set::is_function() {
     return false;
 }
 
+Object* Set::call_macro(Vector* args) {
+    auto params{dynamic_cast<Vector*>(get(new Symbol{"__params__"}))};
+    auto body{get(new Symbol{"__body__"})};
+    auto parent_scope{get_scope()};
+    auto current_scope{new Set};
+    current_scope->set(new Symbol{"__parent_scope__"}, parent_scope);
+    for (std::size_t i{0}, size{params->size()}; i < size; ++i) {
+        current_scope->set(params->at(i), args->at(i));
+    }
+    set_scope(current_scope);
+    auto obj{body->eval()};
+    set_scope(parent_scope);
+    return obj;
+}
+
 Object* Set::call_function(Vector* args) {
     auto params{dynamic_cast<Vector*>(get(new Symbol{"__params__"}))};
     auto body{get(new Symbol{"__body__"})};
     auto parent_scope{get_scope()};
     auto current_scope{new Set};
-    current_scope->set(new Symbol{"__previous_scope__"}, parent_scope);
-    parent_scope->set(new Symbol{"__next_scope__"}, current_scope);
+    current_scope->set(new Symbol{"__parent_scope__"}, parent_scope);
     for (std::size_t i{0}, size{params->size()}; i < size; ++i) {
         current_scope->set(params->at(i), args->at(i)->eval());
     }
     set_scope(current_scope);
     auto obj{body->eval()};
     set_scope(parent_scope);
-    parent_scope->set(new Symbol{"__next_scope__"}, new Null);
     return obj;
 }
 

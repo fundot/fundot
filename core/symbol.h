@@ -1,7 +1,7 @@
 #ifndef FUNDOT_CORE_SYMBOL_H
 #define FUNDOT_CORE_SYMBOL_H
 
-#include "object.h"
+#include "null.h"
 
 namespace fundot {
 
