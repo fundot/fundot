@@ -163,11 +163,15 @@ Object* Parser::parse_objs(Vector* objs) {
 }
 
 Object* Parser::parse(const std::string& str) {
+    auto trimmed{str};
+    while (std::isspace(trimmed.back())) {
+        trimmed.pop_back();
+    }
     std::size_t pos{0};
-    std::size_t length{str.length()};
+    std::size_t length{trimmed.length()};
     Vector* objs{new Vector};
     while (pos < length) {
-        objs->push_back(next_atom(str, pos));
+        objs->push_back(next_atom(trimmed, pos));
     }
     parse_objs(objs);
     auto lst{new List};

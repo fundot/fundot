@@ -27,7 +27,9 @@ std::string Reader::read() const {
     std::string input{read_line(primary_prompt)};
     while (!is_complete(input)) {
         input += read_line(secondary_prompt);
+        input = input.substr(0, input.find(';'));
     }
+    input = input.substr(0, input.find(';'));
     return input;
 }
 
