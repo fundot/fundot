@@ -16,7 +16,36 @@ std::size_t String::hash() const {
 }
 
 std::string String::to_string() const {
-    return '"' + raw_str + '"';
+    std::string str{'"'};
+    for (const auto& ch : raw_str) {
+        switch (ch) {
+        case '"':
+            str += "\\\"";
+            break;
+        case '\\':
+            str += '\\';
+            break;
+        case '\b':
+            str += "\\b";
+            break;
+        case '\f':
+            str += "\\f";
+            break;
+        case '\n':
+            str += "\\n";
+            break;
+        case '\r':
+            str += "\\r";
+            break;
+        case '\t':
+            str += "\\t";
+            break;
+        default:
+            str += ch;
+        }
+    }
+    str.push_back('"');
+    return str;
 }
 
 const std::string& String::string_value() const {

@@ -195,10 +195,40 @@ Number* Parser::next_number(const std::string& str, std::size_t& pos) const {
 String* Parser::next_string(const std::string& str, std::size_t& pos) const {
     std::size_t start{++pos};
     std::size_t end{str.length()};
+    std::string s;
     while (pos < end) {
-        if (str[pos] == '"') {
-            return new String{str.substr(start, pos++ - start)};
+        if (str[pos] == '\\') {
+            switch (str[++pos]) {
+            case '"':
+                s.push_back('"');
+                break;
+            case '\\':
+                s.push_back('\\');
+                break;
+            case 'b':
+                s.push_back('\b');
+                break;
+            case 'f':
+                s.push_back('\f');
+                break;
+            case 'n':
+                s.push_back('\n');
+                break;
+            case 'r':
+                s.push_back('\r');
+                break;
+            case 't':
+                s.push_back('\t');
+                break;
+            }
+            ++pos;
+            continue;
         }
+        if (str[pos] == '"') {
+            ++pos;
+            return new String{s};
+        }
+        s.push_back(str[pos]);
         ++pos;
     }
     throw Error{"unterminated 'String'"};

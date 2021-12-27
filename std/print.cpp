@@ -11,8 +11,7 @@ Object* builtin_print(Vector* args) {
     if (str == nullptr) {
         throw Object::Error{"argument of 'print' is not a 'String'"};
     }
-    auto s{str->to_string()};
-    std::cout << s.substr(1, s.length() - 2);
+    std::cout << str->string_value();
     return new Null;
 }
 
