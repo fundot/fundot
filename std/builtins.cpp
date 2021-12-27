@@ -552,6 +552,7 @@ void load_builtins(Object* obj) {
     obj->set(new Symbol{"while"}, new SpecialForm{builtin_while});
     obj->set(new Symbol{"conj"}, new PrimitiveFunction{builtin_conj});
     obj->set(new Symbol{"count"}, new PrimitiveFunction{builtin_count});
+    obj->set(new Symbol{"read_line"}, new PrimitiveFunction{builtin_read_line});
     obj->set(new Symbol{"print"}, new PrimitiveFunction{builtin_print});
 }
 
