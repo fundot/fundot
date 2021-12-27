@@ -1,8 +1,8 @@
 #ifndef FUNDOT_REPL_REPL_H
 #define FUNDOT_REPL_REPL_H
 
+#include "fundot/std/builtins.h"
 #include "reader.h"
-#include "std/builtins.h"
 #include <iostream>
 
 namespace fundot {

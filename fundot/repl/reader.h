@@ -1,7 +1,7 @@
 #ifndef FUNDOT_REPL_READER_H
 #define FUNDOT_REPL_READER_H
 
-#include "core/set.h"
+#include "fundot/core/set.h"
 #include <unordered_map>
 
 namespace fundot {
