@@ -97,7 +97,10 @@ static Object* is_greater_than_or_equal_to_operator(Vector* args) {
 static Object* is_logical_not_operator(Vector* args) {
     auto objs{dynamic_cast<Vector*>(args->get(Parser::args_objs_pos))};
     auto pos{dynamic_cast<Integer*>(args->get(Parser::args_pos_pos))};
-    return new Boolean{objs->get(pos)->equals(new Symbol{"!"})};
+    return new Boolean{
+        objs->get(pos)->equals(new Symbol{"!"})
+        && pos->int_value() < objs->size() - 1
+        && !objs->at(pos->int_value() + 1)->equals(new Symbol{"="})};
 }
 
 static Object* is_logical_and_operator(Vector* args) {
