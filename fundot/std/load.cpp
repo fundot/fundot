@@ -20,10 +20,8 @@ Object* builtin_load(Vector* args) {
     if (!file.is_open()) {
         throw Object::Error{"failed to open '" + path + '\''};
     }
-    std::string expr;
-    while (file >> expr) {
-        continue;
-    }
+    std::string expr{std::istreambuf_iterator<char>(file),
+                     std::istreambuf_iterator<char>()};
     auto scope{Object::get_scope()};
     auto parser{dynamic_cast<Parser*>(scope->get(new Symbol{"__parser__"}))};
     if (parser == nullptr) {
