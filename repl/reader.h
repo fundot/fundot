@@ -10,11 +10,11 @@ class Reader : public Object {
 public:
     Reader();
 
+    std::string read_line(const std::string& prompt) const;
+
     std::string read() const;
 
 private:
-    std::string read_line(const std::string& prompt) const;
-
     bool is_complete(const std::string& str) const;
 
     static char* completion_entry(const char* text, int state);

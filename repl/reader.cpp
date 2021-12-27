@@ -12,14 +12,6 @@ Reader::Reader() {
     rl_bind_key('\t', rl_complete);
 }
 
-std::string Reader::read() const {
-    std::string input{read_line(primary_prompt)};
-    while (!is_complete(input)) {
-        input += read_line(secondary_prompt);
-    }
-    return input;
-}
-
 std::string Reader::read_line(const std::string& prompt) const {
     char* input{readline(prompt.c_str())};
     if (input == nullptr) {
@@ -29,6 +21,14 @@ std::string Reader::read_line(const std::string& prompt) const {
     std::string line{input};
     free(input);
     return line;
+}
+
+std::string Reader::read() const {
+    std::string input{read_line(primary_prompt)};
+    while (!is_complete(input)) {
+        input += read_line(secondary_prompt);
+    }
+    return input;
 }
 
 bool Reader::is_complete(const std::string& str) const {
