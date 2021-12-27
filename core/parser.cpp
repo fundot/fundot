@@ -170,10 +170,11 @@ Object* Parser::parse(const std::string& str) {
         objs->push_back(next_atom(str, pos));
     }
     parse_objs(objs);
-    if (objs->size() > 1) {
-        throw Error{"multiple structures appear"};
+    auto lst{new List};
+    for (std::size_t i{0}, length{objs->size()}; i < length; ++i) {
+        lst->push_back(objs->at(i));
     }
-    return objs->at(0);
+    return lst;
 }
 
 bool Parser::is_punctuation(int ch) const {
