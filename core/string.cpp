@@ -52,4 +52,8 @@ const std::string& String::string_value() const {
     return raw_str;
 }
 
+std::size_t String::size() const {
+    return raw_str.size();
+}
+
 }

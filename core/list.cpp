@@ -42,6 +42,10 @@ Object* List::eval() {
     return (*end)->eval();
 }
 
+std::size_t List::size() const {
+    return raw_list.size();
+}
+
 void List::push_back(Object* obj) {
     raw_list.push_back(obj);
 }

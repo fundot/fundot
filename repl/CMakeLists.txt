@@ -5,6 +5,6 @@ add_executable(fundot_repl
 
 target_include_directories(fundot_repl PUBLIC ${PROJECT_SOURCE_DIR})
 
-target_link_libraries(fundot_repl readline fundot_std fundot_core)
+target_link_libraries(fundot_repl readline fundot_std)
 
 set_target_properties(fundot_repl PROPERTIES OUTPUT_NAME fundot)

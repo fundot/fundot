@@ -19,6 +19,7 @@ add_library(fundot_std
             cond.cpp
             while.cpp
             conj.cpp
+            count.cpp
             print.cpp
             )
 

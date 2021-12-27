@@ -77,6 +77,10 @@ std::vector<Object*> Set::to_vector() const {
     return {raw_set.cbegin(), raw_set.cend()};
 }
 
+std::size_t Set::size() const {
+    return raw_set.size();
+}
+
 void Set::insert(Object* obj) {
     raw_set.insert(obj);
 }

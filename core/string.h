@@ -17,6 +17,8 @@ public:
 
     const std::string& string_value() const;
 
+    std::size_t size() const;
+
 private:
     std::string raw_str;
 };

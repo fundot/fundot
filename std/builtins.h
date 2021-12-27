@@ -26,6 +26,8 @@ Object* builtin_while(Vector* args);
 
 Object* builtin_conj(Vector* args);
 
+Object* builtin_count(Vector* args);
+
 Object* builtin_print(Vector* args);
 
 void load_builtins(Object* obj);

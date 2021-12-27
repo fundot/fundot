@@ -26,6 +26,8 @@ public:
 
     std::vector<Object*> to_vector() const;
 
+    std::size_t size() const;
+
     void insert(Object* obj);
 
 private:

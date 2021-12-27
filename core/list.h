@@ -16,6 +16,8 @@ public:
 
     Object* eval() override;
 
+    std::size_t size() const;
+
     void push_back(Object* obj);
 
 private:
