@@ -9,6 +9,8 @@ class LogicalNotOperator : public Object {
 public:
     LogicalNotOperator(Object* operand);
 
+    void traverse(const Visitor& visit) override;
+
     void trace() override;
 
     std::string to_string() const override;

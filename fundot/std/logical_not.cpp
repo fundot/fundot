@@ -5,6 +5,10 @@ namespace fundot {
 LogicalNotOperator::LogicalNotOperator(Object* operand) : operand(operand) {
 }
 
+void LogicalNotOperator::traverse(const Visitor& visit) {
+    visit(operand);
+}
+
 void LogicalNotOperator::trace() {
     Object::trace();
     operand->trace();

@@ -71,6 +71,10 @@ private:
 
     static Object* is_quote(Vector* args);
 
+    static Object* is_unquote(Vector* args);
+
+    static Object* is_syntax_quote(Vector* args);
+
     static Object* is_getter(Vector* args);
 
     static Object* is_setter(Vector* args);
@@ -83,6 +87,10 @@ private:
 
     static Object* parse_quote(Vector* args);
 
+    static Object* parse_unquote(Vector* args);
+
+    static Object* parse_syntax_quote(Vector* args);
+
     static Object* parse_getter(Vector* args);
 
     static Object* parse_setter(Vector* args);
@@ -94,6 +102,10 @@ private:
     static Rule list_rule;
 
     static Rule quote_rule;
+
+    static Rule unquote_rule;
+
+    static Rule syntax_quote_rule;
 
     static Rule getter_rule;
 

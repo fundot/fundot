@@ -2,6 +2,12 @@
 
 namespace fundot {
 
+void List::traverse(const Visitor& visit) {
+    for (auto& obj : raw_list) {
+        visit(obj);
+    }
+}
+
 void List::trace() {
     Object::trace();
     for (auto& obj : raw_list) {

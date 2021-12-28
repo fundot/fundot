@@ -2,6 +2,12 @@
 
 namespace fundot {
 
+void Set::traverse(const Visitor& visit) {
+    for (auto& obj : raw_set) {
+        visit(const_cast<Object*&>(obj));
+    }
+}
+
 void Set::trace() {
     Object::trace();
     for (auto& obj : raw_set) {

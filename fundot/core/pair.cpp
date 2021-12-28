@@ -5,6 +5,11 @@ namespace fundot {
 Pair::Pair(Object* first, Object* second) : raw_pair{first, second} {
 }
 
+void Pair::traverse(const Visitor& visit) {
+    visit(raw_pair.first);
+    visit(raw_pair.second);
+}
+
 void Pair::trace() {
     Object::trace();
     raw_pair.first->mark();

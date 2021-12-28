@@ -5,6 +5,10 @@ namespace fundot {
 UnaryMinusOperator::UnaryMinusOperator(Object* operand) : operand{operand} {
 }
 
+void UnaryMinusOperator::traverse(const Visitor& visit) {
+    visit(operand);
+}
+
 void UnaryMinusOperator::trace() {
     Object::trace();
     operand->trace();

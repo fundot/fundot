@@ -10,6 +10,8 @@ class Pair : public Object {
 public:
     Pair(Object* first, Object* second);
 
+    void traverse(const Visitor& visit) override;
+
     void trace() override;
 
     bool equals(const Object* obj) const override;

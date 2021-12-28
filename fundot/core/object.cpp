@@ -30,6 +30,9 @@ Object::~Object() {
     color->erase(iter);
 }
 
+void Object::traverse(const Visitor& visit) {
+}
+
 void Object::trace() {
     if (color != &black) {
         black.splice(black.cbegin(), *color, iter);

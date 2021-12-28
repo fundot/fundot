@@ -33,7 +33,18 @@ Parser::Rule Parser::list_rule{new SpecialForm{Parser::is_list},
 Parser::Rule Parser::quote_rule{new SpecialForm{Parser::is_quote},
                                 new SpecialForm{Parser::parse_quote},
                                 new Integer{1},
-                                left_to_right};
+                                right_to_left};
+
+Parser::Rule Parser::unquote_rule{new SpecialForm{Parser::is_unquote},
+                                  new SpecialForm{Parser::parse_unquote},
+                                  new Integer{1},
+                                  right_to_left};
+
+Parser::Rule Parser::syntax_quote_rule{new SpecialForm{Parser::is_syntax_quote},
+                                       new SpecialForm{
+                                           Parser::parse_syntax_quote},
+                                       new Integer{1},
+                                       right_to_left};
 
 Parser::Rule Parser::getter_rule{new SpecialForm{Parser::is_getter},
                                  new SpecialForm{Parser::parse_getter},
@@ -50,6 +61,8 @@ Parser::Parser() {
     register_rule(set_rule);
     register_rule(list_rule);
     register_rule(quote_rule);
+    register_rule(unquote_rule);
+    register_rule(syntax_quote_rule);
     register_rule(getter_rule);
     register_rule(setter_rule);
 }
@@ -336,6 +349,34 @@ Object* Parser::is_quote(Vector* args) {
     return new Boolean{objs->get(pos)->equals(new Symbol{"'"})};
 }
 
+Object* Parser::is_unquote(Vector* args) {
+    auto objs{dynamic_cast<Vector*>(args->get(args_objs_pos))};
+    if (objs == nullptr) {
+        throw Error{
+            "failed to parse 'Quote'. Third argument is not a 'Vector'"};
+    }
+    auto pos{dynamic_cast<Integer*>(args->get(args_pos_pos))};
+    if (pos == nullptr) {
+        throw Error{
+            "failed to parse 'Quote'. Fourth argument is not an 'Integer'"};
+    }
+    return new Boolean{objs->get(pos)->equals(new Symbol{"~"})};
+}
+
+Object* Parser::is_syntax_quote(Vector* args) {
+    auto objs{dynamic_cast<Vector*>(args->get(args_objs_pos))};
+    if (objs == nullptr) {
+        throw Error{
+            "failed to parse 'Quote'. Third argument is not a 'Vector'"};
+    }
+    auto pos{dynamic_cast<Integer*>(args->get(args_pos_pos))};
+    if (pos == nullptr) {
+        throw Error{
+            "failed to parse 'Quote'. Fourth argument is not an 'Integer'"};
+    }
+    return new Boolean{objs->get(pos)->equals(new Symbol{"`"})};
+}
+
 Object* Parser::is_getter(Vector* args) {
     auto objs{dynamic_cast<Vector*>(args->get(args_objs_pos))};
     if (objs == nullptr) {
@@ -556,6 +597,62 @@ Object* Parser::parse_quote(Vector* args) {
     objs->erase(quoted_pos);
     objs->set(pos, quote);
     return quote;
+}
+
+Object* Parser::parse_unquote(Vector* args) {
+    auto parser{dynamic_cast<Parser*>(args->get(args_parser_pos))};
+    if (parser == nullptr) {
+        throw Error{
+            "failed to parse 'Unquote'. First argument is not a 'Parser'"};
+    }
+    auto precedence{dynamic_cast<Integer*>(args->get(args_precedence_pos))};
+    if (precedence == nullptr) {
+        throw Error{
+            "failed to parse 'Unquote'. Second argument is not a 'Precedence'"};
+    }
+    auto objs{dynamic_cast<Vector*>(args->get(args_objs_pos))};
+    if (objs == nullptr) {
+        throw Error{
+            "failed to parse 'Unquote'. Third argument is not a 'Vector'"};
+    }
+    auto pos{dynamic_cast<Integer*>(args->get(args_pos_pos))};
+    if (pos == nullptr) {
+        throw Error{
+            "failed to parse 'Unquote'. Fourth argument is not an 'Integer'"};
+    }
+    auto unquoted_pos{pos->int_value() + 1};
+    auto unquote{new Unquote{objs->at(unquoted_pos)}};
+    objs->erase(unquoted_pos);
+    objs->set(pos, unquote);
+    return unquote;
+}
+
+Object* Parser::parse_syntax_quote(Vector* args) {
+    auto parser{dynamic_cast<Parser*>(args->get(args_parser_pos))};
+    if (parser == nullptr) {
+        throw Error{
+            "failed to parse 'SyntaxQuote'. First argument is not a 'Parser'"};
+    }
+    auto precedence{dynamic_cast<Integer*>(args->get(args_precedence_pos))};
+    if (precedence == nullptr) {
+        throw Error{
+            "failed to parse 'SyntaxQuote'. Second argument is not a 'Precedence'"};
+    }
+    auto objs{dynamic_cast<Vector*>(args->get(args_objs_pos))};
+    if (objs == nullptr) {
+        throw Error{
+            "failed to parse 'SyntaxQuote'. Third argument is not a 'Vector'"};
+    }
+    auto pos{dynamic_cast<Integer*>(args->get(args_pos_pos))};
+    if (pos == nullptr) {
+        throw Error{
+            "failed to parse 'SyntaxQuote'. Fourth argument is not an 'Integer'"};
+    }
+    auto syntax_quoted_pos{pos->int_value() + 1};
+    auto syntax_quote{new SyntaxQuote{objs->at(syntax_quoted_pos)}};
+    objs->erase(syntax_quoted_pos);
+    objs->set(pos, syntax_quote);
+    return syntax_quote;
 }
 
 Object* Parser::parse_getter(Vector* args) {

@@ -1,5 +1,4 @@
 #include "boolean.h"
-#include <functional>
 
 namespace fundot {
 

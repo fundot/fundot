@@ -2,6 +2,12 @@
 
 namespace fundot {
 
+void Vector::traverse(const Visitor& visit) {
+    for (auto& obj : raw_vec) {
+        visit(obj);
+    }
+}
+
 void Vector::trace() {
     Object::trace();
     for (auto& obj : raw_vec) {

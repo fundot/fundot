@@ -9,6 +9,8 @@ namespace fundot {
 
 class Vector : public Object {
 public:
+    void traverse(const Visitor& visit) override;
+
     void trace() override;
 
     bool equals(const Object* obj) const override;
