@@ -22,8 +22,8 @@ Object* builtin_load(Vector* args) {
     }
     std::string expr{std::istreambuf_iterator<char>(file),
                      std::istreambuf_iterator<char>()};
-    auto scope{Object::get_scope()};
-    auto parser{dynamic_cast<Parser*>(scope->get(new Symbol{"__parser__"}))};
+    auto context{Object::get_local_context()};
+    auto parser{dynamic_cast<Parser*>(context->get(new Symbol{"__parser__"}))};
     if (parser == nullptr) {
         throw Object::Error{"'__parser__' is not a 'Parser'"};
     }

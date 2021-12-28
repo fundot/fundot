@@ -17,8 +17,8 @@ Object* repl_read_line(Vector* args) {
             prompt = obj->to_string();
         }
     }
-    auto scope{Object::get_scope()};
-    auto reader{dynamic_cast<Reader*>(scope->get(new Symbol{"__reader__"}))};
+    auto context{Object::get_local_context()};
+    auto reader{dynamic_cast<Reader*>(context->get(new Symbol{"__reader__"}))};
     if (reader == nullptr) {
         throw Object::Error{"'__reader__' is not a 'Reader'"};
     }
@@ -26,19 +26,20 @@ Object* repl_read_line(Vector* args) {
 }
 
 void init_repl() {
-    auto scope{Object::get_scope()};
+    auto context{Object::get_local_context()};
     auto reader{new Reader};
-    scope->set(new Symbol{"__reader__"}, reader);
-    scope->set(new Symbol{"read_line"}, new PrimitiveFunction{repl_read_line});
+    context->set(new Symbol{"__reader__"}, reader);
+    context->set(new Symbol{"read_line"},
+                 new PrimitiveFunction{repl_read_line});
 }
 
 int repl() {
-    auto scope{Object::get_scope()};
-    auto parser{dynamic_cast<Parser*>(scope->get(new Symbol{"__parser__"}))};
+    auto context{Object::get_local_context()};
+    auto parser{dynamic_cast<Parser*>(context->get(new Symbol{"__parser__"}))};
     if (parser == nullptr) {
         throw Object::Error{"'__parser__' is not a 'Parser'"};
     }
-    auto reader{dynamic_cast<Reader*>(scope->get(new Symbol{"__reader__"}))};
+    auto reader{dynamic_cast<Reader*>(context->get(new Symbol{"__reader__"}))};
     if (reader == nullptr) {
         throw Object::Error{"'__reader__' is not a 'Reader'"};
     }

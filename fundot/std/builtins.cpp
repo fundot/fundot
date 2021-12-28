@@ -531,7 +531,7 @@ static void register_logical_or_operator(Parser* parser) {
 
 void load_builtins(Object* obj) {
     auto parser{dynamic_cast<Parser*>(
-        Object::get_scope()->get(new Symbol{"__parser__"}))};
+        Object::get_local_context()->get(new Symbol{"__parser__"}))};
     register_unary_plus_operator(parser);
     register_unary_minus_operator(parser);
     register_addition_operator(parser);

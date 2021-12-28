@@ -10,7 +10,9 @@ Object::Color Object::gray;
 
 Object::Color Object::black;
 
-Object* Object::scope{nullptr};
+Object* Object::global_context{nullptr};
+
+Object* Object::local_context{nullptr};
 
 bool Object::Equal::operator()(const Object* lhs, const Object* rhs) const {
     return lhs->equals(rhs) || rhs->equals(lhs);
@@ -115,12 +117,20 @@ void Object::collect() {
     }
 }
 
-Object* Object::get_scope() {
-    return scope;
+Object* Object::get_global_context() {
+    return global_context;
 }
 
-void Object::set_scope(Object* scope) {
-    Object::scope = scope;
+Object* Object::get_local_context() {
+    return local_context;
+}
+
+void Object::set_global_context(Object* context) {
+    Object::global_context = context;
+}
+
+void Object::set_local_context(Object* context) {
+    Object::local_context = context;
 }
 
 }

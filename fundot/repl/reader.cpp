@@ -62,11 +62,11 @@ char* Reader::completion_entry(const char* text, int state) {
     static std::size_t pos{0};
     static std::size_t size{0};
     if (state == 0) {
-        auto scope{dynamic_cast<Set*>(get_scope())};
-        if (scope == nullptr) {
-            throw Error{"completion failed. Current scope is not a 'Set'"};
+        auto context{dynamic_cast<Set*>(get_local_context())};
+        if (context == nullptr) {
+            throw Error{"completion failed. Local context is not a 'Set'"};
         }
-        auto vec{scope->to_vector()};
+        auto vec{context->to_vector()};
         for (auto& obj : vec) {
             auto setter{dynamic_cast<Setter*>(obj)};
             if (setter != nullptr) {

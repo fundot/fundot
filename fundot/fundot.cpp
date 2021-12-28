@@ -1,15 +1,15 @@
 #include "fundot/repl/repl.h"
-
 using namespace fundot;
 
 int main() {
-    auto scope{new Set};
-    Object::set_scope(scope);
-    Object::add_root(scope);
-    scope->set(new Symbol{"__parent_scope__"}, new Null);
+    auto context{new Set};
+    Object::set_global_context(context);
+    Object::set_local_context(context);
+    Object::add_root(context);
+    context->set(new Symbol{"__outer_context__"}, new Null);
     auto parser{new Parser};
-    scope->set(new Symbol{"__parser__"}, parser);
-    load_builtins(scope);
+    context->set(new Symbol{"__parser__"}, parser);
+    load_builtins(context);
     init_repl();
     repl();
     return 0;

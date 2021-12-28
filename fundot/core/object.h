@@ -51,9 +51,13 @@ public:
 
     static void collect();
 
-    static Object* get_scope();
+    static Object* get_global_context();
 
-    static void set_scope(Object* scope);
+    static Object* get_local_context();
+
+    static void set_global_context(Object* context);
+
+    static void set_local_context(Object* context);
 
 private:
     using Color = std::list<Object*>;
@@ -66,7 +70,9 @@ private:
 
     static Color black;
 
-    static Object* scope;
+    static Object* global_context;
+
+    static Object* local_context;
 
     Color* color;
 

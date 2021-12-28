@@ -19,12 +19,12 @@ std::string Symbol::to_string() const {
 }
 
 Object* Symbol::eval() {
-    auto scope{get_scope()};
-    while (!Object::Equal{}(scope, new Null)) {
+    auto context{get_local_context()};
+    while (!Object::Equal{}(context, new Null)) {
         try {
-            return scope->get(this);
+            return context->get(this);
         } catch (...) {
-            scope = scope->get(new Symbol{"__parent_scope__"});
+            context = context->get(new Symbol{"__outer_context__"});
         }
     }
     throw Error{"symbol '" + to_string() + "' not defined"};

@@ -116,30 +116,30 @@ bool Set::is_function() {
 Object* Set::call_macro(Vector* args) {
     auto params{dynamic_cast<Vector*>(get(new Symbol{"__params__"}))};
     auto body{get(new Symbol{"__body__"})};
-    auto parent_scope{get_scope()};
-    auto current_scope{new Set};
-    current_scope->set(new Symbol{"__parent_scope__"}, parent_scope);
+    auto outer_context{get_local_context()};
+    auto local_context{new Set};
+    local_context->set(new Symbol{"__outer_context__"}, outer_context);
     for (std::size_t i{0}, size{params->size()}; i < size; ++i) {
-        current_scope->set(params->at(i), args->at(i));
+        local_context->set(params->at(i), args->at(i));
     }
-    set_scope(current_scope);
+    set_local_context(local_context);
     auto obj{body->eval()};
-    set_scope(parent_scope);
+    set_local_context(outer_context);
     return obj;
 }
 
 Object* Set::call_function(Vector* args) {
     auto params{dynamic_cast<Vector*>(get(new Symbol{"__params__"}))};
     auto body{get(new Symbol{"__body__"})};
-    auto parent_scope{get_scope()};
-    auto current_scope{new Set};
-    current_scope->set(new Symbol{"__parent_scope__"}, parent_scope);
+    auto outer_context{get_local_context()};
+    auto local_context{new Set};
+    local_context->set(new Symbol{"__outer_context__"}, outer_context);
     for (std::size_t i{0}, size{params->size()}; i < size; ++i) {
-        current_scope->set(params->at(i), args->at(i)->eval());
+        local_context->set(params->at(i), args->at(i)->eval());
     }
-    set_scope(current_scope);
+    set_local_context(local_context);
     auto obj{body->eval()};
-    set_scope(parent_scope);
+    set_local_context(outer_context);
     return obj;
 }
 
