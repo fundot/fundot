@@ -28,6 +28,8 @@ Object* builtin_conj(Vector* args);
 
 Object* builtin_count(Vector* args);
 
+Object* builtin_eval(Vector* args);
+
 Object* builtin_load(Vector* args);
 
 Object* builtin_print(Vector* args);

@@ -20,6 +20,7 @@ add_library(fundot_std
             while.cpp
             conj.cpp
             count.cpp
+            eval.cpp
             load.cpp
             print.cpp
             read_line.cpp

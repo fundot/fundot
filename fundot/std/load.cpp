@@ -27,7 +27,8 @@ Object* builtin_load(Vector* args) {
     if (parser == nullptr) {
         throw Object::Error{"'__parser__' is not a 'Parser'"};
     }
-    return parser->parse(expr)->eval();
+    parser->parse(expr)->eval();
+    return new Null;
 }
 
 }
