@@ -28,7 +28,7 @@ Object* builtin_conj(Vector* args) {
         }
         return set;
     }
-    throw Object::Error{"1st argument of 'conj' is not conjoinable"};
+    throw Object::Error{"first argument of 'conj' is not conjoinable"};
 }
 
 }

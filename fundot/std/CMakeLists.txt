@@ -17,6 +17,7 @@ add_library(fundot_std
             logical_and.cpp
             logical_or.cpp
             cond.cpp
+            let.cpp
             while.cpp
             conj.cpp
             count.cpp
