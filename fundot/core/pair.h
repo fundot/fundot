@@ -10,8 +10,6 @@ class Pair : public Object {
 public:
     Pair(Object* first, Object* second);
 
-    void traverse(const Visitor& visit) override;
-
     void trace() override;
 
     bool equals(const Object* obj) const override;
@@ -39,6 +37,8 @@ public:
     std::string to_string() const override;
 
     Object* eval() override;
+
+    Object* quote(std::size_t count) override;
 };
 
 class Setter : public Pair {
@@ -52,6 +52,8 @@ public:
     std::string to_string() const override;
 
     Object* eval() override;
+
+    Object* quote(std::size_t count) override;
 };
 
 }

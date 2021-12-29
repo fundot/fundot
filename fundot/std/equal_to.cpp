@@ -13,4 +13,8 @@ Object* EqualToOperator::eval() {
     return new Boolean{Object::Equal{}(first()->eval(), second()->eval())};
 }
 
+Object* EqualToOperator::quote(std::size_t count) {
+    return new EqualToOperator{first()->quote(count), second()->quote(count)};
+}
+
 }

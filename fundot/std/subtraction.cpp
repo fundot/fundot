@@ -25,4 +25,9 @@ Object* SubtractionOperator::eval() {
     return new Float{lhs->double_value() - rhs->double_value()};
 }
 
+Object* SubtractionOperator::quote(std::size_t count) {
+    return new SubtractionOperator{first()->quote(count),
+                                   second()->quote(count)};
+}
+
 }

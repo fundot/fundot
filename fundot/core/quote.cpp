@@ -5,10 +5,6 @@ namespace fundot {
 Quote::Quote(Object* expr) : expr(expr) {
 }
 
-void Quote::traverse(const Visitor& visit) {
-    visit(expr);
-}
-
 void Quote::trace() {
     Object::trace();
     expr->trace();
@@ -20,6 +16,10 @@ std::string Quote::to_string() const {
 
 Object* Quote::eval() {
     return expr;
+}
+
+Object* Quote::quote(std::size_t count) {
+    return new Quote{expr->quote(count)};
 }
 
 Object*& Quote::quoted() {
@@ -41,6 +41,13 @@ Object* Unquote::eval() {
     throw Error{"evaluating 'Unquote' outside 'SyntaxQuote'"};
 }
 
+Object* Unquote::quote(std::size_t count) {
+    if (count == 0) {
+        return quoted()->eval();
+    }
+    return quoted()->quote(count - 1);
+}
+
 SyntaxQuote::SyntaxQuote(Object* expr) : Quote(expr) {
 }
 
@@ -49,16 +56,11 @@ std::string SyntaxQuote::to_string() const {
 }
 
 Object* SyntaxQuote::eval() {
-    quoted()->traverse(eval_unquote);
-    return quoted();
+    return quoted()->quote(0);
 }
 
-void SyntaxQuote::eval_unquote(Object*& obj) {
-    auto unquote{dynamic_cast<Unquote*>(obj)};
-    if (unquote != nullptr) {
-        obj = unquote->quoted()->eval();
-    }
-    obj->traverse(eval_unquote);
+Object* SyntaxQuote::quote(std::size_t count) {
+    return quoted()->quote(count + 1);
 }
 
 }

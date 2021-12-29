@@ -2,6 +2,7 @@
 #define FUNDOT_CORE_FUNCTION_H
 
 #include "vector.h"
+#include <functional>
 
 namespace fundot {
 

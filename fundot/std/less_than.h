@@ -12,6 +12,8 @@ public:
     std::string to_string() const override;
 
     Object* eval() override;
+
+    Object* quote(std::size_t count) override;
 };
 
 }

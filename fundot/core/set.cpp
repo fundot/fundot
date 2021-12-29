@@ -2,12 +2,6 @@
 
 namespace fundot {
 
-void Set::traverse(const Visitor& visit) {
-    for (auto& obj : raw_set) {
-        visit(const_cast<Object*&>(obj));
-    }
-}
-
 void Set::trace() {
     Object::trace();
     for (auto& obj : raw_set) {
@@ -72,11 +66,19 @@ Object* Set::call(Object* obj) {
 }
 
 Object* Set::eval() {
-    auto evaluated{new Set};
+    auto new_set{new Set};
     for (auto& obj : raw_set) {
-        evaluated->insert(obj->eval());
+        new_set->insert(obj->eval());
     }
-    return evaluated;
+    return new_set;
+}
+
+Object* Set::quote(std::size_t count) {
+    auto new_set{new Set};
+    for (const auto& obj : raw_set) {
+        new_set->insert(obj->quote(count));
+    }
+    return new_set;
 }
 
 std::vector<Object*> Set::to_vector() const {

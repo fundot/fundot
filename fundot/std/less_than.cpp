@@ -24,4 +24,8 @@ Object* LessThanOperator::eval() {
     return new Boolean{lhs->double_value() < rhs->double_value()};
 }
 
+Object* LessThanOperator::quote(std::size_t count) {
+    return new LessThanOperator{first()->quote(count), second()->quote(count)};
+}
+
 }

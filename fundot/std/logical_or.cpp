@@ -15,5 +15,8 @@ Object* LogicalOrOperator::eval() {
     return new Boolean{!equal_to(first()->eval(), new Boolean{false})
                        || !equal_to(second()->eval(), new Boolean{false})};
 }
+Object* LogicalOrOperator::quote(std::size_t count) {
+    return new LogicalOrOperator{first()->quote(count), second()->quote(count)};
+}
 
 }

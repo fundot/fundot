@@ -32,9 +32,6 @@ Object::~Object() {
     color->erase(iter);
 }
 
-void Object::traverse(const Visitor& visit) {
-}
-
 void Object::trace() {
     if (color != &black) {
         black.splice(black.cbegin(), *color, iter);
@@ -86,6 +83,10 @@ Object* Object::call(Object* obj) {
 }
 
 Object* Object::eval() {
+    return this;
+}
+
+Object* Object::quote(std::size_t count) {
     return this;
 }
 

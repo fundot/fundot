@@ -21,4 +21,8 @@ Object* DivisionOperator::eval() {
     return new Float{lhs->double_value() / rhs->double_value()};
 }
 
+Object* DivisionOperator::quote(std::size_t count) {
+    return new DivisionOperator{first()->quote(count), second()->quote(count)};
+}
+
 }

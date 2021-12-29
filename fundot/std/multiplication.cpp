@@ -25,4 +25,9 @@ Object* MultiplicationOperator::eval() {
     return new Float{lhs->double_value() * rhs->double_value()};
 }
 
+Object* MultiplicationOperator::quote(std::size_t count) {
+    return new MultiplicationOperator{first()->quote(count),
+                                      second()->quote(count)};
+}
+
 }

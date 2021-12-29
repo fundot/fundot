@@ -5,10 +5,6 @@ namespace fundot {
 UnaryMinusOperator::UnaryMinusOperator(Object* operand) : operand{operand} {
 }
 
-void UnaryMinusOperator::traverse(const Visitor& visit) {
-    visit(operand);
-}
-
 void UnaryMinusOperator::trace() {
     Object::trace();
     operand->trace();
@@ -29,6 +25,10 @@ Object* UnaryMinusOperator::eval() {
         return new Float{-double_num->double_value()};
     }
     throw Error{"operand of '-' is neither an 'Integer' nor a 'Float'"};
+}
+
+Object* UnaryMinusOperator::quote(std::size_t count) {
+    return new UnaryMinusOperator{operand->quote(count)};
 }
 
 }

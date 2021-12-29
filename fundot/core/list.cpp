@@ -2,12 +2,6 @@
 
 namespace fundot {
 
-void List::traverse(const Visitor& visit) {
-    for (auto& obj : raw_list) {
-        visit(obj);
-    }
-}
-
 void List::trace() {
     Object::trace();
     for (auto& obj : raw_list) {
@@ -46,6 +40,14 @@ Object* List::eval() {
         ++iter;
     }
     return (*end)->eval();
+}
+
+Object* List::quote(std::size_t count) {
+    auto new_list{new List};
+    for (const auto& obj : raw_list) {
+        new_list->push_back(obj->quote(count));
+    }
+    return new_list;
 }
 
 std::size_t List::size() const {

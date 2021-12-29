@@ -14,4 +14,9 @@ Object* NotEqualToOperator::eval() {
     return new Boolean{!Object::Equal{}(first()->eval(), second()->eval())};
 }
 
+Object* NotEqualToOperator::quote(std::size_t count) {
+    return new NotEqualToOperator{first()->quote(count),
+                                  second()->quote(count)};
+}
+
 }

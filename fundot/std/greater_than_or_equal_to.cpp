@@ -26,4 +26,9 @@ Object* GreaterThanOrEqualToOperator::eval() {
     return new Boolean{lhs->double_value() >= rhs->double_value()};
 }
 
+Object* GreaterThanOrEqualToOperator::quote(std::size_t count) {
+    return new GreaterThanOrEqualToOperator{first()->quote(count),
+                                            second()->quote(count)};
+}
+
 }

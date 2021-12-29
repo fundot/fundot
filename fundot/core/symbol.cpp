@@ -1,4 +1,5 @@
 #include "symbol.h"
+#include <functional>
 
 namespace fundot {
 

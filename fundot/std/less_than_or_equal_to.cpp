@@ -25,4 +25,9 @@ Object* LessThanOrEqualToOperator::eval() {
     return new Boolean{lhs->double_value() <= rhs->double_value()};
 }
 
+Object* LessThanOrEqualToOperator::quote(std::size_t count) {
+    return new LessThanOrEqualToOperator{first()->quote(count),
+                                         second()->quote(count)};
+}
+
 }

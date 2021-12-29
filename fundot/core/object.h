@@ -1,7 +1,6 @@
 #ifndef FUNDOT_CORE_OBJECT_H
 #define FUNDOT_CORE_OBJECT_H
 
-#include <functional>
 #include <list>
 #include <stdexcept>
 #include <string>
@@ -12,8 +11,6 @@ namespace fundot {
 class Object {
 public:
     using Error = std::runtime_error;
-
-    using Visitor = std::function<void(Object*&)>;
 
     struct Equal {
         bool operator()(const Object* lhs, const Object* rhs) const;
@@ -26,8 +23,6 @@ public:
     Object();
 
     virtual ~Object();
-
-    virtual void traverse(const Visitor& visit);
 
     virtual void trace();
 
@@ -44,6 +39,8 @@ public:
     virtual Object* call(Object* obj);
 
     virtual Object* eval();
+
+    virtual Object* quote(std::size_t count);
 
     void mark();
 

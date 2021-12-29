@@ -5,11 +5,6 @@ namespace fundot {
 Pair::Pair(Object* first, Object* second) : raw_pair{first, second} {
 }
 
-void Pair::traverse(const Visitor& visit) {
-    visit(raw_pair.first);
-    visit(raw_pair.second);
-}
-
 void Pair::trace() {
     Object::trace();
     raw_pair.first->mark();
@@ -83,6 +78,10 @@ Object* Getter::eval() {
     return first()->eval()->get(second()->eval());
 }
 
+Object* Getter::quote(std::size_t count) {
+    return new Getter{first()->quote(count), second()->quote(count)};
+}
+
 Setter::Setter(Object* first, Object* second) : Pair{first, second} {
 }
 
@@ -108,6 +107,10 @@ Object* Setter::eval() {
         return getter->first()->eval()->set(getter->second(), second()->eval());
     }
     return get_global_context()->set(first(), second()->eval());
+}
+
+Object* Setter::quote(std::size_t count) {
+    return new Setter{first()->quote(count), second()->quote(count)};
 }
 
 }

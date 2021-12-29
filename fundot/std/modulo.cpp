@@ -22,4 +22,8 @@ Object* ModuloOperator::eval() {
     return new Float{std::fmod(lhs->double_value(), rhs->double_value())};
 }
 
+Object* ModuloOperator::quote(std::size_t count) {
+    return new ModuloOperator{first()->quote(count), second()->quote(count)};
+}
+
 }

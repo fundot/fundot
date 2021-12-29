@@ -16,4 +16,9 @@ Object* LogicalAndOperator::eval() {
                        && !equal_to(second()->eval(), new Boolean{false})};
 }
 
+Object* LogicalAndOperator::quote(std::size_t count) {
+    return new LogicalAndOperator{first()->quote(count),
+                                  second()->quote(count)};
+}
+
 }

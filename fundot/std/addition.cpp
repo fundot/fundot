@@ -24,4 +24,8 @@ Object* AdditionOperator::eval() {
     return new Float{lhs->double_value() + rhs->double_value()};
 }
 
+Object* AdditionOperator::quote(std::size_t count) {
+    return new AdditionOperator{first()->quote(count), second()->quote(count)};
+}
+
 }

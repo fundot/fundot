@@ -9,13 +9,13 @@ class Quote : public Object {
 public:
     Quote(Object* expr);
 
-    void traverse(const Visitor& visit) override;
-
     void trace() override;
 
     std::string to_string() const override;
 
     Object* eval() override;
+
+    Object* quote(std::size_t count) override;
 
     virtual Object*& quoted();
 
@@ -32,6 +32,8 @@ public:
     std::string to_string() const override;
 
     Object* eval() override;
+
+    Object* quote(std::size_t count) override;
 };
 
 class SyntaxQuote : public Quote {
@@ -42,8 +44,7 @@ public:
 
     Object* eval() override;
 
-private:
-    static void eval_unquote(Object*& obj);
+    Object* quote(std::size_t count) override;
 };
 
 }

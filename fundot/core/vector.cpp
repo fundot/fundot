@@ -2,12 +2,6 @@
 
 namespace fundot {
 
-void Vector::traverse(const Visitor& visit) {
-    for (auto& obj : raw_vec) {
-        visit(obj);
-    }
-}
-
 void Vector::trace() {
     Object::trace();
     for (auto& obj : raw_vec) {
@@ -63,6 +57,14 @@ Object* Vector::eval() {
         ++i;
     }
     return raw_vec[0]->eval()->call(args);
+}
+
+Object* Vector::quote(std::size_t count) {
+    auto new_vec{new Vector};
+    for (const auto& obj : raw_vec) {
+        new_vec->push_back(obj->quote(count));
+    }
+    return new_vec;
 }
 
 Object*& Vector::at(std::size_t pos) {

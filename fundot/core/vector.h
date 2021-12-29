@@ -9,8 +9,6 @@ namespace fundot {
 
 class Vector : public Object {
 public:
-    void traverse(const Visitor& visit) override;
-
     void trace() override;
 
     bool equals(const Object* obj) const override;
@@ -22,6 +20,8 @@ public:
     Object* set(Object* index, Object* value) override;
 
     Object* eval() override;
+
+    Object* quote(std::size_t count) override;
 
     Object*& at(std::size_t pos);
 

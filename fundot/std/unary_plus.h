@@ -9,13 +9,13 @@ class UnaryPlusOperator : public Object {
 public:
     UnaryPlusOperator(Object* operand);
 
-    void traverse(const Visitor& visit) override;
-
     void trace() override;
 
     std::string to_string() const override;
 
     Object* eval() override;
+
+    Object* quote(std::size_t count) override;
 
 private:
     Object* operand;
