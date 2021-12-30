@@ -104,9 +104,10 @@ std::string Setter::to_string() const {
 Object* Setter::eval() {
     auto getter{dynamic_cast<Getter*>(first())};
     if (getter != nullptr) {
-        return getter->first()->eval()->set(getter->second(), second()->eval());
+        return getter->first()->eval()->set(getter->second()->eval(),
+                                            second()->eval());
     }
-    return get_local_context()->set(first(), second()->eval());
+    return get_local_context()->set(first()->eval(), second()->eval());
 }
 
 Object* Setter::quote(std::size_t count) {
