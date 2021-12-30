@@ -185,8 +185,11 @@ Object* Parser::parse(const std::string& str) {
         }
         effective.push_back(str[i]);
     }
-    while (std::isspace(effective.back())) {
+    while (!effective.empty() && std::isspace(effective.back())) {
         effective.pop_back();
+    }
+    if (effective.empty()) {
+        return new Null;
     }
     std::size_t pos{0};
     std::size_t length{effective.length()};
