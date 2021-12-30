@@ -3,15 +3,18 @@
 
 #include "fundot/std/builtins.h"
 #include "reader.h"
-#include <iostream>
 
 namespace fundot {
 
-Object* repl_read_line(Vector* args);
+class ReadEvalPrintLoop {
+public:
+    ReadEvalPrintLoop();
 
-void init_repl();
+    void operator()();
 
-int repl();
+private:
+    static Object* read_line(Vector* args);
+};
 
 }
 

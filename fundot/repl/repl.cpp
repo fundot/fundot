@@ -1,39 +1,16 @@
 #include "repl.h"
+#include <iostream>
 
 namespace fundot {
 
-Object* repl_read_line(Vector* args) {
-    if (args->size() > 1) {
-        throw Object::Error{"'read_line' takes 1 argument but "
-                            + std::to_string(args->size()) + " were given"};
-    }
-    std::string prompt;
-    if (args->size() == 1) {
-        auto obj{args->at(0)};
-        auto str{dynamic_cast<String*>(obj)};
-        if (str != nullptr) {
-            prompt = str->string_value();
-        } else {
-            prompt = obj->to_string();
-        }
-    }
-    auto context{Object::get_local_context()};
-    auto reader{dynamic_cast<Reader*>(context->get(new Symbol{"__reader__"}))};
-    if (reader == nullptr) {
-        throw Object::Error{"'__reader__' is not a 'Reader'"};
-    }
-    return new String{reader->read_line(prompt)};
-}
-
-void init_repl() {
+ReadEvalPrintLoop::ReadEvalPrintLoop() {
     auto context{Object::get_local_context()};
     auto reader{new Reader};
     context->set(new Symbol{"__reader__"}, reader);
-    context->set(new Symbol{"read_line"},
-                 new PrimitiveFunction{repl_read_line});
+    context->set(new Symbol{"read_line"}, new PrimitiveFunction{read_line});
 }
 
-int repl() {
+void ReadEvalPrintLoop::operator()() {
     auto context{Object::get_local_context()};
     auto parser{dynamic_cast<Parser*>(context->get(new Symbol{"__parser__"}))};
     if (parser == nullptr) {
@@ -59,6 +36,29 @@ int repl() {
         }
         Object::collect();
     }
+}
+
+Object* ReadEvalPrintLoop::read_line(Vector* args) {
+    if (args->size() > 1) {
+        throw Object::Error{"'read_line' takes 1 argument but "
+                            + std::to_string(args->size()) + " were given"};
+    }
+    std::string prompt;
+    if (args->size() == 1) {
+        auto obj{args->at(0)};
+        auto str{dynamic_cast<String*>(obj)};
+        if (str != nullptr) {
+            prompt = str->string_value();
+        } else {
+            prompt = obj->to_string();
+        }
+    }
+    auto context{Object::get_local_context()};
+    auto reader{dynamic_cast<Reader*>(context->get(new Symbol{"__reader__"}))};
+    if (reader == nullptr) {
+        throw Object::Error{"'__reader__' is not a 'Reader'"};
+    }
+    return new String{reader->read_line(prompt)};
 }
 
 }
