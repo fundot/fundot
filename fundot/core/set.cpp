@@ -125,7 +125,13 @@ Object* Set::call_macro(Vector* args) {
         local_context->set(params->at(i), args->at(i));
     }
     set_local_context(local_context);
-    auto obj{body->eval()};
+    Object* obj{nullptr};
+    try {
+        obj = body->eval();
+    } catch (...) {
+        set_local_context(outer_context);
+        throw;
+    }
     set_local_context(outer_context);
     return obj;
 }
@@ -140,7 +146,13 @@ Object* Set::call_function(Vector* args) {
         local_context->set(params->at(i), args->at(i)->eval());
     }
     set_local_context(local_context);
-    auto obj{body->eval()};
+    Object* obj{nullptr};
+    try {
+        obj = body->eval();
+    } catch (...) {
+        set_local_context(outer_context);
+        throw;
+    }
     set_local_context(outer_context);
     return obj;
 }
