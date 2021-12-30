@@ -32,15 +32,15 @@ std::string Vector::to_string() const {
 Object* Vector::get(Object* obj) const {
     auto pos{dynamic_cast<Integer*>(obj)};
     if (pos == nullptr) {
-        throw Error{"index '" + pos->to_string() + "' is not an 'Integer'"};
+        throw Error{"index of 'Vector' is not an 'Integer'"};
     }
     return raw_vec.at(pos->int_value());
 }
 
 Object* Vector::set(Object* index, Object* value) {
     auto pos{dynamic_cast<Integer*>(index)};
-    if (index == nullptr) {
-        throw Error{"index '" + pos->to_string() + "' is not an 'Integer'"};
+    if (pos == nullptr) {
+        throw Error{"index of 'Vector' is not an 'Integer'"};
     }
     return raw_vec.at(pos->int_value()) = value;
 }
