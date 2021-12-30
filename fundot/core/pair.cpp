@@ -106,7 +106,7 @@ Object* Setter::eval() {
     if (getter != nullptr) {
         return getter->first()->eval()->set(getter->second(), second()->eval());
     }
-    return get_global_context()->set(first(), second()->eval());
+    return get_local_context()->set(first(), second()->eval());
 }
 
 Object* Setter::quote(std::size_t count) {

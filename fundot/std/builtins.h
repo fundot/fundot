@@ -22,8 +22,6 @@ namespace fundot {
 
 Object* builtin_cond(Vector* args);
 
-Object* builtin_let(Vector* args);
-
 Object* builtin_while(Vector* args);
 
 Object* builtin_conj(Vector* args);
