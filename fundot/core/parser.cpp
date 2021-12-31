@@ -249,6 +249,9 @@ String* Parser::next_string(const std::string& str, std::size_t& pos) const {
             case 't':
                 s.push_back('\t');
                 break;
+            default:
+                s.push_back('\\');
+                s.push_back(str[pos]);
             }
             ++pos;
             continue;

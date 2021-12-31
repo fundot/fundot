@@ -23,7 +23,7 @@ std::string String::to_string() const {
             str += "\\\"";
             break;
         case '\\':
-            str += '\\';
+            str += "\\\\";
             break;
         case '\b':
             str += "\\b";
