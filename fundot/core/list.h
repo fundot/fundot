@@ -18,9 +18,13 @@ public:
 
     Object* quote(std::size_t count) override;
 
+    bool empty() const;
+
     std::size_t size() const;
 
     void push_back(Object* obj);
+
+    void pop_back();
 
 private:
     std::list<Object*> raw_list;

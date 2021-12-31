@@ -22,6 +22,7 @@ add_library(fundot_std
             count.cpp
             eval.cpp
             load.cpp
+            pop.cpp
             print.cpp
             read_line.cpp
             )

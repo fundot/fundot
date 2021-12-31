@@ -554,6 +554,7 @@ void load_builtins(Object* obj) {
     obj->set(new Symbol{"count"}, new PrimitiveFunction{builtin_count});
     obj->set(new Symbol{"eval"}, new PrimitiveFunction{builtin_eval});
     obj->set(new Symbol{"load"}, new PrimitiveFunction{builtin_load});
+    obj->set(new Symbol{"pop"}, new PrimitiveFunction{builtin_pop});
     obj->set(new Symbol{"print"}, new PrimitiveFunction{builtin_print});
     obj->set(new Symbol{"read_line"}, new PrimitiveFunction{builtin_read_line});
 }

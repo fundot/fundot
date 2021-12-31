@@ -33,6 +33,8 @@ public:
 
     void push_back(Object* obj);
 
+    void pop_back();
+
 private:
     std::vector<Object*> raw_vec;
 };

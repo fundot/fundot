@@ -88,4 +88,8 @@ void Vector::push_back(Object* obj) {
     raw_vec.push_back(obj);
 }
 
+void Vector::pop_back() {
+    raw_vec.pop_back();
+}
+
 }

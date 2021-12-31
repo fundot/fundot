@@ -50,12 +50,20 @@ Object* List::quote(std::size_t count) {
     return new_list;
 }
 
+bool List::empty() const {
+    return raw_list.empty();
+}
+
 std::size_t List::size() const {
     return raw_list.size();
 }
 
 void List::push_back(Object* obj) {
     raw_list.push_back(obj);
+}
+
+void List::pop_back() {
+    raw_list.pop_back();
 }
 
 }
