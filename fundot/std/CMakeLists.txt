@@ -18,12 +18,12 @@ add_library(fundot_std
             logical_or.cpp
             cond.cpp
             while.cpp
-            conj.cpp
             count.cpp
             eval.cpp
             load.cpp
             pop.cpp
             print.cpp
+            push.cpp
             read_line.cpp
             )
 

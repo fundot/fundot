@@ -24,8 +24,6 @@ Object* builtin_cond(Vector* args);
 
 Object* builtin_while(Vector* args);
 
-Object* builtin_conj(Vector* args);
-
 Object* builtin_count(Vector* args);
 
 Object* builtin_eval(Vector* args);
@@ -35,6 +33,8 @@ Object* builtin_load(Vector* args);
 Object* builtin_pop(Vector* args);
 
 Object* builtin_print(Vector* args);
+
+Object* builtin_push(Vector* args);
 
 Object* builtin_read_line(Vector* args);
 

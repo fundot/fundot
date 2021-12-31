@@ -550,12 +550,12 @@ void load_builtins(Object* obj) {
     register_logical_or_operator(parser);
     obj->set(new Symbol{"cond"}, new SpecialForm{builtin_cond});
     obj->set(new Symbol{"while"}, new SpecialForm{builtin_while});
-    obj->set(new Symbol{"conj"}, new PrimitiveFunction{builtin_conj});
     obj->set(new Symbol{"count"}, new PrimitiveFunction{builtin_count});
     obj->set(new Symbol{"eval"}, new PrimitiveFunction{builtin_eval});
     obj->set(new Symbol{"load"}, new PrimitiveFunction{builtin_load});
     obj->set(new Symbol{"pop"}, new PrimitiveFunction{builtin_pop});
     obj->set(new Symbol{"print"}, new PrimitiveFunction{builtin_print});
+    obj->set(new Symbol{"push"}, new PrimitiveFunction{builtin_push});
     obj->set(new Symbol{"read_line"}, new PrimitiveFunction{builtin_read_line});
 }
 
