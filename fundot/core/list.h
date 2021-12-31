@@ -18,6 +18,10 @@ public:
 
     Object* quote(std::size_t count) override;
 
+    Object* front();
+
+    Object* back();
+
     bool empty() const;
 
     std::size_t size() const;

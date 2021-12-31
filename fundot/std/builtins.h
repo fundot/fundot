@@ -36,7 +36,7 @@ Object* builtin_print(Vector* args);
 
 Object* builtin_push(Vector* args);
 
-Object* builtin_read_line(Vector* args);
+Object* builtin_read(Vector* args);
 
 void load_builtins(Object* obj);
 

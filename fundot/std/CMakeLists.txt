@@ -24,7 +24,7 @@ add_library(fundot_std
             pop.cpp
             print.cpp
             push.cpp
-            read_line.cpp
+            read.cpp
             )
 
 target_include_directories(fundot_std PUBLIC ${PROJECT_SOURCE_DIR})

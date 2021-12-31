@@ -556,7 +556,7 @@ void load_builtins(Object* obj) {
     obj->set(new Symbol{"pop"}, new PrimitiveFunction{builtin_pop});
     obj->set(new Symbol{"print"}, new PrimitiveFunction{builtin_print});
     obj->set(new Symbol{"push"}, new PrimitiveFunction{builtin_push});
-    obj->set(new Symbol{"read_line"}, new PrimitiveFunction{builtin_read_line});
+    obj->set(new Symbol{"read"}, new PrimitiveFunction{builtin_read});
 }
 
 }

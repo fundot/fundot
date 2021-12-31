@@ -50,6 +50,14 @@ Object* List::quote(std::size_t count) {
     return new_list;
 }
 
+Object* List::front() {
+    return raw_list.front();
+}
+
+Object* List::back() {
+    return raw_list.back();
+}
+
 bool List::empty() const {
     return raw_list.empty();
 }
