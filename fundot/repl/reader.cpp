@@ -44,6 +44,9 @@ bool Reader::is_complete(const std::string& str) const {
         if (reverse_pairs.count(str[i]) == 0) {
             continue;
         }
+        if (halves.empty()) {
+            throw Error{"unexpected input"};
+        }
         if (pairs.at(halves.top()) != str[i]) {
             std::string message{'\''};
             message += str[i];
